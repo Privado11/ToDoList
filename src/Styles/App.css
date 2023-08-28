@@ -1,0 +1,36 @@
+html {
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+#root{
+    height: 100vh;
+    background-color: #4f4e4e;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.containerApp{
+    width: 60%;
+    height: 75%;
+    background-color: #ffff;
+    border-radius: 2rem;
+    -webkit-box-shadow: -4px 4px 51px 6px rgba(33, 33, 34, 1);
+    -moz-box-shadow: -4px 4px 51px 6px rgba(33, 33, 34, 1);
+    box-shadow: -4px 4px 51px 6px rgba(33, 33, 34, 1);
+}
+
+main{
+    display: flex;
+}
+
+.containerTask{
+    margin-left: 25px;
+}

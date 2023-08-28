@@ -1,7 +1,12 @@
+import add from "../assets/add.svg";
+import '../Styles/CreateTodoButton.css';
 
 function CreateTodoButton() {
   return (
-    <button>Create new task</button>
+    <button>
+      <img className="addImg" src={ add }/>
+      Create new task
+      </button>
   )
 }
 

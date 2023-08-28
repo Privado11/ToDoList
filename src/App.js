@@ -1,10 +1,11 @@
-import { TodoCounter } from './Components/TodoCounter';
-import { TodoSearch } from './Components/TodoSearch';
+import React from 'react';
 import { TodoList } from './Components/TodoList';
 import { CreateTodoButton } from './Components/CreateTodoButton';
 import { TodoItem } from './Components/TodoItem';
-import './App.css';
-import React from 'react';
+import { Header } from './Components/Header';
+import { Progress } from './Components/Progress';
+import './Styles/App.css'
+
 
 const defaultTodos = [
   { text: 'Cortar cebolla', completed: true },
@@ -15,22 +16,28 @@ const defaultTodos = [
 
 function App() {
   return (
-    <React.Fragment> 
-      <TodoCounter completed={16} total={25}/>
-      <TodoSearch />
-
-      <TodoList>
-        {defaultTodos.map(todo => (
-          <TodoItem 
-            key={todo.text} 
-            text={todo.text}
-            completed={todo.completed}
-          />
-        ))}
-      </TodoList>
-
-       <CreateTodoButton /> 
-    </React.Fragment>
+    <> 
+      <div className='containerApp'>
+        <Header/>
+        <main>
+          <div className='containerTask'>
+            <TodoList>
+              {defaultTodos.map(todo => (
+                <TodoItem 
+                  key={todo.text} 
+                  text={todo.text}
+                  completed={todo.completed}
+                />
+              ))}
+            </TodoList>
+          </div>
+          <aside className='containerProgress'>
+            <Progress />
+            <CreateTodoButton />
+          </aside>
+        </main>         
+      </div>       
+    </>
   );
 }
 
