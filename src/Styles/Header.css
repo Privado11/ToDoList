@@ -2,20 +2,8 @@ header {
     display: flex;
     justify-content: space-between;
     padding: 1rem;
-    border-bottom: 1px solid var(--secondary);
 }
-  
-.userInfo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-  
-.profileImg {
-    width: 5rem;
-    border-radius: 50%;
-}
-  
+
 .welcome {
     display: flex;
     flex-direction: column;

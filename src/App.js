@@ -5,6 +5,7 @@ import { TodoItem } from './Components/TodoItem';
 import { Header } from './Components/Header';
 import { Progress } from './Components/Progress';
 import './Styles/App.css'
+import { TodoCounter } from './Components/TodoCounter';
 
 
 const defaultTodos = [
@@ -20,21 +21,19 @@ function App() {
       <div className='containerApp'>
         <Header/>
         <main>
-          <div className='containerTask'>
-            <TodoList>
-              {defaultTodos.map(todo => (
-                <TodoItem 
-                  key={todo.text} 
-                  text={todo.text}
-                  completed={todo.completed}
-                />
-              ))}
-            </TodoList>
-          </div>
-          <aside className='containerProgress'>
-            <Progress />
+          <TodoList>
+            {defaultTodos.map(todo => (
+              <TodoItem 
+                key={todo.text} 
+                text={todo.text}
+                completed={todo.completed}
+              />
+            ))}
+          </TodoList>
+          <Progress>
+            <TodoCounter/>
             <CreateTodoButton />
-          </aside>
+          </Progress>
         </main>         
       </div>       
     </>

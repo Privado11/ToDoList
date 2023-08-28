@@ -1,14 +1,34 @@
 .TodoList{
     margin: 0;
-    padding: 0 0 56px 0;
+    padding: 0 0 5.6rem 0;
     list-style: none;
 }
 
-h1{
+.containerTask h1{
     color: #4f4e4e;
 }
 
 .containerList  {
     background-color: #efeeee;
-    border-radius: 1rem;
+    border-radius: 3rem;
+}
+
+.containerTask {
+    width: 100%;
+    height: 100%;
+    margin-left: 2.5rem;
+}
+
+@media (max-width: 600px) {
+    .containerTask{
+        width: calc(100% - 5rem);
+        margin-right: 2.5rem;
+    }
+
+    .TodoList  {
+        width: 100%;
+        background-color: #efeeee;
+        border-radius: 3rem;
+    }
+    
 }

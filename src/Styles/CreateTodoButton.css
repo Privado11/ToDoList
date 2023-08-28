@@ -2,10 +2,28 @@ button{
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 2.5rem;
+    font-weight: 600;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
     
 }
 
 .addImg {
-    width: 50px;
-    height: 50px;
+    width: 5rem;
+    height: 5rem;
+    margin-right: 2rem;
+}
+
+@media (max-width: 600px) {
+    button{
+        font-size: 2rem;
+    }
+    
+    .addImg {
+        width: 4rem;
+        height: 4rem;
+        margin-right: 1rem;
+    }
 }

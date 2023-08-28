@@ -5,7 +5,7 @@ function CreateTodoButton() {
   return (
     <button>
       <img className="addImg" src={ add }/>
-      Create new task
+        Add new task
       </button>
   )
 }
