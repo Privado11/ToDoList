@@ -1,5 +1,5 @@
 import add from "../assets/add.svg";
-import '../Styles/CreateTodoButton.css';
+import '../styles/CreateTodoButton.css';
 
 function CreateTodoButton() {
   return (

@@ -30,6 +30,7 @@ html {
 main{
     display: flex;
     border-top: 0.2rem solid #efeeee;
+    font-family: "Ubuntu", sans-serif;
 }
 
 @media (max-width: 600px) {

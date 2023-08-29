@@ -1,5 +1,5 @@
 import grafica from '../assets/ejemploGrafica.jpg';
-import '../Styles/Progress.css';
+import '../styles/Progress.css';
 
 function Progress({children}) {
   return (

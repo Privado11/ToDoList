@@ -1,4 +1,4 @@
-import '../Styles/TodoList.css';
+import '../styles/TodoList.css';
 
 function TodoList({ children} ) {
   return (

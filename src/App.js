@@ -1,42 +1,34 @@
 import React from 'react';
-import { TodoList } from './Components/TodoList';
-import { CreateTodoButton } from './Components/CreateTodoButton';
-import { TodoItem } from './Components/TodoItem';
-import { Header } from './Components/Header';
-import { Progress } from './Components/Progress';
-import './Styles/App.css'
-import { TodoCounter } from './Components/TodoCounter';
+import { AppUI } from './AppUI';
+import { useLocalStorage  } from './components/useLocalStorage';
 
 
-const defaultTodos = [
-  { text: 'Cortar cebolla', completed: true },
-  { text: 'Tomar el curso de React.js', completed: false },
-  { text: 'Llorar con la Llorona', completed: false },
-  { text: 'LALALALALA', completed: false },
-]
+function App() {  
+  const [todos, saveTodos] = useLocalStorage('TASKLIST_V1', []);
 
-function App() {
+  const completedTodos = todos.filter(todo => !!todo.completed).length;
+ const totalTodos = todos.length - completedTodos;
+
+  const completeTodo = (text) => {
+    const todoIndex = todos.findIndex((todo) => todo.text === text);
+    const newTodos = [...todos];
+    newTodos[todoIndex].completed =!newTodos[todoIndex].completed;
+    saveTodos(newTodos);
+  };
+
+  const deleteTodo = (text) => {
+    const newTodos = todos.filter((todo) => todo.text != text);
+    saveTodos(newTodos);
+  };
+
   return (
-    <> 
-      <div className='containerApp'>
-        <Header/>
-        <main>
-          <TodoList>
-            {defaultTodos.map(todo => (
-              <TodoItem 
-                key={todo.text} 
-                text={todo.text}
-                completed={todo.completed}
-              />
-            ))}
-          </TodoList>
-          <Progress>
-            <TodoCounter/>
-            <CreateTodoButton />
-          </Progress>
-        </main>         
-      </div>       
-    </>
+    <AppUI
+      completedTodos = {completedTodos}
+      totalTodos = {totalTodos}
+      todos = {todos}
+      completeTodo = {completeTodo}
+      deleteTodo = {deleteTodo}
+    />
   );
 }
 
