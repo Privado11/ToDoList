@@ -6,38 +6,52 @@ import { Header } from './components/Header';
 import { Progress } from './components/Progress';
 import './styles/App.css'
 import { TodoCounter } from './components/TodoCounter';
+import { TodosLoading } from './components/TodosLoading';
+import { TodosError } from './components/TodosError';
+import { EmptyTodos } from './components/EmptyTodos';
+import { Modal } from './components/Modal';
+import { TodoContext } from './components/TodoContext';
 
-function AppUI({
-    completedTodos,
-    totalTodos,
-    todos,
-    completeTodo,
-    deleteTodo
-}) {
+
+function AppUI() {
+  const {
+      todos,
+      completeTodo,
+      deleteTodo,
+      loading,
+      error,
+      openModal,
+      setOpenModal
+  } = React.useContext(TodoContext);
+
     return (
         <> 
           <div className='containerApp'>
             <Header/>
             <main>
-              <TodoList>
-                {todos.map(todo => (
-                  <TodoItem 
-                    key={todo.text} 
-                    text={todo.text}
-                    completed={todo.completed}
-                    onComplete={() => completeTodo(todo.text)}
-                    onDelete={() => deleteTodo(todo.text)}
-                  />
-                ))}
-                
-              </TodoList>
+                <TodoList>
+                  {loading && <TodosLoading/>}
+                  {error && <TodosError/>}
+                  {(!loading && todos.length === 0) && <EmptyTodos/>}
+                  {todos.map(todo => (
+                    <TodoItem 
+                      key={todo.text} 
+                      text={todo.text}
+                      completed={todo.completed}
+                      onComplete={() => completeTodo(todo.text)}
+                      onDelete={() => deleteTodo(todo.text)}
+                    />
+                  ))}
+                </TodoList>
               <Progress>
-                <TodoCounter
-                  completed={completedTodos}
-                  total={totalTodos}
-                />
+                <TodoCounter />
                 <CreateTodoButton />
               </Progress>
+              {openModal && (
+                <Modal>
+                  Agregar ToDos
+                </Modal>
+              )}
             </main>         
           </div>       
         </>
