@@ -3,7 +3,7 @@ import React from 'react'
 
 function EmptyTodos() {
   return (
-    <p>No hay ToDos. Agrega uno, por favor.</p>
+    <h3>Add your first task!</h3>
   )
 }
 

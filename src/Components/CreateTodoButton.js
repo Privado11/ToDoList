@@ -1,9 +1,14 @@
 import add from "../assets/add.svg";
 import '../styles/CreateTodoButton.css';
 
-function CreateTodoButton() {
+function CreateTodoButton({ setOpenModal }) {
   return (
-    <button>
+    <button 
+    onClick = {
+      () => {
+        setOpenModal(state => !state)
+      }
+    }>
       <img className="addImg" src={ add }/>
         Add new task
       </button>

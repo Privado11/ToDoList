@@ -5,13 +5,14 @@ import { TodoContext } from './TodoContext';
 function TodoCounter() {
   const {
     completedTodos,
-    totalTodos,  
+    inProgressTodos,  
   } = React.useContext(TodoContext)
   return (
-    <p className='TodoCounter'>
-        {completedTodos} completed. <br/>
-        {totalTodos} in progress.
-    </p>
+    <div className='TodoCounter'>
+      <p>{completedTodos} completed</p>
+        <p>{inProgressTodos} in progress</p>
+    </div>
+    
   )
 }
 

@@ -20,6 +20,7 @@ ul{
 
 .TodoItem-p--complete{
     text-decoration: line-through;
+    color: #4f4e4e;
 }
 
 spam img{
