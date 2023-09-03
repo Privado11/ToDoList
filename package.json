@@ -11,6 +11,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -30,5 +32,8 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "htts://Privado11.github.io/ToDoList"
+  "homepage": "htts://Privado11.github.io/ToDoList",
+  "devDependencies": {
+    "gh-pages": "^6.0.0"
+  }
 }
