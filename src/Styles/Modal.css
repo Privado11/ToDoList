@@ -8,6 +8,7 @@
     position: absolute; 
     top: 30%; 
     left: 59%;
+    z-index: 99999;
 }
 
 .tittle{
@@ -79,7 +80,7 @@
 @media (max-width: 600px) {
     .modal{
         position: absolute; 
-        top: 10%; 
+        top: 15%; 
         left: 10%;
     }
 }

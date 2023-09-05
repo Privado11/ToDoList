@@ -8,7 +8,7 @@ function TodosLoading() {
     <div class="pelotas"></div>
     <div class="pelotas"></div>
     <div class="pelotas"></div>
-    <span class="texto-cargando">Cargando...</span>
+    <span class="texto-cargando">Loading...</span>
   </div>
 </div>
   );
