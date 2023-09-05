@@ -3,12 +3,12 @@ import '../styles/TodosLoading.css';
 
 function TodosLoading() {
   return (
-    <div class="container">
-  <div class="cargando">
-    <div class="pelotas"></div>
-    <div class="pelotas"></div>
-    <div class="pelotas"></div>
-    <span class="texto-cargando">Loading...</span>
+    <div className="container">
+  <div className="cargando">
+    <div className="pelotas"></div>
+    <div className="pelotas"></div>
+    <div className="pelotas"></div>
+    <span className="texto-cargando">Loading...</span>
   </div>
 </div>
   );
