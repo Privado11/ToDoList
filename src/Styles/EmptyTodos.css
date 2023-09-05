@@ -1,0 +1,7 @@
+@media (max-width: 600px){
+    .emtyTodos{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
