@@ -34,7 +34,7 @@ aside h1 {
 @media (max-width: 600px) {
   aside {
     width: calc(100% - 5rem);
-    height: calc(100% - 5rem);
+    height: 35%;
     margin-left: 2.5rem;
   }
 

@@ -25,11 +25,11 @@
   .containerTask {
     width: calc(100% - 5rem);
     margin-right: 2.5rem;
+    height: 53rem;
   }
 
   .TodoList {
     width: 100%;
-    background-color: #efeeee;
     border-radius: 3rem;
   }
 }
