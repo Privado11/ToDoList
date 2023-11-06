@@ -1,34 +1,35 @@
-.TodoList{
-    margin: 0;
-    padding: 0 0 5.6rem 0;
-    list-style: none;
+.TodoList {
+  margin: 0;
+  padding: 0 0 5.6rem 0;
+  list-style: none;
+  overflow-y: auto;
+  height: 85%;
 }
 
-.containerTask h1{
-    color: #4f4e4e;
+.containerTask h1 {
+  color: #4f4e4e;
 }
 
-.containerList  {
-    background-color: #efeeee;
-    border-radius: 3rem;
+.containerList {
+  background-color: #efeeee;
+  border-radius: 3rem;
 }
 
 .containerTask {
-    width: 100%;
-    height: 100%;
-    margin-left: 2.5rem;
+  width: 100%;
+  height: 100%;
+  margin-left: 2.5rem;
 }
 
 @media (max-width: 600px) {
-    .containerTask{
-        width: calc(100% - 5rem);
-        margin-right: 2.5rem;
-    }
+  .containerTask {
+    width: calc(100% - 5rem);
+    margin-right: 2.5rem;
+  }
 
-    .TodoList  {
-        width: 100%;
-        background-color: #efeeee;
-        border-radius: 3rem;
-    }
-    
+  .TodoList {
+    width: 100%;
+    background-color: #efeeee;
+    border-radius: 3rem;
+  }
 }

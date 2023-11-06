@@ -1,53 +1,51 @@
 aside {
-    width: 100%;
-    height: 100%;
-    margin-left: 2.5rem;
+  width: 100%;
+  height: 100%;
+  margin-left: 2.5rem;
 }
 
-aside h1{
-    color: #4f4e4e;
-    font-size: 2em;
-    font-weight: bold;
+aside h1 {
+  color: #4f4e4e;
+  font-size: 2em;
+  font-weight: bold;
 }
 
 .containerChildren {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-    justify-content: space-around;
+  display: flex;
+  align-items: center;
+  width: 90%;
+  justify-content: space-around;
 }
 
-.progressBar{
-    width: 50%;
-    height: 50%;
-    margin-right: 3rem;
+.progressBar {
+  width: 50%;
+  height: 50%;
+  margin-right: 3rem;
 }
 
 .addTask {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  height: auto;
 }
 
 @media (max-width: 600px) {
-    aside {
-        width: calc(100% - 5rem);
-        height: calc(100% - 5rem);
-        margin-left: 2.5rem;
-    }
+  aside {
+    width: calc(100% - 5rem);
+    height: calc(100% - 5rem);
+    margin-left: 2.5rem;
+  }
 
-    .containerChildren {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+  .containerChildren {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
-    .progressBar{
-        width: 50%;
-        height: 50%;
-        
-    }
+  .progressBar {
+    width: 50%;
+    height: 50%;
+  }
 }
