@@ -14,10 +14,16 @@ function Modal() {
   const [alert, setAlert] = React.useState(false);
 
   const onSetTask = () => {
-    if (todos.some((todo) => todo.text === newTask)) {
-      onSetAlert();
+    if (newTask.trim() === "") {
+      setAlert("Task is empty!");
       return;
     }
+
+    if (todos.some((todo) => todo.text === newTask)) {
+      setAlert("Task already exists!");
+      return;
+    }
+
     addTask(newTask);
     setOpenModal(false);
   };
@@ -28,10 +34,7 @@ function Modal() {
 
   const onChange = (event) => {
     setNewTask(event.target.value);
-  };
-
-  const onSetAlert = () => {
-    setAlert(true);
+    setAlert("");
   };
 
   return createPortal(
@@ -46,7 +49,7 @@ function Modal() {
           value={newTask}
           onChange={onChange}
         ></input>
-        {alert && <p className="alert">Task already exists!</p>}
+        {alert && <p className="alert">{alert}</p>}
         <button onClick={onSetTask}>Add</button>
       </div>
     </div>,

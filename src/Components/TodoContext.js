@@ -17,9 +17,6 @@ function TodoProvider({ children }) {
   const inProgressTodos = todos.length - completedTodos;
 
   const addTodo = (text) => {
-    if (todos.some((todo) => todo.text === text)) {
-      return alert("Task already exists");
-    }
     const newTodos = [...todos];
     newTodos.push({
       text,
