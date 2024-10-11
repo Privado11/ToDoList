@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { CircularProgressbar } from "react-circular-progressbar";
-import { TodoContext } from './TodoContext';
-import { Modal } from './Modal';
+import { TodoContext } from '../../context/TodoContext';
+import { Modal } from '../../Modal';
 import "react-circular-progressbar/dist/styles.css";
-import '../styles/Progress.css';
+import '../../../styles/Progress.css';
 
 function Progress({children}) {
   const {

@@ -1,5 +1,5 @@
-import add from "../assets/add.svg";
-import "../styles/CreateTodoButton.css";
+import add from "../../../assets/add.svg";
+import "../../../styles/CreateTodoButton.css";
 
 function CreateTodoButton({ setOpenModal }) {
   return (

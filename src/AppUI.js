@@ -1,58 +1,22 @@
-import React from 'react'
-import { TodoList } from './components/TodoList';
-import { CreateTodoButton } from './components/CreateTodoButton';
-import { TodoItem } from './components/TodoItem';
-import { Header } from './components/Header';
-import { Progress } from './components/Progress';
-import { TodoCounter } from './components/TodoCounter';
-import { TodosLoading } from './components/TodosLoading';
-import { TodosError } from './components/TodosError';
-import { EmptyTodos } from './components/EmptyTodos';
-import { TodoContext } from './components/TodoContext';
-import './styles/App.css'
-
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HomePage } from "./view/HomePage";
+import { NewTodo } from "./view/NewTodo";
+import { EditTodo } from "./view/EditTodo";
 
 function AppUI() {
-  const {
-      todos,
-      completeTodo,
-      deleteTodo,
-      loading,
-      error,
-      setOpenModal
-  } = React.useContext(TodoContext);
+  return (
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/new" element={<NewTodo />} />
 
-    return (
-        <> 
-          <div className='containerApp'>
-            <Header/>
-            <main>
-              <TodoList>
-                {loading && <TodosLoading/>}
-                {error && <TodosError/>}
-                {(!loading && todos.length === 0) && <EmptyTodos/>}
-                {todos.map(todo => (
-                  <TodoItem 
-                    key={todo.text} 
-                    text={todo.text}
-                    completed={todo.completed}
-                    onComplete={() => completeTodo(todo.text)}
-                    onDelete={() => deleteTodo(todo.text)}
-                  />
-                ))}
-              </TodoList>
-              <Progress
-                setOpenModal = {setOpenModal}
-              >
-                <TodoCounter />
-                <CreateTodoButton 
-                  setOpenModal = {setOpenModal}
-                />
-              </Progress>
-            </main>         
-          </div>       
-        </>
-      );
+          <Route path="/edit/:id" element={<EditTodo />} />
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
 }
 
 export { AppUI };

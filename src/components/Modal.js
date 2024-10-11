@@ -1,6 +1,6 @@
 import React from "react";
 import { createPortal } from "react-dom";
-import { TodoContext } from "./TodoContext";
+import { TodoContext } from '../components/context/TodoContext';
 import closed from "../assets/close.svg";
 import "../styles/Modal.css";
 
@@ -14,7 +14,7 @@ function Modal() {
   const [alert, setAlert] = React.useState(false);
 
   const onSetTask = () => {
-    if (newTask.trim() === "") {
+    if (newTask.trim() === "") {  
       setAlert("Task is empty!");
       return;
     }

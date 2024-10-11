@@ -1,7 +1,8 @@
-import "../styles/TodoItem.css";
-import checkBox from "../assets/checkbox.svg";
-import square from "../assets/square.svg";
-import deleteTask from "../assets/closeAlt.svg";
+import "../../../styles/TodoItem.css";
+import checkBox from "../../../assets/checkbox.svg";
+import square from "../../../assets/square.svg";
+import deleteTask from "../../../assets/closeAlt.svg";
+import editTask from "../../../assets/edit.svg";
 
 function TodoItem(props) {
   return (
@@ -15,6 +16,9 @@ function TodoItem(props) {
       <p className={`TodoItem-p ${props.completed && "TodoItem-p--complete"}`}>
         {props.text}
       </p>
+      <span className="Icon Icon-edit" onClick={props.onEdit}>
+        <img alt="icono borrar" src={editTask} />
+      </span>
       <span className="Icon Icon-delete" onClick={props.onDelete}>
         <img alt="icono borrar" src={deleteTask} />
       </span>
