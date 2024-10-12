@@ -1,20 +1,48 @@
 .TodoItem {
-  position: relative;
   display: flex;
-  justify-content: center;
   align-items: center;
+  background-color: #efeeee;
+  border-radius: 1.5rem;
+  margin: 0 1rem 1rem 0;
 }
 
 ul {
   width: 100%;
 }
 
-.TodoItem-p {
-  margin: 1.5rem 0 1.5rem 1.5rem;
-  width: calc(100% - 12rem);
-  font-size: 1.8rem;
+.TodoItem-content {
+  flex: 1;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.TodoItem-title {
+  font-size: 1.5rem;
   line-height: 2.4rem;
   font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  margin-top: 0.5rem;
+  max-width: 29rem;
+}
+
+.TodoItem-description {
+  font-size: 1.2rem;
+  color: #555;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  max-width: 29rem;
+}
+
+.TodoItem-date {
+  font-size: 1rem;
+  color: #888;
+  margin: 0;
+  margin-bottom: 0.5rem;
 }
 
 .TodoItem-p--complete {
@@ -39,26 +67,30 @@ span img {
 }
 
 .Icon-edit {
-  position: absolute;
-  right: 40px;
+  width: 3rem;
+  margin-left: 0.5rem;
 }
 
-.Icon-check {
-  position: absolute;
-  left: 12px;
+.Icon-delete {
+  width: 3rem;
+  margin-right: 1rem;
 }
 
 .Icon-check--active {
   color: #4acf50;
 }
 
-.Icon-delete {
-  position: absolute;
-  right: 12px;
-}
-
 .Icon-delete:hover img {
-  /* Filtro para cambiar el color a rojo */
   filter: invert(30%) sepia(100%) saturate(1000%) hue-rotate(0deg)
     brightness(100%) contrast(100%);
+}
+
+@media (max-width: 600px) {
+  .TodoItem-title {
+    max-width: 23rem;
+  }
+
+  .TodoItem-description {
+    max-width: 23rem;
+  }
 }

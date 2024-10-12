@@ -1,6 +1,6 @@
 .TodoList {
   margin: 0;
-  padding: 0 0 5.6rem 0;
+  padding: 0;
   list-style: none;
   overflow-y: auto;
   height: 85%;
@@ -8,11 +8,6 @@
 
 .containerTask h1 {
   color: #4f4e4e;
-}
-
-.containerList {
-  background-color: #efeeee;
-  border-radius: 3rem;
 }
 
 .containerTask {
@@ -26,10 +21,14 @@
     width: calc(100% - 5rem);
     margin-right: 2.5rem;
     height: 53rem;
+    margin-top: 2rem;
+    border-top: 0.2rem solid #efeeee;
+  }
+  .containerTask h1 {
+    margin-bottom: 2rem;
   }
 
   .TodoList {
     width: 100%;
-    border-radius: 3rem;
   }
 }

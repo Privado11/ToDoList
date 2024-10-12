@@ -3,7 +3,7 @@ import "../../../styles/TodosLoading.css";
 
 function TodosLoading() {
   return (
-    <div className="container">
+    <div className="container-loading">
       <div className="cargando">
         <div className="pelotas"></div>
         <div className="pelotas"></div>

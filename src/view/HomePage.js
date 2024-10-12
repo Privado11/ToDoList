@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useContext} from "react";
+import { useNavigate } from "react-router-dom"; 
 import { TodoList } from "../components/todos/list/TodoList";
 import { CreateTodoButton } from "../components/todos/create/CreateTodoButton";
-import { TodoItem } from "../components/todos/item/TodoItem";
 import { Header } from "../components/todos/header/Header";
 import { Progress } from "../components/todos/progress/Progress";
 import { TodoCounter } from "../components/todos/counter/TodoCounter";
@@ -12,32 +12,28 @@ import { TodoContext } from "../components/context/TodoContext";
 import "../styles/App.css";
 
 function HomePage() {
-  const { todos, completeTodo, deleteTodo, loading, error, setOpenModal } =
-    React.useContext(TodoContext);
+  const { todos, completeTodo, deleteTodo, loading, error } =
+    useContext(TodoContext);
+  const navigate = useNavigate();
 
   return (
     <>
       <div className="containerApp">
         <Header />
         <main>
-          <TodoList>
+          <TodoList
+            todos={todos}
+            onComplete={completeTodo}
+            onEdit={(id) => navigate(`/edit-task/${id}`)}
+            onDelete={deleteTodo}
+          >
             {loading && <TodosLoading />}
             {error && <TodosError />}
             {!loading && todos.length === 0 && <EmptyTodos />}
-            {todos.map((todo) => (
-              <TodoItem
-                key={todo.text}
-                text={todo.text}
-                completed={todo.completed}
-                onComplete={() => completeTodo(todo.text)}
-                onEdit={() => setOpenModal({ open: true, text: todo.text })}
-                onDelete={() => deleteTodo(todo.text)}
-              />
-            ))}
           </TodoList>
-          <Progress setOpenModal={setOpenModal}>
+          <Progress>
             <TodoCounter />
-            <CreateTodoButton setOpenModal={setOpenModal} />
+            <CreateTodoButton />
           </Progress>
         </main>
       </div>

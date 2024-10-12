@@ -11,29 +11,34 @@ function TodoProvider({ children }) {
     error,
   } = useLocalStorage("TASKLIST_V1", []);
 
-  const [openModal, setOpenModal] = React.useState(false);
 
   const completedTodos = todos.filter((todo) => !!todo.completed).length;
   const inProgressTodos = todos.length - completedTodos;
 
-  const addTodo = (text) => {
+  const addTodo = (newTask) => {
     const newTodos = [...todos];
     newTodos.push({
-      text,
-      completed: false,
+      ...newTask,
     });
     saveTodos(newTodos);
   };
 
-  const completeTodo = (text) => {
-    const todoIndex = todos.findIndex((todo) => todo.text === text);
+  const updateTodo = (updatedTask) => {
+    const newTodos = todos.map((todo) =>
+      todo.id === updatedTask.id ? updatedTask : todo
+    );
+    saveTodos(newTodos);
+  };
+
+  const completeTodo = (id) => {
+    const todoIndex = todos.findIndex((todo) => todo.id === id);
     const newTodos = [...todos];
     newTodos[todoIndex].completed = !newTodos[todoIndex].completed;
     saveTodos(newTodos);
   };
 
-  const deleteTodo = (text) => {
-    const newTodos = todos.filter((todo) => todo.text !== text);
+  const deleteTodo = (id) => {
+    const newTodos = todos.filter((todo) => todo.id !== id);
     saveTodos(newTodos);
   };
 
@@ -47,9 +52,8 @@ function TodoProvider({ children }) {
         deleteTodo,
         loading,
         error,
-        openModal,
-        setOpenModal,
         addTodo,
+        updateTodo,
       }}
     >
       {children}

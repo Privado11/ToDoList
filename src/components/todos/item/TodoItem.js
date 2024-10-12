@@ -1,28 +1,68 @@
+import { useState } from "react";
 import "../../../styles/TodoItem.css";
 import checkBox from "../../../assets/checkbox.svg";
 import square from "../../../assets/square.svg";
 import deleteTask from "../../../assets/closeAlt.svg";
 import editTask from "../../../assets/edit.svg";
+import { TodoDetailModal } from "../detail/TodoDetailModal";
 
-function TodoItem(props) {
+function TodoItem({ todo }) {
+  const options = { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" };
+  const formattedDate = new Date(todo.creationDate).toLocaleDateString(
+    "en-EN",
+    options
+  );
+  const [openModal, setOpenModal] = useState(false);
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
   return (
-    <li className="TodoItem">
-      <span
-        className={`Icon Icon-check ${props.completed && "Icon-check--active"}`}
-        onClick={props.onComplete}
-      >
-        <img alt="icono completar" src={props.completed ? checkBox : square} />
-      </span>
-      <p className={`TodoItem-p ${props.completed && "TodoItem-p--complete"}`}>
-        {props.text}
-      </p>
-      <span className="Icon Icon-edit" onClick={props.onEdit}>
-        <img alt="icono borrar" src={editTask} />
-      </span>
-      <span className="Icon Icon-delete" onClick={props.onDelete}>
-        <img alt="icono borrar" src={deleteTask} />
-      </span>
-    </li>
+    <>
+      <li className="TodoItem">
+        <span
+          className={`Icon Icon-check ${
+            todo.completed && "Icon-check--active"
+          }`}
+          onClick={todo.onComplete}
+        >
+          <img alt="icono completar" src={todo.completed ? checkBox : square} />
+        </span>
+
+        <div className="TodoItem-content" onClick={handleOpenModal}>
+          <p
+            className={`TodoItem-title ${
+              todo.completed && "TodoItem-p--complete"
+            }`}
+          >
+            {todo.title}
+          </p>
+          <p className="TodoItem-description">
+            {todo.description ? todo.description : "No description"}
+          </p>
+          <p className="TodoItem-date">{formattedDate}</p>
+        </div>
+
+        <span className="Icon Icon-edit" onClick={todo.onEdit}>
+          <img alt="icono editar" src={editTask} />
+        </span>
+
+        <span className="Icon Icon-delete" onClick={todo.onDelete}>
+          <img alt="icono borrar" src={deleteTask} />
+        </span>
+      </li>
+
+      <TodoDetailModal
+        isOpen={openModal}
+        onRequestClose={handleCloseModal}
+        todo={todo}
+      />
+    </>
   );
 }
 

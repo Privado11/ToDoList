@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { CircularProgressbar } from "react-circular-progressbar";
 import { TodoContext } from '../../context/TodoContext';
-import { Modal } from '../../Modal';
 import "react-circular-progressbar/dist/styles.css";
 import '../../../styles/Progress.css';
 
 function Progress({children}) {
   const {
     todos,
-    openModal,
     completedTodos,
     inProgressTodos
   } = React.useContext(TodoContext);
@@ -38,7 +36,6 @@ function Progress({children}) {
       <div className='addTask'>
         {children[1]}
       </div>
-      {openModal && <Modal/>} 
     </aside>
   )
 }

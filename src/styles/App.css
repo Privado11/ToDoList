@@ -34,6 +34,7 @@ main {
   font-family: "Ubuntu", sans-serif;
   width: 100%;
   height: calc(100% - 6.6rem);
+  padding-top: 1rem;
 }
 
 @media (max-width: 600px) {
