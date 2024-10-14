@@ -48,7 +48,7 @@
       "last 1 safari version"
     ]
   },
-  "homepage": "htts://Privado11.github.io/ToDoList",
+  "homepage": "https://Privado11.github.io/ToDoList",
   "devDependencies": {
     "gh-pages": "^6.0.0"
   }
