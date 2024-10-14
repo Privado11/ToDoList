@@ -51,6 +51,8 @@ const Textarea = styled(BaseTextareaAutosize)(
     &:focus-visible {
       outline: 0;
     }
+
+    touch-action: pan-y;
   `
 );
 

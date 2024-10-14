@@ -6,6 +6,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
+import "../styles/Alert.css";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -35,7 +36,7 @@ export default function Alert({
       >
         <DialogTitle
           id="alert-dialog-title"
-          style={{ fontSize: "1.5rem", fontWeight: "900" }}
+          style={{ fontSize: "1.8rem", fontWeight: "900" }}
         >
           {"Confirm Deletion"}
         </DialogTitle>

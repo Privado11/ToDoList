@@ -1,7 +1,7 @@
 .modal-dialog {
   max-width: 80rem; 
-  margin: 5rem auto; 
-  height: calc(100% - 10rem); 
+  margin: auto; 
+  height: 100%;
   display: flex;
   align-items: center; 
 }
