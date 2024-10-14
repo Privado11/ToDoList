@@ -7,9 +7,13 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
 
   const handleComplete = () => {
     if (todo.onComplete) {
-      todo.onComplete(); 
+      todo.onComplete();
     }
-    onRequestClose(); 
+    onRequestClose();
+  };
+
+  const formatDescription = (description) => {
+    return description.replace(/\n/g, "<br />"); // Reemplazar saltos de línea por <br />
   };
 
   return createPortal(
@@ -24,7 +28,7 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
       <div className="modal-dialog modal-dialog-scrollable">
         <div className="modal-content">
           <div className="modal-header">
-            <h1 className="modal-title fs-15" id="staticBackdropLabel">
+            <h1 className="modal-title fs-15 fw-bold" id="staticBackdropLabel">
               {todo.title || "Untitled Task"}
             </h1>
             <button
@@ -36,8 +40,17 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
           </div>
           <div className="modal-body">
             <p>
-              <strong>Description:</strong>{" "}
-              {todo.description || "No description provided."}
+              <strong>
+                Description:
+                <br />
+              </strong>{" "}
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: formatDescription(
+                    todo.description || "No description provided."
+                  ),
+                }}
+              />
             </p>
             <p>
               <strong>Creation Date:</strong>{" "}
@@ -71,27 +84,46 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
               <strong>Priority:</strong> {todo.priority || "No priority set."}
             </p>
             <p>
-              <strong>Comments:</strong> {todo.comments || "No comments."}
+              <strong>
+                Comments: <br />{" "}
+              </strong>{" "}
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: formatDescription(todo.comments || "No comments."),
+                }}
+              />
             </p>
             <p>
               <strong>Status:</strong>{" "}
-              {todo.completed ? "Completada" : "Pendiente"}
+              {todo.completed ? "Completed" : "Pending"}
             </p>
           </div>
           <div className="modal-footer">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary fw-bold"
               onClick={onRequestClose}
+              style={{
+              
+                fontSize: "1.1rem",
+              }}
             >
               Close
             </button>
             <button
               type="button"
-              className="btn btn-primary"
-              onClick={handleComplete}
+              className="btn btn-primary fw-bold"
+              style={{
+                backgroundColor: todo.completed ? "#ccc" : "#00b8de",
+                cursor: todo.completed ? "not-allowed" : "pointer",
+                pointerEvents: todo.completed ? "none" : "auto",
+                color: todo.completed ? "#000000" : "ffff",
+                fontSize: "1.1rem",
+              }}
+              onClick={todo.completed ? null : handleComplete}
+              disabled={todo.completed}
             >
-              Completed
+              {todo.completed ? "Already Completed" : "Completed"}
             </button>
           </div>
         </div>

@@ -1,11 +1,15 @@
 .modal-dialog {
   max-width: 80rem; 
-  margin: 1.75rem auto; 
-  
+  margin: 5rem auto; 
+  height: calc(100% - 10rem); 
+  display: flex;
+  align-items: center; 
 }
 
 .modal-content {
   border-radius: 0.5rem;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .modal-body p {

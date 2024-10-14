@@ -1,12 +1,15 @@
 import React from "react";
 import { AppUI } from "./AppUI";
 import { TodoProvider } from "./components/context/TodoContext";
+import { ToastProvider } from "./components/context/ToastContext";
 
 function App() {
   return (
-    <TodoProvider>
-      <AppUI />
-    </TodoProvider>
+    <ToastProvider>
+      <TodoProvider>
+        <AppUI />
+      </TodoProvider>
+    </ToastProvider>
   );
 }
 

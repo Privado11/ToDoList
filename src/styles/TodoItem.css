@@ -69,15 +69,22 @@ span img {
 .Icon-edit {
   width: 3rem;
   margin-left: 0.5rem;
+  transition: color 0.3s;
+}
+
+.Icon-edit img {
+  filter: none;
+}
+
+.Icon-edit:hover img {
+  filter: invert(30%) sepia(100%) saturate(1000%) hue-rotate(120deg)
+    brightness(100%) contrast(100%);
 }
 
 .Icon-delete {
   width: 3rem;
   margin-right: 1rem;
-}
-
-.Icon-check--active {
-  color: #4acf50;
+  transition: filter 0.3s;
 }
 
 .Icon-delete:hover img {
@@ -92,5 +99,15 @@ span img {
 
   .TodoItem-description {
     max-width: 23rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .TodoItem-title {
+    max-width: 18rem;
+  }
+
+  .TodoItem-description {
+    max-width: 18rem;
   }
 }

@@ -1,0 +1,5 @@
+.min-height-textarea {
+  font-size: 1.5rem;
+  resize: vertical; 
+  overflow-y: auto;
+}

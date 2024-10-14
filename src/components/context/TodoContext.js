@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocalStorage } from "../service/useLocalStorage";
+import { useToast } from "./ToastContext";
 
 const TodoContext = React.createContext();
 
@@ -10,6 +11,7 @@ function TodoProvider({ children }) {
     loading,
     error,
   } = useLocalStorage("TASKLIST_V1", []);
+  const { showToast } = useToast();
 
 
   const completedTodos = todos.filter((todo) => !!todo.completed).length;
@@ -21,6 +23,7 @@ function TodoProvider({ children }) {
       ...newTask,
     });
     saveTodos(newTodos);
+    showToast("Task added successfully");
   };
 
   const updateTodo = (updatedTask) => {
@@ -28,18 +31,31 @@ function TodoProvider({ children }) {
       todo.id === updatedTask.id ? updatedTask : todo
     );
     saveTodos(newTodos);
+    showToast("Task updated successfully");
   };
 
   const completeTodo = (id) => {
     const todoIndex = todos.findIndex((todo) => todo.id === id);
     const newTodos = [...todos];
-    newTodos[todoIndex].completed = !newTodos[todoIndex].completed;
+
+  
+    const isCompleted = newTodos[todoIndex].completed;
+
+    newTodos[todoIndex].completed = !isCompleted;
     saveTodos(newTodos);
+    
+    if (isCompleted) {
+      showToast("Task unmarked as completed");
+    } else {
+      showToast("Task completed successfully");
+    }
   };
+
 
   const deleteTodo = (id) => {
     const newTodos = todos.filter((todo) => todo.id !== id);
     saveTodos(newTodos);
+    showToast("Task deleted successfully");
   };
 
   return (

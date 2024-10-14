@@ -5,18 +5,22 @@ import "../styles/NewTodo.css";
 import MinHeightTextarea from "../components/MinHeightTextarea";
 import BasicDateTimePicker from "../components/BasicDateTimePicker";
 import { DateTime } from "luxon";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 
 function NewTodo() {
   const { addTodo: addTask, todos, updateTodo } = useContext(TodoContext);
   let navigate = useNavigate();
   const { id } = useParams();
+  const categories = ["Work", "Personal", "Study", "Other (please specify)"];
+  const [customCategory, setCustomCategory] = useState("");
 
   const [newTask, setNewTask] = useState({
     id: todos.length + 1,
     title: "",
     description: "",
     category: "",
-    creationDate: DateTime.local().toISO(), 
+    creationDate: DateTime.local().toISO(),
     dueDate: null,
     priority: "",
     comments: "",
@@ -27,7 +31,7 @@ function NewTodo() {
     if (id) {
       setNewTask(todos.find((todo) => todo.id === parseInt(id)));
     }
-  }, [id]);
+  }, [id, todos]);
 
   const onInputChange = (e) => {
     setNewTask({ ...newTask, [e.target.name]: e.target.value });
@@ -37,12 +41,20 @@ function NewTodo() {
     setNewTask({ ...newTask, priority: e.target.value });
   };
 
+  const onCategoryChange = (event, value) => {
+    setNewTask({ ...newTask, category: value });
+  };
+
   const onSubmit = (e) => {
     e.preventDefault();
 
     if (newTask.title.trim() === "") {
       alert("Task title is required!");
       return;
+    }
+
+    if(customCategory){
+      newTask.category = customCategory;
     }
 
     if (id) {
@@ -54,23 +66,23 @@ function NewTodo() {
   };
 
   return (
-    <div className="container" style={{display: "flex", flexDirection: "column" }}>
-      <div className="container text-center">
+    <div className="container">
+      <div className="container-text text-center">
         <h1>{id ? "Edit Task" : "Add New Task"}</h1>
       </div>
-      <form onSubmit={(e) => onSubmit(e)}>
+      <form onSubmit={onSubmit}>
         <div className="mb-3">
           <label htmlFor="title" className="form-label">
             Title
           </label>
-          <input  
+          <input
             type="text"
             className="form-control"
             id="title"
             name="title"
             required={true}
             value={newTask.title}
-            onChange={(e) => onInputChange(e)}
+            onChange={onInputChange}
           />
         </div>
         <div className="mb-3">
@@ -82,21 +94,29 @@ function NewTodo() {
             id="description"
             name="description"
             value={newTask.description}
-            onChange={(e) => onInputChange(e)}
+            onChange={onInputChange}
           />
         </div>
         <div className="mb-3">
           <label htmlFor="category" className="form-label">
             Category
           </label>
-          <input
-            type="text"
+          <Autocomplete
             className="form-control"
-            id="category"
-            name="category"
+            disablePortal
+            options={categories}
             value={newTask.category}
-            onChange={onInputChange}
+            renderInput={(params) => <TextField {...params} />}
+            onChange={onCategoryChange}
           />
+          {newTask.category === "Other (please specify)" && (
+            <input
+              type="text"
+              className="form-control mt-2"
+              placeholder="Enter custom category"
+              onChange={(e) => setCustomCategory(e.target.value)}
+            />
+          )}
         </div>
         <div className="mb-3">
           <label htmlFor="dueDate" className="form-label">
@@ -159,7 +179,7 @@ function NewTodo() {
             onChange={onInputChange}
           />
         </div>
-        <div className="text-center" style={{marginTop: "2rem", gap: "2rem"}}>
+        <div className="text-center" style={{ marginTop: "2rem", gap: "2rem" }}>
           <button type="submit" className="btn btn-success btn-sm me-3">
             {id ? "Update Task" : "Add Task"}
           </button>

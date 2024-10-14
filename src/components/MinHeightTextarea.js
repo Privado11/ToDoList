@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
-import { fontSize, styled } from "@mui/system";
+import { styled } from "@mui/system";
 
 const blue = {
   100: "#DAECFF",
@@ -28,12 +28,8 @@ const Textarea = styled(BaseTextareaAutosize)(
   ({ theme }) => `
     box-sizing: border-box;
     width: 100%;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.875rem;
-    font-weight: 400;
-    line-height: 1.5;
-    padding: 8px 12px;
-    border-radius: 8px;
+    overflow : auto !important;
+    font-size: 1.5rem;
     color: ${theme.palette.mode === "dark" ? grey[300] : grey[900]};
     background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
     border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
@@ -68,7 +64,6 @@ export default function MinHeightTextarea({
       aria-label="minimum height"
       minRows={minRows}
       className={className}
-      style={{ resize: "none", fontSize: "1.5rem" }}
       {...props}
     />
   );

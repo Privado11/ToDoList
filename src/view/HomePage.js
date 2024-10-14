@@ -15,6 +15,8 @@ function HomePage() {
   const { todos, completeTodo, deleteTodo, loading, error } =
     useContext(TodoContext);
   const navigate = useNavigate();
+  
+
 
   return (
     <>
@@ -35,6 +37,7 @@ function HomePage() {
             <TodoCounter />
             <CreateTodoButton />
           </Progress>
+          
         </main>
       </div>
     </>

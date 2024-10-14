@@ -5,14 +5,22 @@ import square from "../../../assets/square.svg";
 import deleteTask from "../../../assets/closeAlt.svg";
 import editTask from "../../../assets/edit.svg";
 import { TodoDetailModal } from "../detail/TodoDetailModal";
+import Alert from "../../Alert";
 
 function TodoItem({ todo }) {
-  const options = { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" };
+  const options = {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  };
   const formattedDate = new Date(todo.creationDate).toLocaleDateString(
     "en-EN",
     options
   );
   const [openModal, setOpenModal] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -20,6 +28,19 @@ function TodoItem({ todo }) {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+  };
+
+  const handleDeleteClick = () => {
+    setOpenAlert(true);
+  };
+
+  const handleConfirmDelete = () => {
+    todo.onDelete();
+    setOpenAlert(false);
+  };
+
+  const handleCancelDelete = () => {
+    setOpenAlert(false);
   };
 
   return (
@@ -52,7 +73,7 @@ function TodoItem({ todo }) {
           <img alt="icono editar" src={editTask} />
         </span>
 
-        <span className="Icon Icon-delete" onClick={todo.onDelete}>
+        <span className="Icon Icon-delete" onClick={handleDeleteClick}>
           <img alt="icono borrar" src={deleteTask} />
         </span>
       </li>
@@ -61,6 +82,12 @@ function TodoItem({ todo }) {
         isOpen={openModal}
         onRequestClose={handleCloseModal}
         todo={todo}
+      />
+
+      <Alert
+        isOpen={openAlert}
+        handleCancelDelete={handleCancelDelete}
+        handleConfirmDelete={handleConfirmDelete}
       />
     </>
   );
