@@ -7,7 +7,7 @@ import { Toast } from "./components/Toast";
 function AppUI() {
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename="/ToDoList">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/add-task" element={<NewTodo />} />
