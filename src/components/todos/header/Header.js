@@ -4,7 +4,8 @@ import gitHub from "../../../assets/github.svg";
 import linkedin from "../../../assets/linkedin.svg";
 import "../../../styles/Header.css";
 
-function Header() {
+function Header({user}) {
+  
   return (
     <header>
       <div>
@@ -13,7 +14,7 @@ function Header() {
             Welcome!
             <img src={waveImg} alt="wave" />
           </p>
-          <h2>Walter Jiménez</h2>
+          <h2>{user.user_metadata.full_name}</h2>
         </div>
       </div>
 

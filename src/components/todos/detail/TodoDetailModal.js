@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createPortal } from "react-dom";
 import "../../../styles/TodoDetailModal.css";
 
@@ -13,7 +13,7 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
   };
 
   const formatDescription = (description) => {
-    return description.replace(/\n/g, "<br />"); // Reemplazar saltos de línea por <br />
+    return description.replace(/\n/g, "<br />");
   };
 
   return createPortal(
@@ -54,7 +54,7 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
             </p>
             <p>
               <strong>Creation Date:</strong>{" "}
-              {new Date(todo.creationDate).toLocaleDateString("en-EN", {
+              {new Date(todo.creation_date).toLocaleDateString("en-EN", {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
@@ -65,8 +65,8 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
             </p>
             <p>
               <strong>Due Date:</strong>{" "}
-              {todo.dueDate
-                ? new Date(todo.dueDate).toLocaleString("en-EN", {
+              {todo.due_date
+                ? new Date(todo.due_date).toLocaleString("en-EN", {
                     day: "numeric",
                     month: "long",
                     year: "numeric",
@@ -78,10 +78,15 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
             </p>
             <p>
               <strong>Category:</strong>{" "}
-              {todo.category || "No category assigned."}
+              {todo.categories && todo.categories.name
+                ? todo.categories.name
+                : "No category assigned."}
             </p>
             <p>
-              <strong>Priority:</strong> {todo.priority || "No priority set."}
+              <strong>Priority:</strong>{" "}
+              {todo.priorities && todo.priorities.level
+                ? todo.priorities.level
+                : "No priority set."}
             </p>
             <p>
               <strong>
@@ -104,7 +109,6 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
               className="btn btn-secondary fw-bold"
               onClick={onRequestClose}
               style={{
-              
                 fontSize: "1.1rem",
               }}
             >
@@ -117,13 +121,13 @@ function TodoDetailModal({ isOpen, onRequestClose, todo }) {
                 backgroundColor: todo.completed ? "#ccc" : "#00b8de",
                 cursor: todo.completed ? "not-allowed" : "pointer",
                 pointerEvents: todo.completed ? "none" : "auto",
-                color: todo.completed ? "#000000" : "ffff",
+                color: todo.completed ? "#000000" : "#ffff",
                 fontSize: "1.1rem",
               }}
               onClick={todo.completed ? null : handleComplete}
               disabled={todo.completed}
             >
-              {todo.completed ? "Already Completed" : "Completed"}
+              {todo.completed ? "Already Completed" : "Complete"}
             </button>
           </div>
         </div>

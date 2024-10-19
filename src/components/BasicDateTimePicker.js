@@ -17,7 +17,6 @@ const BasicDateTimePicker = ({ className, value, onChange, ...props }) => {
             },
           });
         }}
-        
         format="dd MMMM, yyyy hh:mm a"
         {...props}
       />
@@ -25,4 +24,4 @@ const BasicDateTimePicker = ({ className, value, onChange, ...props }) => {
   );
 };
 
-export default BasicDateTimePicker;
+export { BasicDateTimePicker };

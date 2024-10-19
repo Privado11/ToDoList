@@ -46,7 +46,7 @@ const Textarea = styled(BaseTextareaAutosize)(
       box-shadow: 0 0 0 3px ${
         theme.palette.mode === "dark" ? blue[600] : blue[200]
       };
-    }
+    } 
     
     &:focus-visible {
       outline: 0;
@@ -56,7 +56,7 @@ const Textarea = styled(BaseTextareaAutosize)(
   `
 );
 
-export default function MinHeightTextarea({
+function MinHeightTextarea({
   className,
   minRows = 2,
   ...props
@@ -70,3 +70,5 @@ export default function MinHeightTextarea({
     />
   );
 }
+
+export { MinHeightTextarea };

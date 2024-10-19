@@ -1,30 +1,26 @@
-import React, { useContext, useEffect, useState } from "react";
-import { TodoContext } from "../components/context/TodoContext";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "../styles/NewTodo.css";
-import MinHeightTextarea from "../components/MinHeightTextarea";
-import BasicDateTimePicker from "../components/BasicDateTimePicker";
+import { MinHeightTextarea } from "../components/MinHeightTextarea";
+import { BasicDateTimePicker } from "../components/BasicDateTimePicker";
 import { DateTime } from "luxon";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import { useTodo } from "../components/context/TodoContext";
+import "../styles/NewTodo.css";
 
 function NewTodo() {
-  const { addTodo: addTask, todos, updateTodo } = useContext(TodoContext);
+  const { addTodo: addTask, todos, updateTodo, categories } = useTodo();
   let navigate = useNavigate();
   const { id } = useParams();
-  const categories = ["Work", "Personal", "Study", "Other (please specify)"];
   const [customCategory, setCustomCategory] = useState("");
 
   const [newTask, setNewTask] = useState({
-    id: todos.length + 1,
     title: "",
     description: "",
-    category: "",
-    creationDate: DateTime.local().toISO(),
-    dueDate: null,
-    priority: "",
+    category_id: null,
+    due_date: null,
+    priority_id: null,
     comments: "",
-    completed: false,
   });
 
   useEffect(() => {
@@ -38,11 +34,28 @@ function NewTodo() {
   };
 
   const onPriorityChange = (e) => {
-    setNewTask({ ...newTask, priority: e.target.value });
+    const selectedPriority = e.target.value;
+    let priorityId;
+
+    switch (selectedPriority) {
+      case "Low":
+        priorityId = 1; 
+        break;
+      case "Medium":
+        priorityId = 2; 
+        break;
+      case "High":
+        priorityId = 3; 
+        break;
+      default:
+        priorityId = null;
+    }
+
+    setNewTask({ ...newTask, priority_id: priorityId });
   };
 
   const onCategoryChange = (event, value) => {
-    setNewTask({ ...newTask, category: value });
+    setNewTask({ ...newTask, category_id: value.id });
   };
 
   const onSubmit = (e) => {
@@ -53,8 +66,8 @@ function NewTodo() {
       return;
     }
 
-    if(customCategory){
-      newTask.category = customCategory;
+    if (customCategory) {
+      newTask.category_id = customCategory;
     }
 
     if (id) {
@@ -98,49 +111,52 @@ function NewTodo() {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="category" className="form-label">
-            Category
+          <label htmlFor="category_id" className="form-label">
+            category_id
           </label>
           <Autocomplete
             className="form-control"
             disablePortal
             options={categories}
-            value={newTask.category}
+            getOptionLabel={(option) => option.name || "Unknown"}
+            value={
+              categories.find((cat) => cat.id === newTask.category_id) || null
+            } 
             renderInput={(params) => <TextField {...params} />}
             onChange={onCategoryChange}
           />
-          {newTask.category === "Other (please specify)" && (
+          {newTask.category_id === "Other (please specify)" && (
             <input
               type="text"
               className="form-control mt-2"
-              placeholder="Enter custom category"
+              placeholder="Enter custom category_id"
               onChange={(e) => setCustomCategory(e.target.value)}
             />
           )}
         </div>
         <div className="mb-3">
-          <label htmlFor="dueDate" className="form-label">
+          <label htmlFor="due_date" className="form-label">
             Due Date
           </label>
           <BasicDateTimePicker
             className="form-control"
-            id="dueDate"
-            name="dueDate"
-            value={newTask.dueDate}
+            id="due_date"
+            name="due_date"
+            value={newTask.due_date}
             onChange={onInputChange}
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="priority" className="form-label">
-            Priority
+          <label htmlFor="priority_id" className="form-label">
+            priority_id
           </label>
           <div className="radio-group">
             <label>
               <input
                 type="radio"
                 value="Low"
-                name="priority"
-                checked={newTask.priority === "Low"}
+                name="priority_id"
+                checked={newTask.priority_id === 1}
                 onChange={onPriorityChange}
               />{" "}
               Low
@@ -149,8 +165,8 @@ function NewTodo() {
               <input
                 type="radio"
                 value="Medium"
-                name="priority"
-                checked={newTask.priority === "Medium"}
+                name="priority_id"
+                checked={newTask.priority_id === 2}
                 onChange={onPriorityChange}
               />{" "}
               Medium
@@ -159,8 +175,8 @@ function NewTodo() {
               <input
                 type="radio"
                 value="High"
-                name="priority"
-                checked={newTask.priority === "High"}
+                name="priority_id"
+                checked={newTask.priority_id === 3}
                 onChange={onPriorityChange}
               />{" "}
               High

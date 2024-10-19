@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CircularProgressbar } from "react-circular-progressbar";
-import { TodoContext } from '../../context/TodoContext';
+import { useTodo } from '../../context/TodoContext';
 import "react-circular-progressbar/dist/styles.css";
 import '../../../styles/Progress.css';
 
@@ -9,7 +9,7 @@ function Progress({children}) {
     todos,
     completedTodos,
     inProgressTodos
-  } = React.useContext(TodoContext);
+  } = useTodo();
 
   const totalTodos = todos.length;
 

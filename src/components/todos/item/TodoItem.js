@@ -1,13 +1,14 @@
-import { useState } from "react";
-import "../../../styles/TodoItem.css";
+import { useEffect, useState } from "react";
 import checkBox from "../../../assets/checkbox.svg";
 import square from "../../../assets/square.svg";
 import deleteTask from "../../../assets/closeAlt.svg";
 import editTask from "../../../assets/edit.svg";
 import { TodoDetailModal } from "../detail/TodoDetailModal";
-import Alert from "../../Alert";
+import { Alert } from "../../Alert";
+import "../../../styles/TodoItem.css";
 
 function TodoItem({ todo }) {
+  
   const options = {
     day: "numeric",
     month: "long",
@@ -15,7 +16,7 @@ function TodoItem({ todo }) {
     hour: "2-digit",
     minute: "2-digit",
   };
-  const formattedDate = new Date(todo.creationDate).toLocaleDateString(
+  const formattedDate = new Date(todo.creation_date).toLocaleDateString(
     "en-EN",
     options
   );

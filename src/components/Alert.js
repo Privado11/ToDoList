@@ -12,7 +12,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function Alert({
+function Alert({
   isOpen,
   handleConfirmDelete,
   handleCancelDelete,
@@ -67,3 +67,5 @@ export default function Alert({
     </React.Fragment>
   );
 }
+
+export { Alert };

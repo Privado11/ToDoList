@@ -1,75 +1,23 @@
-import React from "react";
-import { useLocalStorage } from "../service/useLocalStorage";
-import { useToast } from "./ToastContext";
+import React, { useContext } from "react";
+import { useTodos } from "../hooks/useTodos";
+import { useCategories } from "../hooks/useCategories";
+import { usePriorities } from "../hooks/usePriorities";
 
 const TodoContext = React.createContext();
 
+const useTodo = () => useContext(TodoContext);
+
 function TodoProvider({ children }) {
-  const {
-    item: todos,
-    saveItem: saveTodos,
-    loading,
-    error,
-  } = useLocalStorage("TASKLIST_V1", []);
-  const { showToast } = useToast();
-
-
-  const completedTodos = todos.filter((todo) => !!todo.completed).length;
-  const inProgressTodos = todos.length - completedTodos;
-
-  const addTodo = (newTask) => {
-    const newTodos = [...todos];
-    newTodos.push({
-      ...newTask,
-    });
-    saveTodos(newTodos);
-    showToast("Task added successfully");
-  };
-
-  const updateTodo = (updatedTask) => {
-    const newTodos = todos.map((todo) =>
-      todo.id === updatedTask.id ? updatedTask : todo
-    );
-    saveTodos(newTodos);
-    showToast("Task updated successfully");
-  };
-
-  const completeTodo = (id) => {
-    const todoIndex = todos.findIndex((todo) => todo.id === id);
-    const newTodos = [...todos];
-
-  
-    const isCompleted = newTodos[todoIndex].completed;
-
-    newTodos[todoIndex].completed = !isCompleted;
-    saveTodos(newTodos);
-    
-    if (isCompleted) {
-      showToast("Task unmarked as completed");
-    } else {
-      showToast("Task completed successfully");
-    }
-  };
-
-
-  const deleteTodo = (id) => {
-    const newTodos = todos.filter((todo) => todo.id !== id);
-    saveTodos(newTodos);
-    showToast("Task deleted successfully");
-  };
+  const todosHook = useTodos();
+  const categoriesHook = useCategories();
+  const prioritiesHook = usePriorities();
 
   return (
     <TodoContext.Provider
       value={{
-        completedTodos,
-        inProgressTodos,
-        todos,
-        completeTodo,
-        deleteTodo,
-        loading,
-        error,
-        addTodo,
-        updateTodo,
+        ...todosHook,
+        ...categoriesHook,
+        ...prioritiesHook,
       }}
     >
       {children}
@@ -77,4 +25,4 @@ function TodoProvider({ children }) {
   );
 }
 
-export { TodoContext, TodoProvider };
+export { useTodo, TodoProvider };
