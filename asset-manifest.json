@@ -1,24 +1,21 @@
 {
   "files": {
     "main.css": "/ToDoList/static/css/main.f4ee3d8c.css",
-    "main.js": "/ToDoList/static/js/main.b5f5630a.js",
+    "main.js": "/ToDoList/static/js/main.533f09a4.js",
     "static/js/952.35e3c26b.chunk.js": "/ToDoList/static/js/952.35e3c26b.chunk.js",
     "static/media/wave.png": "/ToDoList/static/media/wave.e098d53ef2e541882666.png",
     "index.html": "/ToDoList/index.html",
-    "static/media/web.svg": "/ToDoList/static/media/web.449edabfd134688314cbbd50919150a5.svg",
-    "static/media/github.svg": "/ToDoList/static/media/github.db613a1a67a425c25d59ce514ca1f8ea.svg",
-    "static/media/linkedin.svg": "/ToDoList/static/media/linkedin.eaccfc4b453ff94aff73f6a0d1b53511.svg",
     "static/media/checkbox.svg": "/ToDoList/static/media/checkbox.66cf1005d431aa2215590bae0457ce3f.svg",
     "static/media/edit.svg": "/ToDoList/static/media/edit.f4a22faf0d6df685400fea9968d12722.svg",
     "static/media/square.svg": "/ToDoList/static/media/square.513ba8694512ad0bf9a88e2b27cab756.svg",
     "static/media/add.svg": "/ToDoList/static/media/add.ba08d300e9a9108b591e2d669712161f.svg",
     "static/media/closeAlt.svg": "/ToDoList/static/media/closeAlt.08233535a9321b39bf5f4a13e34fede0.svg",
     "main.f4ee3d8c.css.map": "/ToDoList/static/css/main.f4ee3d8c.css.map",
-    "main.b5f5630a.js.map": "/ToDoList/static/js/main.b5f5630a.js.map",
+    "main.533f09a4.js.map": "/ToDoList/static/js/main.533f09a4.js.map",
     "952.35e3c26b.chunk.js.map": "/ToDoList/static/js/952.35e3c26b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f4ee3d8c.css",
-    "static/js/main.b5f5630a.js"
+    "static/js/main.533f09a4.js"
   ]
 }
