@@ -1,68 +1,16 @@
-import * as React from "react";
+import React, { useState } from "react";
 import { AppProvider, SignInPage } from "@toolpad/core";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import {
-  Link
-} from "@mui/material";
-import "../../styles/OAuthSignInPage.css";
+import { useTheme, ThemeProvider } from "@mui/material/styles";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { Link } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
-
+import "../../styles/OAuthSignInPage.css";
 
 const providers = [
   { id: "credentials", name: "Email and Password" },
   { id: "google", name: "Google" },
   { id: "facebook", name: "Facebook" },
 ];
-
-
-const theme = createTheme({
-  typography: {
-    h5: { fontSize: "2rem" },
-    body1: { fontSize: "1.25rem" },
-    body2: { fontSize: "1.25rem" },
-  },
-  components: {
-    MuiFormLabel: {
-      styleOverrides: {
-        root: { fontSize: "1.25rem" },
-      },
-    },
-    MuiInputBase: {
-      styleOverrides: {
-        root: {
-          fontSize: "1.25rem",
-          backgroundColor: "#f5f5f5",
-          borderRadius: "4px",
-        },
-      },
-    },
-    MuiOutlinedInput: {
-      styleOverrides: {
-        root: {
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1976d2",
-          },
-        },
-        notchedOutline: { borderColor: "#ccc" },
-      },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          fontSize: "1.25rem",
-          padding: "12px 24px",
-        },
-      },
-    },
-    MuiDivider: {
-      styleOverrides: {
-        wrapper: { fontSize: "1.3rem" },
-      },
-    },
-  },
-});
-
-
 
 function SignUpLink() {
   return (
@@ -72,7 +20,6 @@ function SignUpLink() {
   );
 }
 
-
 function ForgotPasswordLink() {
   return (
     <Link href="/" variant="body2">
@@ -81,13 +28,19 @@ function ForgotPasswordLink() {
   );
 }
 
-
-
 const OAuthSignInPage = () => {
   const { signInWithGoogle, signInWithFacebook, user } = useAuth();
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [error, setError] = useState(null);
+  const theme = useTheme();
 
   const signIn = async (provider) => {
     try {
+      if (!captchaToken) {
+        setError("Please complete the captcha.");
+        return;
+      }
+
       console.log(`Iniciando sesión con ${provider.name}...`);
       if (provider.id === "google") await signInWithGoogle();
       if (provider.id === "facebook") await signInWithFacebook();
@@ -101,14 +54,23 @@ const OAuthSignInPage = () => {
   return (
     <ThemeProvider theme={theme}>
       <AppProvider>
-        <SignInPage
-          signIn={signIn}
-          providers={providers}
-          slots={{
-            signUpLink: SignUpLink,
-            forgotPasswordLink: ForgotPasswordLink,
-          }}
-        />
+        <div className="oauth-signin-container">
+          {" "}
+          <SignInPage signIn={signIn} providers={providers} />
+          <div className="register">
+            <span>
+              Need an account? <a href="/signup">Sign Up</a>{" "}
+            </span>
+          </div>
+          <div className="captcha">
+            <HCaptcha
+              sitekey="054036b2-e3e0-4f7e-b022-e4201422b476"
+              onVerify={(token) => setCaptchaToken(token)}
+              onError={() => setError("Captcha error. Please try again.")}
+            />
+          </div>
+          {error && <p>{error}</p>}
+        </div>
       </AppProvider>
     </ThemeProvider>
   );
