@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useState } from "react";
 import checkBox from "../../../assets/checkbox.svg";
 import square from "../../../assets/square.svg";
 import deleteTask from "../../../assets/closeAlt.svg";

@@ -2,28 +2,19 @@ import * as React from "react";
 import { AppProvider, SignInPage } from "@toolpad/core";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import {
-  Button,
-  Link,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Divider,
-  FormControl,
-  InputLabel,
-  OutlinedInput,
+  Link
 } from "@mui/material";
-import { Visibility, VisibilityOff, AccountCircle } from "@mui/icons-material";
 import "../../styles/OAuthSignInPage.css";
 import { useAuth } from "../context/AuthContext";
 
-// Proveedores de autenticación
+
 const providers = [
   { id: "credentials", name: "Email and Password" },
   { id: "google", name: "Google" },
   { id: "facebook", name: "Facebook" },
 ];
 
-// Tema personalizado
+
 const theme = createTheme({
   typography: {
     h5: { fontSize: "2rem" },
@@ -73,7 +64,6 @@ const theme = createTheme({
 
 
 
-// Enlace para registrarse
 function SignUpLink() {
   return (
     <Link href="/" variant="body2">
@@ -82,7 +72,7 @@ function SignUpLink() {
   );
 }
 
-// Enlace para recuperar contraseña
+
 function ForgotPasswordLink() {
   return (
     <Link href="/" variant="body2">

@@ -6,14 +6,13 @@ import { Header } from "../components/todos/header/Header";
 import { Progress } from "../components/todos/progress/Progress";
 import { TodoCounter } from "../components/todos/counter/TodoCounter";
 import { TodosLoading } from "../components/todos/loading/TodosLoading";
-import { TodosError } from "../components/todos/error/TodosError";
 import { EmptyTodos } from "../components/todos/empty/EmptyTodos";
 import { useTodo } from "../components/context/TodoContext";
 
 import "../styles/App.css";
 
 function HomePage({ user }) {
-  const { todos, completeTodo, deleteTodo, loading, error } = useTodo();
+  const { todos, completeTodo, deleteTodo, loading} = useTodo();
 
   const navigate = useNavigate();
 

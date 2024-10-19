@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   getTodos,
   getTodoById,
@@ -9,20 +9,19 @@ import {
 import { useToast } from "../context/ToastContext";
 import { useAuthLogic } from "./useAuth";
 
-
 export const useTodos = () => {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTodo, setSelectedTodo] = useState(null);
   const { showToast } = useToast();
-  const { user } = useAuthLogic(); 
+  const { user } = useAuthLogic();
 
-  const fetchTodos = async () => {
-    if (!user) return; 
+  const fetchTodos = useCallback(async () => {
+    if (!user) return;
 
     try {
-      const todosData = await getTodos(user.id); 
+      const todosData = await getTodos(user.id);
       setTodos(todosData || []);
     } catch (err) {
       console.error("Error fetching todos:", err.message);
@@ -31,11 +30,11 @@ export const useTodos = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, showToast]);
 
   useEffect(() => {
     fetchTodos();
-  }, [user]);
+  }, [fetchTodos]);
 
   const refreshTodos = async () => {
     await fetchTodos();
@@ -69,7 +68,7 @@ export const useTodos = () => {
   const addTodo = async (newTask) => {
     if (!user) return;
     try {
-      const insertedTodo = await saveTodo(newTask, user.id); 
+      const insertedTodo = await saveTodo(newTask, user.id);
       if (insertedTodo) {
         fetchTodos();
         showToast("Task added successfully");
@@ -84,7 +83,6 @@ export const useTodos = () => {
     try {
       const updatedTodo = await putTodo(updatedTask.id, updatedTask);
       if (updatedTodo) {
-        fetchTodos();
         await refreshTodos();
         showToast("Task updated successfully");
       }
@@ -119,7 +117,13 @@ export const useTodos = () => {
 
       const result = await putTodo(id, updatedTodo);
       if (result) {
-        fetchTodos();
+        setTodos((prevTodos) =>
+          prevTodos.map((todo) =>
+            todo.id === id
+              ? { ...todo, completed: updatedTodo.completed }
+              : todo
+          )
+        );
         showToast(
           updatedTodo.completed
             ? "Task completed successfully"

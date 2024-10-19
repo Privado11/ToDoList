@@ -21,7 +21,6 @@ function TodoList({ todos, onComplete, onEdit, onDelete }) {
                 borderRadius: "1.5rem",
                 marginBottom: "10px",
                 marginRight: "1rem",
-                marginBottom: "1rem",
               }}
             />
           ))}
