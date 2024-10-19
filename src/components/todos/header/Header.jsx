@@ -1,3 +1,4 @@
+import React from "react";
 import waveImg from "../../../assets/wave.png";
 import "../../../styles/Header.css";
 import { useAuthLogic } from "../../hooks/useAuth";

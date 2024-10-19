@@ -11,7 +11,7 @@ export const getTodos = async (userId) => {
           categories(*)
         `
       )
-      .eq("user_id", userId); // Filtra por user_id
+      .eq("user_id", userId);
 
     if (error) throw error;
     return data;

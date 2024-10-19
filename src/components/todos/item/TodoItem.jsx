@@ -1,4 +1,5 @@
-import {useState } from "react";
+import React from "react";
+import { useState } from "react";
 import checkBox from "../../../assets/checkbox.svg";
 import square from "../../../assets/square.svg";
 import deleteTask from "../../../assets/closeAlt.svg";
@@ -8,7 +9,6 @@ import { Alert } from "../../Alert";
 import "../../../styles/TodoItem.css";
 
 function TodoItem({ todo }) {
-  
   const options = {
     day: "numeric",
     month: "long",
