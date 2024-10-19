@@ -10,18 +10,18 @@ function AppUI() {
   const { user, loading } = useAuth();
 
    if (loading) {
-     return <div>Cargando...</div>; // Puedes cambiar esto por un loader más bonito
+     return <div>Cargando...</div>; 
    }
-   
+
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename="/ToDoList">
         <Routes>
           <Route
             path="/"
             element={user ? <HomePage user={user} /> : <OAuthSignInPage />}
           />
-          <Route path="/sign-in" element={<OAuthSignInPage />} />
+          <Route path="/login" element={<OAuthSignInPage />} />
 
           <Route path="/add-task" element={<NewTodo />} />
           <Route path="/edit-task/:id" element={<NewTodo />} />

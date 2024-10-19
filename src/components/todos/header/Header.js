@@ -1,10 +1,21 @@
 import waveImg from "../../../assets/wave.png";
-import webPersonal from "../../../assets/web.svg";
-import gitHub from "../../../assets/github.svg";
-import linkedin from "../../../assets/linkedin.svg";
 import "../../../styles/Header.css";
+import { useAuthLogic } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { IoIosLogOut } from "react-icons/io";
 
 function Header({user}) {
+   const { signOut } = useAuthLogic(); 
+   const navigate = useNavigate();
+
+   const handleLogout = async () => {
+     try {
+       await signOut();
+       navigate("/login");
+     } catch (error) {
+       console.error("Error al cerrar sesión:", error.message);
+     }
+   };
   
   return (
     <header>
@@ -18,25 +29,9 @@ function Header({user}) {
         </div>
       </div>
 
-      <nav>
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href="https://privado11.github.io/Portafolio-personal/"
-        >
-          <img src={webPersonal} alt="Web Personal" />
-        </a>
-        <a target="_blank" rel="noreferrer" href="https://github.com/Privado11">
-          <img src={gitHub} alt="GitHub" />
-        </a>
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href="https://www.linkedin.com/in/walter-jimenez9522/"
-        >
-          <img src={linkedin} alt="Linkedin" />
-        </a>
-      </nav>
+      <button onClick={handleLogout} className="logout-button">
+        {<IoIosLogOut />}
+      </button>
     </header>
   );
 }
