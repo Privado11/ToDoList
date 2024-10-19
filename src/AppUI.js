@@ -15,7 +15,7 @@ function AppUI() {
 
   return (
     <>
-      <BrowserRouter basename="/ToDoList">
+      <BrowserRouter>
         <Routes>
           <Route
             path="/"
