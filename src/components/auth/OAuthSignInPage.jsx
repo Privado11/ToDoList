@@ -1,16 +1,10 @@
 import React, { useState } from "react";
-import { AppProvider, SignInPage } from "@toolpad/core";
-import { useTheme, ThemeProvider } from "@mui/material/styles";
-import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { Link } from "@mui/material";
-import { useAuth } from "../context/AuthContext";
 import "../../styles/OAuthSignInPage.css";
+import { SignInOptions } from "./SignInOptions";
+import { PasswordLogin } from "./PasswordLogin";
 
-const providers = [
-  { id: "credentials", name: "Email and Password" },
-  { id: "google", name: "Google" },
-  { id: "facebook", name: "Facebook" },
-];
+
 
 function SignUpLink() {
   return (
@@ -29,50 +23,67 @@ function ForgotPasswordLink() {
 }
 
 const OAuthSignInPage = () => {
-  const { signInWithGoogle, signInWithFacebook, user } = useAuth();
+  
   const [captchaToken, setCaptchaToken] = useState(null);
   const [error, setError] = useState(null);
-  const theme = useTheme();
+  const [showPasswordScreen, setShowPasswordScreen] = useState(false);
+  const [email, setEmail] = useState("");
 
-  const signIn = async (provider) => {
-    try {
-      if (!captchaToken) {
-        setError("Please complete the captcha.");
-        return;
-      }
-
-      console.log(`Iniciando sesión con ${provider.name}...`);
-      if (provider.id === "google") await signInWithGoogle();
-      if (provider.id === "facebook") await signInWithFacebook();
-      console.log(`Sesión iniciada con éxito usando ${provider.name}`);
-      console.log("Usuario:", user);
-    } catch (error) {
-      console.error("Error al iniciar sesión:", error);
-    }
+  const changeToPasswordScreen = (email) => {
+    setEmail(email);
+    setShowPasswordScreen(!showPasswordScreen);
   };
 
+
   return (
-    <ThemeProvider theme={theme}>
-      <AppProvider>
-        <div className="oauth-signin-container">
-          {" "}
-          <SignInPage signIn={signIn} providers={providers} />
-          <div className="register">
-            <span>
-              Need an account? <a href="/signup">Sign Up</a>{" "}
-            </span>
+    <div className="oauth-signin-container">
+      <div className="oauth-signin">
+        <div
+          className="signin-header"
+          style={{ textAlign: "center", marginBottom: "1.5rem" }}
+        >
+          <div
+            className="signin-icon"
+            style={{
+              backgroundColor: "#3b82f6",
+              borderRadius: "50%",
+              width: "48px",
+              height: "48px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto",
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="white"
+              width="24"
+              height="24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
           </div>
-          <div className="captcha">
-            <HCaptcha
-              sitekey="054036b2-e3e0-4f7e-b022-e4201422b476"
-              onVerify={(token) => setCaptchaToken(token)}
-              onError={() => setError("Captcha error. Please try again.")}
-            />
-          </div>
-          {error && <p>{error}</p>}
+
+          <h1 className="signin-title">Sign in</h1>
+          <p className="signin-welcome">
+            Welcome user, please sign in to continue
+          </p>
+          {!showPasswordScreen ? (
+            <SignInOptions changeToPasswordScreen={changeToPasswordScreen}/>
+          ) : (
+            <PasswordLogin changeToPasswordScreen={changeToPasswordScreen}/>
+          )}
         </div>
-      </AppProvider>
-    </ThemeProvider>
+      </div>
+    </div>
   );
 };
 
