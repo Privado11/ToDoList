@@ -1,11 +1,14 @@
 import React from "react";
 import { AppUI } from "./AppUI";
 import { CombinedProviders } from "./components/context/CombinedProviders";
+import { BrowserRouter } from "react-router-dom";
 
 function App() {
   return (
     <CombinedProviders>
-      <AppUI />
+      <BrowserRouter>
+        <AppUI />
+      </BrowserRouter>
     </CombinedProviders>
   );
 }

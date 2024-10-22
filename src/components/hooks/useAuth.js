@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import {
   signInWithGoogle,
   signInWithFacebook,
+  signInAsGuest,
+  signUpWithEmail,
   signOut,
   onAuthStateChange,
 } from "../service/authService";
@@ -16,9 +18,16 @@ export const useAuthLogic = () => {
       setLoading(false);
     });
 
-
     return () => unsubscribe();
   }, []);
 
-  return { user, loading, signInWithGoogle, signInWithFacebook, signOut };
+  return {
+    user,
+    loading,
+    signInWithGoogle,
+    signInWithFacebook,
+    signInAsGuest,
+    signUpWithEmail,
+    signOut,
+  };
 };

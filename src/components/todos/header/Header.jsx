@@ -26,7 +26,7 @@ function Header({user}) {
             Welcome!
             <img src={waveImg} alt="wave" />
           </p>
-          <h2>{user.user_metadata.full_name}</h2>
+          <h2>{user.user_metadata.full_name || "Guest"}</h2>
         </div>
       </div>
 

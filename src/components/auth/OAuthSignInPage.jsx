@@ -53,6 +53,7 @@ const OAuthSignInPage = () => {
               alignItems: "center",
               justifyContent: "center",
               margin: "0 auto",
+              marginBottom: "2rem",
             }}
           >
             <svg
@@ -72,14 +73,14 @@ const OAuthSignInPage = () => {
             </svg>
           </div>
 
-          <h1 className="signin-title">Sign in</h1>
+          <h1 className="signin-title">Sign In</h1>
           <p className="signin-welcome">
             Welcome user, please sign in to continue
           </p>
           {!showPasswordScreen ? (
-            <SignInOptions changeToPasswordScreen={changeToPasswordScreen}/>
+            <SignInOptions changeToPasswordScreen={changeToPasswordScreen} />
           ) : (
-            <PasswordLogin changeToPasswordScreen={changeToPasswordScreen}/>
+            <PasswordLogin changeToPasswordScreen={changeToPasswordScreen} />
           )}
         </div>
       </div>

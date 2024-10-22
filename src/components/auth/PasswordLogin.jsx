@@ -2,94 +2,51 @@ import React from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { GoPasskeyFill } from "react-icons/go";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import { FaKey } from "react-icons/fa";
+import "../../styles/PasswordLogin.css";
 
 function PasswordLogin({ changeToPasswordScreen, email }) {
   const handleBackClick = () => {
     changeToPasswordScreen();
   };
 
+  const SignInButton = ({ text, icon }) => (
+    <button className="button">
+      <MdOutlineKeyboardArrowRight className="arrow-icon" />
+      <div className="passkey-icon-container">
+        {icon} 
+      </div>
+      <span>{text}</span>
+    </button>
+  );
+
   return (
-    <div
-      style={{
-        marginTop: "1.5rem",
-      }}
-    >
-      <button
-        onClick={handleBackClick}
-        style={{
-          display: "flex",
-          color: "rgb(92, 111, 138)",
-          fontSize: "16px",
-          fontWeight: "500",
-          padding: "1rem 1.5rem",
-          paddingLeft: "0",
-        }}
-      >
-        <IoIosArrowRoundBack
-          style={{
-            marginRight: "8px",
-            cursor: "pointer",
-            height: "1.6rem",
-            width: "1.6rem",
-          }}
-        />
+    <div className="container-password">
+      <button onClick={handleBackClick} className="back-button">
+        <IoIosArrowRoundBack className="back-icon" />
         Back
       </button>
 
-      <div>
-        <button style={buttonStyle}>
-          <MdOutlineKeyboardArrowRight
-            style={{ position: "absolute", top: "2.4rem", right: "2.4rem" }}
+      <div className="button-container">
+        <div className="button-passkey-password">
+          <SignInButton
+            text="Sign in with a passkey"
+            icon={<GoPasskeyFill className="passkey-icon" />}
           />
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "flex-start",
-              padding: "8px",
-              borderRadius: "8px",
-              backgroundColor: "rgb(231, 247, 255)",
-              color: "rgb(63, 166, 240)",
-            }}
-          >
-            <GoPasskeyFill style={{width: "2rem", height: "2rem"}}/>
-          </div>
-          <span>Sign in with a passkey</span>
-        </button>
+        </div>
 
-        <button style={buttonStyle}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <span>Sign in with a password</span>
-          </div>
-        </button>
+        <div className="button-passkey-password">
+          <SignInButton
+            text="Sign in with a password"
+            icon={<FaKey className="passkey-icon" />}
+          />
+        </div>
       </div>
-
-      <button
-        style={{
-          background: "none",
-          border: "none",
-          color: "#3b82f6",
-          marginTop: "16px",
-          alignSelf: "center",
-          cursor: "pointer",
-          fontSize: "14px",
-        }}
-      >
-        Forgot password?
-      </button>
+      <div className="forgot-password-container">
+        <a className="forgot-password">Forgot password?</a>
+      </div>
     </div>
   );
 }
-
-const buttonStyle = {
-  width: "100%",
-  backgroundColor: "white",
-  padding: "16px 48px 16px 16px",
-  display: "flex",
-  alignItems: "center",
-  gap: "8px",
-  cursor: "pointer",
-  fontSize: "16px",
-  position: "relative",
-};
 
 export { PasswordLogin };

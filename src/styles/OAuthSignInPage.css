@@ -8,22 +8,23 @@
   padding: 0;
 }
 
-.MuiBox-root {
-  margin: 0 !important;
-}
-
 #root {
   background-color: #ffffff;
 }
+
+.signin-icon {
+  margin-bottom: 2rem;
+}
+
 .oauth-signin {
   width: 30rem;
-}
-.oauth-signin-container .MuiContainer-root,
-.oauth-signin-container .css-1jd0a0t,
-.oauth-signin-container .css-7texn5 {
-  width: 100%;
-  padding: 0;
   height: auto;
+  min-height: 472px;
+  position: relative;
+  margin: 0px auto;
+  padding: 0px;
+  z-index: 10;
+  border-radius: 8px;
 }
 
 .signin-title {
@@ -42,10 +43,6 @@
   font-size: 1.2rem;
   font-weight: 500;
   color: rgb(92, 111, 138);
-}
-
-.oauth-signin-container .MuiStack-root {
-  all: unset;
 }
 
 .signin-button {
@@ -68,20 +65,13 @@
   font-weight: 400;
 }
 
-.oauth-signin-container .MuiButton-startIcon {
-  margin: 0;
+.signin-button:hover {
+  border-color: #000000;
 }
 
 .signin-button img {
   width: 2rem;
   height: 2rem;
-}
-
-.oauth-signin-container .MuiLoadingButton-label {
-  margin-left: 1rem;
-  text-indent: 0;
-  font-size: 1.4rem;
-  font-weight: 400;
 }
 
 .divider {
@@ -122,6 +112,18 @@
   z-index: 1;
 }
 
+.signin-form {
+  text-align: left;
+}
+
+.signin-form label {
+  color: rgb(92, 111, 138);
+  font-weight: 500;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 2rem;
+}
+
 .signin-form input {
   width: 100%;
   height: 4rem;
@@ -151,12 +153,13 @@
   font-weight: 500;
   white-space: nowrap;
   width: 100%;
+  margin-top: 1rem;
 }
 
-.signup-link-container{
+.signup-link-container {
   width: 100%;
   text-align: center;
-  margin-top: 0;
+  margin-top: 1.6rem;
 }
 
 .signup-link-container span {
