@@ -36,6 +36,9 @@ export const signUpWithEmail = async (email, password, captchaToken) => {
   if (error) throw new Error("Error al registrarse: " + error.message);
 };
 
+
+
+
 export const onAuthStateChange = (callback) => {
   const { data: listener } = supabase.auth.onAuthStateChange(
     (event, session) => {

@@ -6,28 +6,10 @@ import { PasswordLogin } from "./PasswordLogin";
 
 
 
-function SignUpLink() {
-  return (
-    <Link href="/" variant="body2">
-      Sign up
-    </Link>
-  );
-}
-
-function ForgotPasswordLink() {
-  return (
-    <Link href="/" variant="body2">
-      Forgot password?
-    </Link>
-  );
-}
-
 const OAuthSignInPage = () => {
-  
-  const [captchaToken, setCaptchaToken] = useState(null);
-  const [error, setError] = useState(null);
   const [showPasswordScreen, setShowPasswordScreen] = useState(false);
   const [email, setEmail] = useState("");
+
 
   const changeToPasswordScreen = (email) => {
     setEmail(email);

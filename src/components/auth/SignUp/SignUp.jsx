@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { FaUserSecret } from "react-icons/fa";
+import { IoIosArrowRoundBack } from "react-icons/io";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { useNavigate } from "react-router-dom";
 
@@ -67,6 +67,10 @@ function SignUp() {
     }
   };
 
+  const handleBackClick = () => {  
+    navigate("/login");
+  }
+
   return (
     <div className="oauth-signin-container">
       <div className="oauth-signin">
@@ -106,6 +110,10 @@ function SignUp() {
           </div>
 
           <h1 className="signin-title">Sign Up</h1>
+          <button onClick={handleBackClick} className="back-button">
+            <IoIosArrowRoundBack className="back-icon" />
+            Back
+          </button>
           <div className="signin-container">
             {providers.map((provider) => (
               <button

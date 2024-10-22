@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { FaUserSecret } from "react-icons/fa";
 import { Turnstile } from "@marsidev/react-turnstile";
@@ -11,11 +11,24 @@ const providers = [
 ];
 
 function SignInOptions({ changeToPasswordScreen }) {
-  const { signInWithGoogle, signInWithFacebook, signInAsGuest } = useAuth();
+  const {
+    signInWithGoogle,
+    signInWithFacebook,
+    signInAsGuest,
+    checkIfEmailExists,
+  } = useAuth();
   const [email, setEmail] = useState("");
   const [captchaToken, setCaptchaToken] = useState(null);
+  const [emailError, setEmailError] = useState("");
+  const [captchaError, setCaptchaError] = useState("");
   const captcha = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (captchaToken) {
+      setCaptchaError("");
+    }
+  }, [captchaToken]);
 
   const handleSignIn = async (provider) => {
     try {
@@ -25,7 +38,7 @@ function SignInOptions({ changeToPasswordScreen }) {
         await signInWithFacebook();
       } else if (provider.id === 3) {
         if (!captchaToken) {
-          alert("Por favor, completa el captcha.");
+          setCaptchaError("Por favor, completa el captcha.");
           return;
         }
         await signInAsGuest(captchaToken);
@@ -41,19 +54,36 @@ function SignInOptions({ changeToPasswordScreen }) {
     }
   };
 
-  const handleEmailSubmit = (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
 
-    if (!captchaToken) {
-      alert("captcha-error");
-      if (errorElement) {
-        errorElement.textContent = "Por favor, completa el captcha.";
-        errorElement.style.display = "block";
-      }
-      return;
-    }
+    //if (!email) {
+    //  setEmailError("El correo electrónico es requerido.");
+    //  return;
+    //} else if (!/\S+@\S+\.\S+/.test(email)) {
+    //  setEmailError("Por favor, introduce un correo electrónico válido.");
+    //  return;
+    //} else {
+    //  setEmailError("");
+    //}
+//
+    //if (!captchaToken) {
+    //  setCaptchaError("Por favor, completa el captcha.");
+    //  return;
+    //}
 
     changeToPasswordScreen(email);
+  };
+
+  const handleInvalid = (e) => {
+    e.preventDefault();
+    setEmailError("El correo electrónico es requerido.");
+  };
+
+  const handleOnChange = (e) => {
+    e.preventDefault();
+    setEmail(e.target.value);
+    setEmailError("");
   };
 
   return (
@@ -81,20 +111,25 @@ function SignInOptions({ changeToPasswordScreen }) {
         <span className="divider-text">or</span>
       </div>
 
-      <form className="signin-form" onSubmit={handleEmailSubmit}>
+      <form className="signin-form" onSubmit={handleEmailSubmit} novalidate>
         <label htmlFor="email">Email</label>
         <input
           type="email"
           placeholder="Email Address"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => handleOnChange(e)}
+         onInvalid={handleInvalid}
           required
         />
-        <Turnstile
-          siteKey="0x4AAAAAAAyDiG3nWfF90m8c"
-          onSuccess={(token) => setCaptchaToken(token)}
-          ref={captcha}
-        />
+        {emailError && <div className="error">{emailError}</div>}{" "}
+        <div className="captcha-container">
+          <Turnstile
+            siteKey="0x4AAAAAAAyDiG3nWfF90m8c"
+            onSuccess={(token) => setCaptchaToken(token)}
+            ref={captcha}
+          />
+        </div>
+        {captchaError && <div className="error">{captchaError}</div>}{" "}
         <button type="submit" className="submit-button">
           Next
         </button>
@@ -102,7 +137,14 @@ function SignInOptions({ changeToPasswordScreen }) {
 
       <div className="signup-link-container">
         <span>
-          Need an account? <a href="/signup">Sign Up</a>
+          Need an account?{" "}
+          <span
+            onClick={() => navigate("/signup")}
+            className="signup-link"
+            style={{ cursor: "pointer" }}
+          >
+            Sign Up
+          </span>
         </span>
       </div>
     </div>
