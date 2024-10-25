@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 import { FaUserSecret } from "react-icons/fa";
-import { Turnstile } from "@marsidev/react-turnstile";
 import { useNavigate } from "react-router-dom";
+import "../../../styles/SignInOptions.css";
 
 const providers = [
   { id: 1, name: "Google" },
@@ -11,24 +11,15 @@ const providers = [
 ];
 
 function SignInOptions({ changeToPasswordScreen }) {
-  const {
-    signInWithGoogle,
-    signInWithFacebook,
-    signInAsGuest,
-    checkIfEmailExists,
-  } = useAuth();
+  const { signInWithGoogle, signInWithFacebook, signInAsGuest } = useAuth();
   const [email, setEmail] = useState("");
-  const [captchaToken, setCaptchaToken] = useState(null);
   const [emailError, setEmailError] = useState("");
-  const [captchaError, setCaptchaError] = useState("");
-  const captcha = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (captchaToken) {
-      setCaptchaError("");
-    }
-  }, [captchaToken]);
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleSignIn = async (provider) => {
     try {
@@ -37,47 +28,29 @@ function SignInOptions({ changeToPasswordScreen }) {
       } else if (provider.id === 2) {
         await signInWithFacebook();
       } else if (provider.id === 3) {
-        if (!captchaToken) {
-          setCaptchaError("Por favor, completa el captcha.");
-          return;
-        }
-        await signInAsGuest(captchaToken);
+        await signInAsGuest();
       }
 
       navigate("/");
     } catch (error) {
-      console.error("Error al iniciar sesión:", error);
-      alert("Error al iniciar sesión: " + error.message);
+      console.error("Error signing in:", error);
+      alert("Error signing in: " + error.message);
     } finally {
-      if (captcha.current) captcha.current.resetCaptcha();
-      setCaptchaToken(null);
     }
   };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
-
-    //if (!email) {
-    //  setEmailError("El correo electrónico es requerido.");
-    //  return;
-    //} else if (!/\S+@\S+\.\S+/.test(email)) {
-    //  setEmailError("Por favor, introduce un correo electrónico válido.");
-    //  return;
-    //} else {
-    //  setEmailError("");
-    //}
-//
-    //if (!captchaToken) {
-    //  setCaptchaError("Por favor, completa el captcha.");
-    //  return;
-    //}
-
     changeToPasswordScreen(email);
   };
 
   const handleInvalid = (e) => {
     e.preventDefault();
-    setEmailError("El correo electrónico es requerido.");
+    if (!email) {
+      setEmailError("Please enter an email address.");
+    } else if (!isValidEmail(email)) {
+      setEmailError("Please enter a valid email address.");
+    }
   };
 
   const handleOnChange = (e) => {
@@ -111,25 +84,19 @@ function SignInOptions({ changeToPasswordScreen }) {
         <span className="divider-text">or</span>
       </div>
 
-      <form className="signin-form" onSubmit={handleEmailSubmit} novalidate>
+      <form className="signin-form" onSubmit={handleEmailSubmit}>
         <label htmlFor="email">Email</label>
         <input
           type="email"
           placeholder="Email Address"
           value={email}
           onChange={(e) => handleOnChange(e)}
-         onInvalid={handleInvalid}
+          onInvalid={handleInvalid}
           required
         />
-        {emailError && <div className="error">{emailError}</div>}{" "}
-        <div className="captcha-container">
-          <Turnstile
-            siteKey="0x4AAAAAAAyDiG3nWfF90m8c"
-            onSuccess={(token) => setCaptchaToken(token)}
-            ref={captcha}
-          />
-        </div>
-        {captchaError && <div className="error">{captchaError}</div>}{" "}
+        {emailError && <div className="error">{emailError}</div>}
+        
+        
         <button type="submit" className="submit-button">
           Next
         </button>

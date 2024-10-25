@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { Link } from "@mui/material";
-import "../../styles/OAuthSignInPage.css";
 import { SignInOptions } from "./SignInOptions";
 import { PasswordLogin } from "./PasswordLogin";
+import "../../../styles/OAuthSignInPage.css";
 
 
 
 const OAuthSignInPage = () => {
   const [showPasswordScreen, setShowPasswordScreen] = useState(false);
   const [email, setEmail] = useState("");
+  const [captchaToken, setCaptchaToken] = useState(null);
 
 
-  const changeToPasswordScreen = (email) => {
+  const changeToPasswordScreen = (email, captchaToken) => {
     setEmail(email);
+    setCaptchaToken(captchaToken);
     setShowPasswordScreen(!showPasswordScreen);
   };
 
@@ -20,10 +21,7 @@ const OAuthSignInPage = () => {
   return (
     <div className="oauth-signin-container">
       <div className="oauth-signin">
-        <div
-          className="signin-header"
-          style={{ textAlign: "center", marginBottom: "1.5rem" }}
-        >
+        <div className="signin-header">
           <div
             className="signin-icon"
             style={{
@@ -59,12 +57,14 @@ const OAuthSignInPage = () => {
           <p className="signin-welcome">
             Welcome user, please sign in to continue
           </p>
-          {!showPasswordScreen ? (
-            <SignInOptions changeToPasswordScreen={changeToPasswordScreen} />
-          ) : (
-            <PasswordLogin changeToPasswordScreen={changeToPasswordScreen} />
-          )}
         </div>
+        {!showPasswordScreen ? (
+          <SignInOptions changeToPasswordScreen={changeToPasswordScreen} />
+        ) : (
+          <PasswordLogin changeToPasswordScreen={changeToPasswordScreen} 
+          email={email}
+          captchaToken={captchaToken}/>
+        )}
       </div>
     </div>
   );

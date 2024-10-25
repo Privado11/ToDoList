@@ -6,6 +6,8 @@ import {
   signUpWithEmail,
   signOut,
   onAuthStateChange,
+  signInWithEmail,
+  signInMagicLink,
 } from "../service/authService";
 
 export const useAuthLogic = () => {
@@ -29,5 +31,7 @@ export const useAuthLogic = () => {
     signInAsGuest,
     signUpWithEmail,
     signOut,
+    signInWithEmail,
+    signInMagicLink,
   };
 };

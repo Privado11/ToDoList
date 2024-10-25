@@ -3,9 +3,9 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { HomePage } from "./view/HomePage";
 import { NewTodo } from "./view/NewTodo";
 import { Toast } from "./components/Toast";
-import OAuthSignInPage from "./components/auth/OAuthSignInPage";
+import OAuthSignInPage from "./components/auth/sign-in/OAuthSignInPage";
 import { useAuth } from "./components/context/AuthContext";
-import { SignUp } from "./components/auth/SignUp/SignUp";
+import { SignUp } from "./components/auth/sign-up/SignUp";
 
 function AppUI() {
   const { user, loading } = useAuth();
