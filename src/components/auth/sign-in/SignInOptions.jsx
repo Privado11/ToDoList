@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
+import React, { useState } from "react";
 import { FaUserSecret } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../../../styles/SignInOptions.css";
+import { useAuth } from "../../context/AuthContext";
 
 const providers = [
   { id: 1, name: "Google" },
@@ -14,6 +14,8 @@ function SignInOptions({ changeToPasswordScreen }) {
   const { signInWithGoogle, signInWithFacebook, signInAsGuest } = useAuth();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const isValidEmail = (email) => {
@@ -22,41 +24,42 @@ function SignInOptions({ changeToPasswordScreen }) {
   };
 
   const handleSignIn = async (provider) => {
+    setLoading(true);
     try {
-      if (provider.id === 1) {
-        await signInWithGoogle();
-      } else if (provider.id === 2) {
-        await signInWithFacebook();
-      } else if (provider.id === 3) {
-        await signInAsGuest();
+      switch (provider.id) {
+        case 1:
+          await signInWithGoogle();
+          break;
+        case 2:
+          await signInWithFacebook();
+          break;
+        case 3:
+          await signInAsGuest();
+          break;
+        default:
+          throw new Error("Unknown provider");
       }
-
       navigate("/");
     } catch (error) {
-      console.error("Error signing in:", error);
-      alert("Error signing in: " + error.message);
+      setErrorMessage("Error signing in: " + error.message);
     } finally {
+      setLoading(false);
     }
   };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
+    if (!isValidEmail(email)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
     changeToPasswordScreen(email);
   };
 
-  const handleInvalid = (e) => {
-    e.preventDefault();
-    if (!email) {
-      setEmailError("Please enter an email address.");
-    } else if (!isValidEmail(email)) {
-      setEmailError("Please enter a valid email address.");
-    }
-  };
-
   const handleOnChange = (e) => {
-    e.preventDefault();
     setEmail(e.target.value);
     setEmailError("");
+    setErrorMessage(""); 
   };
 
   return (
@@ -66,6 +69,7 @@ function SignInOptions({ changeToPasswordScreen }) {
           key={provider.id}
           className="signin-button"
           onClick={() => handleSignIn(provider)}
+          disabled={loading}
         >
           {provider.id !== 3 ? (
             <img
@@ -90,15 +94,14 @@ function SignInOptions({ changeToPasswordScreen }) {
           type="email"
           placeholder="Email Address"
           value={email}
-          onChange={(e) => handleOnChange(e)}
-          onInvalid={handleInvalid}
+          onChange={handleOnChange}
           required
         />
         {emailError && <div className="error">{emailError}</div>}
-        
-        
-        <button type="submit" className="submit-button">
-          Next
+        {errorMessage && <div className="error">{errorMessage}</div>}
+
+        <button type="submit" className="submit-button" disabled={loading}>
+          {loading ? "Loading..." : "Next"}
         </button>
       </form>
 

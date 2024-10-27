@@ -4,16 +4,18 @@ import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { FaKey } from "react-icons/fa";
 import { ImMagicWand } from "react-icons/im";
 import "../../../styles/PasswordLogin.css";
-import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import emailImg from "../../../assets/correo-electronico.png";
+import { useAuth } from "../../context/AuthContext";
 
 function PasswordLogin({ changeToPasswordScreen, email }) {
-  const { signInWithEmail, signInMagicLink } = useAuth();
+  const { signInWithEmail, signInWithMagicLink } = useAuth();
   const [password, setPassword] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showMagicModal, setShowMagicModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
   const navigate = useNavigate();
 
   const handleBackClick = () => changeToPasswordScreen();
@@ -26,13 +28,12 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
   const togglePasswordForm = () => {
     setShowPasswordForm((prev) => !prev);
     if (showPasswordForm) {
-      setPassword(""); 
+      setPassword("");
     }
   };
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-
     try {
       await signInWithEmail(email, password);
       navigate("/");
@@ -45,20 +46,34 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
   const closeMagicModal = () => {
     setShowMagicModal(false);
     changeToPasswordScreen(false);
+    setResendMessage(""); 
   };
 
   const handleMagicSignIn = async (e) => {
     e.preventDefault();
     if (showPasswordForm) {
-      setShowPasswordForm(false); 
+      setShowPasswordForm(false);
     }
-
     try {
-      await signInMagicLink(email);
       setShowMagicModal(true);
+      await signInWithMagicLink(email);
     } catch (error) {
       console.error("Magic link sign-in error:", error);
       setErrorMessage(error.message);
+    }
+  };
+
+  const handleResendMagicLink = async () => {
+    setIsResending(true);
+    setResendMessage(""); 
+    try {
+      await signInWithMagicLink(email);
+      setResendMessage("Magic link resent successfully!"); 
+    } catch (error) {
+      console.error("Error resending magic link:", error);
+      setErrorMessage(error.message);
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -92,9 +107,17 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
               <strong>piranhaplanner.online</strong>, you'll find a magic link
               that will allow you to sign in to the application.
             </p>
+            {resendMessage && <p style={{ color: "green" }}>{resendMessage}</p>}{" "}
+
+            <button
+              className="btn btn-primary mt-3"
+              onClick={handleResendMagicLink}
+              disabled={isResending}
+            >
+              {isResending ? "Resending..." : "Resend Magic Link"}
+            </button>
             <button className="btn btn-link" onClick={closeMagicModal}>
-              <i className="bi bi-arrow-left me-2"></i>
-              Back to Login
+              <i className="bi bi-arrow-left me-2"></i> Back to Login
             </button>
           </div>
         </div>
@@ -149,7 +172,12 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
           </div>
         </div>
         <div className="forgot-password-container">
-          <a className="forgot-password">Forgot password?</a>
+          <a
+            className="forgot-password"
+            onClick={() => navigate("/password-reset", { state: { email } })}
+          >
+            Forgot password?
+          </a>
         </div>
       </div>
       {showMagicModal && <MagicModal />}

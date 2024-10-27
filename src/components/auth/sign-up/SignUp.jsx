@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import logoImg from "../../../assets/logo-piranha.webp";  
 import "../../../styles/OAuthSignInPage.css";
+import { useAuth } from "../../context/AuthContext";
 
 const providers = [
   { id: 1, name: "Google", icon: <FcGoogle /> },
@@ -13,24 +14,10 @@ const providers = [
 
 function SignUp() {
   const { signInWithGoogle, signInWithFacebook, signUpWithEmail } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordsMatch, setPasswordsMatch] = useState(true);
+  const [email, setEmail] = useState(""); 
   const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState(""); 
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (confirmPassword.length >= 6) {
-      if (password !== confirmPassword) {
-        setPasswordError("Passwords do not match.");
-      }
-    } else {
-      setPasswordError("");
-    }
-  }, [confirmPassword, password]);
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -58,18 +45,9 @@ function SignUp() {
       setEmailError("");
     }
 
- 
-    if (password.length < 6) {
-      setPasswordError("Password must be at least 6 characters long.");
-      return;
-    }
-
-    if (!passwordsMatch) {
-      return; 
-    }
 
     try {
-      await signUpWithEmail(email, password);
+      await signUpWithEmail(email);
       navigate("/");
     } catch (error) {
       console.error("Error signing up:", error);
@@ -88,10 +66,8 @@ function SignUp() {
           <div
             className="signin-icon"
             style={{
-              backgroundColor: "#3b82f6",
-              borderRadius: "50%",
-              width: "48px",
-              height: "48px",
+              width: "9rem",
+              height: "9rem",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -99,21 +75,16 @@ function SignUp() {
               marginBottom: "2rem",
             }}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="white"
-              width="24"
-              height="24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-              />
-            </svg>
+            <img
+              src={logoImg}
+              alt="Piranha Planner Logo"
+              style={{
+                width: "9rem",
+                height: "9rem",
+                objectFit: "contain",
+                borderRadius: "50%",
+              }}
+            />
           </div>
 
           <h1 className="signin-title">Sign Up</h1>
@@ -148,25 +119,6 @@ function SignUp() {
               required
             />
             {emailError && <p style={{ color: "red" }}>{emailError}</p>}
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <label htmlFor="confirm-password">Confirm Password</label>
-            <input
-              type="password"
-              id="confirm-password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
 
             <div className="signup-link-container">
               <span>
