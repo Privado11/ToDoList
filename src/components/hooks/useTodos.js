@@ -1,13 +1,8 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
-import {
-  getTodos,
-  getTodoById,
-  saveTodo,
-  putTodo,
-  deleteTodo as removeTodo,
-} from "../service/todoService";
+import TodoService from "../service/todoService";
 import { useToast } from "../context/ToastContext";
 import { useAuthLogic } from "./useAuth";
+import { supabase } from "../service/supabase";
 
 export const useTodos = () => {
   const [todos, setTodos] = useState([]);
@@ -20,25 +15,21 @@ export const useTodos = () => {
   const fetchTodos = useCallback(async () => {
     if (!user) return;
 
+    setLoading(true);
+    setError(null);
     try {
-      const todosData = await getTodos(user.id);
-      setTodos(todosData || []);
+      const data = await TodoService.getTodos(user.id);
+      setTodos(data);
     } catch (err) {
-      console.error("Error fetching todos:", err.message);
-      setError("Error fetching todos");
-      showToast("Error fetching todos");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [user, showToast]);
+  }, [user]);
 
   useEffect(() => {
     fetchTodos();
   }, [fetchTodos]);
-
-  const refreshTodos = async () => {
-    await fetchTodos();
-  };
 
   const completedTodos = useMemo(
     () => todos.filter((todo) => todo.completed).length,
@@ -50,103 +41,242 @@ export const useTodos = () => {
     [todos, completedTodos]
   );
 
-  const fetchTodoById = async (id) => {
+  const getTodoById = useCallback(async (id) => {
+    if (!id) return;
+
+    setLoading(true);
+    setError(null);
     try {
-      const todo = await getTodoById(id);
-      if (todo && todo.length > 0) {
-        setSelectedTodo(todo[0]);
-        return todo[0];
-      } else {
-        showToast("Task not found");
-      }
-    } catch (error) {
-      console.error("Error fetching todo by ID:", error.message);
-      showToast("Error fetching task");
+      const todo = await TodoService.getTodoById(id);
+      setSelectedTodo(todo);
+
+      TodoService.subscribeToComments(id, (updatedComments) => {
+        setSelectedTodo((prevTodo) => {
+          if (!prevTodo) return null;
+          return {
+            ...prevTodo,
+            comments_with_user_names: updatedComments,
+          };
+        });
+      });
+
+      return todo;
+    } catch (err) {
+      setError(err.message);
+      setSelectedTodo(null);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const addTodo = async (newTask) => {
-    if (!user) return;
+  const getTodoInvitedById = useCallback(async (id) => {
+    if (!id) return;
+    setLoading(true);
+    setError(null);
     try {
-      const insertedTodo = await saveTodo(newTask, user.id);
-      if (insertedTodo) {
-        fetchTodos();
-        showToast("Task added successfully");
-      }
-    } catch (error) {
-      console.error("Error adding task:", error.message);
-      showToast("Error adding task");
+      const todo = await TodoService.getTodoInvitedById(id);
+      setSelectedTodo(todo);
+
+      return todo;
+    } catch (err) {
+      setError(err.message);
+      setSelectedTodo(null);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const updateTodo = async (updatedTask) => {
+  const updateInvitationStatus = useCallback(async (id, status) => {
+    if (!id || !status) return;
+    setLoading(true);
+    setError(null);
     try {
-      const updatedTodo = await putTodo(updatedTask.id, updatedTask);
-      if (updatedTodo) {
-        await refreshTodos();
-        showToast("Task updated successfully");
-      }
-    } catch (error) {
-      console.error("Error updating task:", error.message);
-      showToast("Error updating task");
+      const updatedTodo = await TodoService.updateInvitationStatus(id, status);
+      setSelectedTodo(updatedTodo);
+      return updatedTodo;
+    } catch (err) {
+      setError(err.message);
+      setSelectedTodo(null);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const deleteTodo = async (id) => {
-    try {
-      const success = await removeTodo(id);
-      if (success) {
-        fetchTodos();
-        showToast("Task deleted successfully");
-      }
-    } catch (error) {
-      console.error("Error deleting task:", error.message);
-      showToast("Error deleting task");
+
+  const clearSelectedTodo = useCallback(() => {
+    if (selectedTodo?.id) {
+      TodoService.unsubscribeFromComments(selectedTodo.id);
     }
-  };
+    setSelectedTodo(null);
+  }, [selectedTodo?.id]);
 
-  const completeTodo = async (id) => {
-    try {
-      const todoIndex = todos.findIndex((todo) => todo.id === id);
-      if (todoIndex < 0) return;
+  useEffect(() => {
+    return () => {
+      TodoService.unsubscribeFromAll();
+    };
+  }, []);
 
-      const updatedTodo = {
-        ...todos[todoIndex],
-        completed: !todos[todoIndex].completed,
-      };
+  const createTodo = useCallback(
+    async (todoData) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const newTodo = await TodoService.saveTodo(todoData, user.id);
+        setTodos((prev) => [newTodo, ...prev]);
+        return newTodo;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user?.id]
+  );
 
-      const result = await putTodo(id, updatedTodo);
-      if (result) {
-        setTodos((prevTodos) =>
-          prevTodos.map((todo) =>
-            todo.id === id
-              ? { ...todo, completed: updatedTodo.completed }
-              : todo
-          )
+  const createComment = useCallback(
+    async (commentData, taskId) => {
+      if (!user) return;
+
+      setLoading(true);
+      setError(null);
+      try {
+        const newComment = await TodoService.saveComment(
+          commentData,
+          taskId,
+          user.id
         );
-        showToast(
-          updatedTodo.completed
-            ? "Task completed successfully"
-            : "Task unmarked as completed"
-        );
+
+        return newComment;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error completing task:", error.message);
-      showToast("Error completing task");
-    }
-  };
+    },
+    [user]
+  );
+  const updateTodo = useCallback(
+    async (id, updates) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const updatedTodo = await TodoService.updateTodo(id, updates);
+        setTodos((prev) =>
+          prev.map((todo) => (todo.id === id ? updatedTodo : todo))
+        );
+        if (selectedTodo?.id === id) {
+          setSelectedTodo(updatedTodo);
+        }
+        return updatedTodo;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedTodo]
+  );
+
+  const deleteTodo = useCallback(
+    async (id) => {
+      setLoading(true);
+      setError(null);
+      try {
+        await TodoService.deleteTodo(id);
+        setTodos((prev) => prev.filter((todo) => todo.id !== id));
+        if (selectedTodo?.id === id) {
+          setSelectedTodo(null);
+        }
+        return true;
+      } catch (err) {
+        setError(err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [selectedTodo]
+  );
+
+  const completeTodo = useCallback(
+    async (id) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const todoIndex = todos.findIndex((todo) => todo.id === id);
+        if (todoIndex < 0) throw new Error("Task not found");
+
+        const updatedTodo = {
+          ...todos[todoIndex],
+          completed: !todos[todoIndex].completed,
+        };
+
+        const result = await TodoService.putTodo(id, updatedTodo);
+        if (result) {
+          setTodos((prevTodos) =>
+            prevTodos.map((todo) =>
+              todo.id === id
+                ? { ...todo, completed: updatedTodo.completed }
+                : todo
+            )
+          );
+        }
+      } catch (err) {
+        setError(err.message);
+        console.error("Error completing task:", err.message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [todos]
+  );
+
+  const shareTask = useCallback(
+    async (taskId, recipientId, isEmail) => {
+      if (!user) return;
+
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await TodoService.sharedTask(
+          taskId,
+          user.id,
+          recipientId,
+          isEmail
+        );
+        return data; 
+      } catch (err) {
+        setError(err.message);
+        console.error("Error sharing task:", err.message);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user] 
+  );
+
 
   return {
     todos,
     selectedTodo,
-    completedTodos,
-    inProgressTodos,
     loading,
     error,
-    addTodo,
+    fetchTodos,
+    getTodoById,
+    createTodo,
     updateTodo,
     deleteTodo,
+    clearSelectedTodo,
     completeTodo,
-    fetchTodoById,
+    completedTodos,
+    inProgressTodos,
+    createComment,
+    shareTask,
+    getTodoInvitedById,
+    updateInvitationStatus
   };
 };

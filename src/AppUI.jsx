@@ -9,6 +9,8 @@ import { PasswordReset } from "./components/auth/PasswordReset";
 import { CompleteProfile } from "./components/auth/sign-up/CompleteProfile";
 import { useAuth } from "./components/context/AuthContext";
 import { ResetPassword } from "./components/auth/ResetPassword";
+import { TodoDetail } from "./view/TodoDetail";
+import { SharedTaskInvitationView } from "./view/SharedTaskInvitationView.jsx";
 
 export const ProtectedRoute = () => {
   const { user, loading } = useAuth();
@@ -44,6 +46,11 @@ function AppUI() {
           <Route path="/add-task" element={<NewTodo />} />
           <Route path="/edit-task/:id" element={<NewTodo />} />
           <Route path="/update-password" element={<ResetPassword />} />
+          <Route path="/task-detail/:id" element={<TodoDetail />} />
+          <Route
+            path="/invitation/:token"
+            element={<SharedTaskInvitationView />}
+          />
         </Route>
 
         {/* Rutas públicas */}

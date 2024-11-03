@@ -7,14 +7,13 @@ import editTask from "../../../assets/edit.svg";
 import { TodoDetailModal } from "../detail/TodoDetailModal";
 import { Alert } from "../../Alert";
 import "../../../styles/TodoItem.css";
+import { useNavigate } from "react-router-dom";
 
 function TodoItem({ todo }) {
   const options = {
     day: "numeric",
     month: "long",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
   };
   const formattedDate = new Date(todo.creation_date).toLocaleDateString(
     "en-EN",
@@ -22,9 +21,10 @@ function TodoItem({ todo }) {
   );
   const [openModal, setOpenModal] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
+  const navigate = useNavigate();
 
   const handleOpenModal = () => {
-    setOpenModal(true);
+   navigate(`/task-detail/${todo.id}`);
   };
 
   const handleCloseModal = () => {

@@ -1,22 +1,10 @@
-html {
-  box-sizing: border-box;
-  font-size: 62.5%;
-}
-
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
-}
-
-#root {
-  height: 100vh;
-  background-color: #4f4e4e;
+.containerPrin {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: 100dvh;
 }
+
 .containerApp {
   width: 75%;
   height: 75%;

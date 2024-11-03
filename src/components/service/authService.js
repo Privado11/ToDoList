@@ -9,40 +9,76 @@ class AuthService {
   }
 
   static async signInWithGoogle() {
-    return new Promise((resolve, reject) => {
-      const width = 400;
-      const height = 500;
-      const left = Math.floor((window.innerWidth - width) / 2);
-      const top = Math.floor((window.innerHeight - height) / 2);
+    const width = 600;
+    const height = 700;
 
-      const redirectTo = `${window.location.origin}/`;
-      const providerUrl = `${
-        supabase.supabaseUrl
-      }/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(
-        redirectTo
-      )}`;
+    const left = (window.innerWidth - width) / 2 + window.screenX;
+    const top = (window.innerHeight - height) / 2 + window.screenY;
 
+    const popupFeatures = [
+      `width=${width}`,
+      `height=${height}`,
+      `left=${left}`,
+      `top=${top}`,
+      "status=yes",
+      "toolbar=no",
+      "location=no",
+      "menubar=no",
+      "resizable=yes",
+      "scrollbars=yes",
+    ].join(",");
+
+    try {
       const popup = window.open(
-        providerUrl,
-        "googleAuth",
-        `width=${width},height=${height},top=${top},left=${left}`
+        "about:blank",
+        "Login with Google",
+        popupFeatures
       );
 
-      const interval = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(interval);
-          reject(new Error("Popup closed without signing in."));
-        }
-      }, 1000);
+      if (!popup) {
+        throw new Error("The popup was blocked by the browser");
+      }
 
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (session) {
-          clearInterval(interval);
-          popup.close();
-          resolve(session);
-        }
+      popup.moveTo(left, top);
+      popup.resizeTo(width, height);
+
+      const options = {
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          skipBrowserRedirect: true,
+        },
+      };
+
+      const { data, error } = await supabase.auth.signInWithOAuth(options);
+
+      if (error) throw error;
+
+      if (data?.url && popup) {
+        popup.location.href = data.url;
+      }
+
+      return await new Promise((resolve, reject) => {
+        window.addEventListener("message", (event) => {
+          if (event.origin !== window.location.origin) return;
+
+          if (event.data?.type === "SUPABASE_AUTH_COMPLETE") {
+            popup?.close();
+            resolve(event.data);
+          }
+        });
+
+        const checkInterval = setInterval(() => {
+          if (popup?.closed) {
+            clearInterval(checkInterval);
+            reject(new Error("Authentication window closed"));
+          }
+        }, 500);
       });
-    });
+    } catch (error) {
+      AuthService.handleAuthError(error, "Error logging in with Google");
+      throw error;
+    }
   }
 
   static async signInWithEmail(email, password) {
@@ -69,41 +105,77 @@ class AuthService {
     AuthService.handleAuthError(error, "Error sending magic link");
   }
 
-  static async signInWithFacebook() {
-    return new Promise((resolve, reject) => {
-      const width = 700;
-      const height = 700;
-      const left = Math.floor((window.innerWidth - width) / 2);
-      const top = Math.floor((window.innerHeight - height) / 2);
+  static async signInWithGoogle() {
+    const width = 600;
+    const height = 700;
 
-      const redirectTo = `${window.location.origin}/`;
-      const providerUrl = `${
-        supabase.supabaseUrl
-      }/auth/v1/authorize?provider=facebook&redirect_to=${encodeURIComponent(
-        redirectTo
-      )}`;
+    const left = (window.innerWidth - width) / 2 + window.screenX;
+    const top = (window.innerHeight - height) / 2 + window.screenY;
 
+    const popupFeatures = [
+      `width=${width}`,
+      `height=${height}`,
+      `left=${left}`,
+      `top=${top}`,
+      "status=yes",
+      "toolbar=no",
+      "location=no",
+      "menubar=no",
+      "resizable=yes",
+      "scrollbars=yes",
+    ].join(",");
+
+    try {
       const popup = window.open(
-        providerUrl,
-        "facebookAuth",
-        `width=${width},height=${height},top=${top},left=${left}`
+        "about:blank",
+        "Login with Google",
+        popupFeatures
       );
 
-      const interval = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(interval);
-          reject(new Error("Popup closed without signing in."));
-        }
-      }, 1000);
+      if (!popup) {
+        throw new Error("The popup was blocked by the browser");
+      }
 
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (session) {
-          clearInterval(interval);
-          popup.close();
-          resolve(session);
-        }
+      popup.moveTo(left, top);
+      popup.resizeTo(width, height);
+
+      const options = {
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          skipBrowserRedirect: true,
+        },
+      };
+
+      const { data, error } = await supabase.auth.signInWithOAuth(options);
+
+      if (error) throw error;
+
+      if (data?.url && popup) {
+        popup.location.href = data.url;
+      }
+
+      return await new Promise((resolve, reject) => {
+        window.addEventListener("message", (event) => {
+          if (event.origin !== window.location.origin) return;
+
+          if (event.data?.type === "SUPABASE_AUTH_COMPLETE") {
+            popup?.close();
+            resolve(event.data);
+          }
+        });
+
+        const checkInterval = setInterval(() => {
+          if (popup?.closed) {
+            clearInterval(checkInterval);
+            reject(new Error("Authentication window closed"));
+          }
+        }, 500);
       });
-    });
+    } catch (error) {
+      AuthService.handleAuthError(error, "Error logging in with Google");
+      throw error;
+    }
   }
 
   static async signInAsGuest() {

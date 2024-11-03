@@ -1,14 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { MinHeightTextarea } from "../components/MinHeightTextarea";
-import { BasicDateTimePicker } from "../components/BasicDateTimePicker";
-import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
+import { Calendar, Upload } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useTodo } from "../components/context/TodoContext";
-import "../styles/NewTodo.css";
 
 function NewTodo() {
-  const { addTodo: addTask, todos, updateTodo, categories } = useTodo();
+  const {
+    createTodo: addTask,
+    todos,
+    updateTodo,
+    categories,
+    priorities,
+    statuses,
+  } = useTodo();
   let navigate = useNavigate();
   const { id } = useParams();
   const [customCategory, setCustomCategory] = useState("");
@@ -18,9 +33,13 @@ function NewTodo() {
     description: "",
     category_id: null,
     due_date: null,
-    priority_id: null,
-    comments: "",
+    status_id: 1,
+    priority_id: 1,
   });
+
+  useEffect(() => {
+    console.log("NewTask", newTask);
+  }, [newTask]);
 
   useEffect(() => {
     if (id) {
@@ -30,31 +49,6 @@ function NewTodo() {
 
   const onInputChange = (e) => {
     setNewTask({ ...newTask, [e.target.name]: e.target.value });
-  };
-
-  const onPriorityChange = (e) => {
-    const selectedPriority = e.target.value;
-    let priorityId;
-
-    switch (selectedPriority) {
-      case "Low":
-        priorityId = 1; 
-        break;
-      case "Medium":
-        priorityId = 2; 
-        break;
-      case "High":
-        priorityId = 3; 
-        break;
-      default:
-        priorityId = null;
-    }
-
-    setNewTask({ ...newTask, priority_id: priorityId });
-  };
-
-  const onCategoryChange = (event, value) => {
-    setNewTask({ ...newTask, category_id: value.id });
   };
 
   const onSubmit = (e) => {
@@ -71,142 +65,178 @@ function NewTodo() {
 
     if (id) {
       updateTodo(newTask);
+       navigate("/");
     } else {
       addTask(newTask);
+       navigate("/");
     }
-    navigate("/");
+   
   };
 
   return (
     <div className="container">
-      <div className="container-text text-center">
-        <h1>{id ? "Edit Task" : "Add New Task"}</h1>
-      </div>
-      <form onSubmit={onSubmit}>
-        <div className="mb-3">
-          <label htmlFor="title" className="form-label">
-            Title
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="title"
-            name="title"
-            required={true}
-            value={newTask.title}
-            onChange={onInputChange}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="description" className="form-label">
-            Description
-          </label>
-          <MinHeightTextarea
-            className="form-control"
-            id="description"
-            name="description"
-            value={newTask.description}
-            onChange={onInputChange}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="category_id" className="form-label">
-            category_id
-          </label>
-          <Autocomplete
-            className="form-control"
-            disablePortal
-            options={categories}
-            getOptionLabel={(option) => option.name || "Unknown"}
-            value={
-              categories.find((cat) => cat.id === newTask.category_id) || null
-            } 
-            renderInput={(params) => <TextField {...params} />}
-            onChange={onCategoryChange}
-          />
-          {newTask.category_id === "Other (please specify)" && (
-            <input
-              type="text"
-              className="form-control mt-2"
-              placeholder="Enter custom category_id"
-              onChange={(e) => setCustomCategory(e.target.value)}
+      <Card className="max-w-2xl mx-auto" />
+      <CardHeader>
+        <CardTitle className="text-3xl font-bold">
+          {id ? "Edit Task" : "New Task"}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form className="space-y-6" onSubmit={onSubmit}>
+          <div>
+            <Label htmlFor="title" className="text-xl font-bold">
+              Title
+            </Label>
+            <Input
+              id="title"
+              name="title"
+              required={true}
+              value={newTask.title}
+              onChange={onInputChange}
+              placeholder="Enter the title of the task"
+              className="w-full text-lg py-4 "
             />
-          )}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="due_date" className="form-label">
-            Due Date
-          </label>
-          <BasicDateTimePicker
-            className="form-control"
-            id="due_date"
-            name="due_date"
-            value={newTask.due_date}
-            onChange={onInputChange}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="priority_id" className="form-label">
-            priority_id
-          </label>
-          <div className="radio-group">
-            <label>
-              <input
-                type="radio"
-                value="Low"
-                name="priority_id"
-                checked={newTask.priority_id === 1}
-                onChange={onPriorityChange}
-              />{" "}
-              Low
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="Medium"
-                name="priority_id"
-                checked={newTask.priority_id === 2}
-                onChange={onPriorityChange}
-              />{" "}
-              Medium
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="High"
-                name="priority_id"
-                checked={newTask.priority_id === 3}
-                onChange={onPriorityChange}
-              />{" "}
-              High
-            </label>
           </div>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="comments" className="form-label">
-            Comments
-          </label>
-          <MinHeightTextarea
-            className="form-control"
-            id="comments"
-            name="comments"
-            value={newTask.comments}
-            onChange={onInputChange}
-          />
-        </div>
-        <div className="text-center" style={{ marginTop: "2rem", gap: "2rem" }}>
-          <button type="submit" className="btn btn-success btn-sm me-3">
-            {id ? "Update Task" : "Add Task"}
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger btn-sm"
-            onClick={() => navigate("/")}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+
+          <div>
+            <Label htmlFor="description" className="text-xl font-bold">
+              Description
+            </Label>
+            <Textarea
+              id="description"
+              name="description"
+              value={newTask.description}
+              onChange={onInputChange}
+              placeholder="Describe the task in detail"
+              className="w-full min-h-[8rem] max-h-[15rem] text-lg resize-none overflow-auto"
+              style={{ height: "auto" }}
+              onInput={(e) => {
+                e.target.style.height = "auto";
+                e.target.style.height = `${Math.min(
+                  e.target.scrollHeight,
+                  320
+                )}px`;
+              }}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-xl font-bold">Due Date</Label>
+              <div className="relative">
+                <Input
+                  type="date"
+                  id="due_date"
+                  name="due_date"
+                  value={newTask.due_date}
+                  onChange={onInputChange}
+                  className="w-full text-lg py-4 cursor-pointer"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-xl font-bold">Category</Label>
+              <Select
+                onValueChange={(value) =>
+                  setNewTask({ ...newTask, category_id: parseInt(value) })
+                }
+              >
+                <SelectTrigger className="text-lg py-4 font-normal">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem
+                      key={category.id}
+                      value={category.id.toString()}
+                      className="text-lg"
+                    >
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label className="text-xl font-bold">Priority</Label>
+              <Select
+                onValueChange={(value) =>
+                  setNewTask({ ...newTask, priority_id: parseInt(value) })
+                }
+              >
+                <SelectTrigger className="text-lg py-4 font-normal">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  {priorities.map((priority) => (
+                    <SelectItem
+                      className="text-lg"
+                      key={priority.id}
+                      value={priority.id.toString()}
+                    >
+                      {priority.level}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xl font-bold">Status</Label>
+              <Select
+                onValueChange={(value) =>
+                  setNewTask({ ...newTask, status_id: parseInt(value) })
+                }
+              >
+                <SelectTrigger className="text-lg py-4 font-normal">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statuses.map((status) => (
+                    <SelectItem
+                      className="text-lg"
+                      key={status.id}
+                      value={status.id.toString()}
+                    >
+                      {status.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <Label className="text-xl font-bold">Attachments</Label>
+            <div className="border-2 border-dashed rounded-lg p-6 text-center">
+              <Upload className="mx-auto h-12 w-12 text-gray-400" />
+              <div className="mt-2 flex justify-center items-center gap-1">
+                <p className="text-lg text-gray-600">Drag files here or</p>
+                <button
+                  type="button"
+                  className="text-blue-500 hover:text-blue-600 font-medium text-lg"
+                >
+                  select files
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4">
+            <Button
+              variant="outline"
+              className="text-xl font-bold py-4"
+              onClick={() => navigate("/")}
+            >
+              Cancel
+            </Button>
+            <Button className="text-xl font-bold py-4">Save Task</Button>
+          </div>
+        </form>
+      </CardContent>
     </div>
   );
 }

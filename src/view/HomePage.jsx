@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { TodoList } from "../components/todos/list/TodoList";
 import { CreateTodoButton } from "../components/todos/create/CreateTodoButton";
@@ -13,11 +13,15 @@ import "../styles/App.css";
 
 function HomePage({ user }) {
   const { todos, completeTodo, deleteTodo, loading} = useTodo();
-
   const navigate = useNavigate();
 
+  useEffect(() => {
+    console.log("Todos", todos);
+  }
+  , [todos]);
+
   return (
-    <>
+    <div className="containerPrin">
       <div className="containerApp">
         <Header user={user} />
         <main>
@@ -36,7 +40,7 @@ function HomePage({ user }) {
           </Progress>
         </main>
       </div>
-    </>
+    </div>
   );
 }
 
