@@ -4,7 +4,6 @@
 
 html {
   box-sizing: border-box;
-  font-size: 62.5%;
 }
 
 *,
@@ -16,8 +15,8 @@ html {
 #root {
   display: flex;
   flex-direction: column;
-  height: 100dvh; /* Para asegurar que ocupe toda la pantalla */
-  overflow-y: auto; /* Agrega scroll si es necesario */
+  height: 100dvh;
+  overflow-y: auto; 
 }
 
 body {
@@ -29,13 +28,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding: 2rem;
-  justify-content: center;
-}
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",

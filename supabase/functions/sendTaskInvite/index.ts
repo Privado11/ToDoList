@@ -158,7 +158,7 @@ async function getTaskDetails(
   taskId: string
 ): Promise<TaskDetails> {
   const { data, error } = await supabase
-    .from('todos')
+    .from('tasks')
     .select('title')
     .eq('id', taskId)
     .single();

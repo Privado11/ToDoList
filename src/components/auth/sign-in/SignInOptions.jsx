@@ -11,7 +11,12 @@ const providers = [
 ];
 
 function SignInOptions({ changeToPasswordScreen }) {
-  const { signInWithGoogle, signInWithFacebook, signInAsGuest } = useAuth();
+  const {
+    signInWithGoogle,
+    signInWithFacebook,
+    signInAsGuest,
+    signInWithPhone,
+  } = useAuth();
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getStatuses } from "../service/statusService";
+import { getStatuses } from "../service/status/statusService";
 
 export const useStatuses = () => {
   const [statuses, setStatuses] = useState([]);

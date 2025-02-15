@@ -1,5 +1,5 @@
-import  { useEffect, useState } from "react";
-import { getPriorities } from "../service/priorityService";
+import { useEffect, useState } from "react";
+import { getPriorities } from "../service/priority/priorityService";
 
 export const usePriorities = () => {
   const [priorities, setPriorities] = useState([]);

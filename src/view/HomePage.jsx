@@ -1,42 +1,39 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { TodoList } from "../components/todos/list/TodoList";
-import { CreateTodoButton } from "../components/todos/create/CreateTodoButton";
-import { Header } from "../components/todos/header/Header";
-import { Progress } from "../components/todos/progress/Progress";
-import { TodoCounter } from "../components/todos/counter/TodoCounter";
-import { TodosLoading } from "../components/todos/loading/TodosLoading";
-import { EmptyTodos } from "../components/todos/empty/EmptyTodos";
-import { useTodo } from "../components/context/TodoContext";
-
+;
 import "../styles/App.css";
+import { useTaskContext } from "@/components/context/TaskContext";
+import { TaskList } from "@/components/tasks/list/TaskList";
+import { TaskLoading } from "@/components/tasks/loading/TaskLoading";
+import { Progress } from "@/components/tasks/progress/Progress";
+import { TaskCounter } from "@/components/tasks/counter/TaskCounter";
+import { CreateTaskButton } from "@/components/tasks/create/CreateTaskButton";
+import { Header } from "@/components/tasks/header/Header";
 
 function HomePage({ user }) {
-  const { todos, completeTodo, deleteTodo, loading} = useTodo();
+  const { tasks, completeTask, deleteTask, loading } = useTaskContext();
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Todos", todos);
-  }
-  , [todos]);
+    console.log(tasks);
+  }, [tasks]);
 
   return (
     <div className="containerPrin">
       <div className="containerApp">
         <Header user={user} />
         <main>
-          <TodoList
-            todos={todos}
-            onComplete={completeTodo}
+          <TaskList
+            tasks={tasks}
+            onComplete={completeTask}
             onEdit={(id) => navigate(`/edit-task/${id}`)}
-            onDelete={deleteTodo}
+            onDelete={deleteTask}
           >
-            {loading && <TodosLoading />}
-            {!loading && todos.length === 0 && <EmptyTodos />}
-          </TodoList>
+            {loading && <TaskLoading />}
+          </TaskList>
           <Progress>
-            <TodoCounter />
-            <CreateTodoButton />
+            <TaskCounter />
+            <CreateTaskButton />
           </Progress>
         </main>
       </div>

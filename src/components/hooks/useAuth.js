@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import AuthService from "../service/authService";
+import { useEffect, useState, useCallback } from "react";
+import AuthService from "../service/auth/authService";
 
 export const useAuthLogic = () => {
   const [user, setUser] = useState(null);
   const [isVerified, setIsVerified] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -34,34 +35,47 @@ export const useAuthLogic = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleAuth = async (authFunction, ...params) => {
+  const handleAuth = useCallback(async (authFunction, ...params) => {
+    setIsProcessing(true);
     try {
       setError(null);
-      await authFunction(...params);
+      const result = await authFunction(...params);
+      return result;
     } catch (error) {
+      console.error(error);
       setError(error.message);
       throw error;
+    } finally {
+      setIsProcessing(false);
     }
-  };
+  }, []);
 
   return {
     user,
     isVerified,
     loading,
+    isProcessing,
     error,
-    signInWithGoogle: () => handleAuth(AuthService.signInWithGoogle),
-    signInWithFacebook: () => handleAuth(AuthService.signInWithFacebook),
-    signInAsGuest: () => handleAuth(AuthService.signInAsGuest),
-    signUpWithEmail: (email) => handleAuth(AuthService.signUpWithEmail, email),
-    signOut: () => handleAuth(AuthService.signOut),
+    signInWithGoogle: () => handleAuth(() => AuthService.signInWithGoogle()),
+    signInWithFacebook: () =>
+      handleAuth(() => AuthService.signInWithFacebook()),
+    signInAsGuest: () => handleAuth(() => AuthService.signInAsGuest()),
+    signUpWithEmail: (email, password) =>
+      handleAuth(() => AuthService.signUpWithEmail(email, password)),
+    signInWithPhone: (phone) =>
+      handleAuth(() => AuthService.signInWithPhone(phone)),
+    signOut: () => handleAuth(() => AuthService.signOut()),
     signInWithEmail: (email, password) =>
-      handleAuth(AuthService.signInWithEmail, email, password),
+      handleAuth(() => AuthService.signInWithEmail(email, password)),
     signInWithMagicLink: (email) =>
-      handleAuth(AuthService.signInWithMagicLink, email),
-    resetPassword: (email) => handleAuth(AuthService.resetPassword, email),
+      handleAuth(() => AuthService.signInWithMagicLink(email)),
+    resetPassword: (email) =>
+      handleAuth(() => AuthService.resetPassword(email)),
     completeProfile: (fullName, password) =>
-      handleAuth(AuthService.completeProfile, fullName, password),
+      handleAuth(() =>
+        AuthService.completeProfile(fullName, password, user?.id)
+      ),
     updatePassword: (password) =>
-      handleAuth(AuthService.updatePassword, password),
+      handleAuth(() => AuthService.updatePassword(password)),
   };
 };
