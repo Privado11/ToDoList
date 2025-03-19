@@ -1,18 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Route, Routes, Navigate, Outlet } from "react-router-dom";
-import { HomePage } from "./view/HomePage";
 import { NewTask } from "./view/NewTask";
-import { Toast } from "./components/Toast";
-import OAuthSignInPage from "./components/auth/sign-in/OAuthSignInPage";
-import { SignUp } from "./components/auth/sign-up/SignUp";
-import { PasswordReset } from "./components/auth/PasswordReset";
-import { CompleteProfile } from "./view/CompleteProfile";
-import { useAuth } from "./components/context/AuthContext";
-import { ResetPassword } from "./components/auth/ResetPassword";
 import { TaskDetail } from "./view/TaskDetail";
 import { SharedTaskInvitationView } from "./view/SharedTaskInvitationView.jsx";
-import { Dashboard } from "./view/Dashboard";
+
 import { Das } from "./view/Das";
+import { Toaster } from "./components/ui/sonner";
+import { useAuth } from "./context/AuthContext";
+import { CompleteProfilePage, OAuthSignInPage, PasswordReset, ResetPassword, SignUp } from "./features";
+
 
 export const ProtectedRoute = () => {
   const { user, loading } = useAuth();
@@ -42,10 +38,9 @@ function AppUI() {
       <Routes>
         {/* Rutas protegidas */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/complete-profile" element={<CompleteProfile />} />
-          {/* <Route path="/" element={<HomePage user={user} />} /> */}
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/h" element={<Das />} />
+          <Route path="/complete-profile" element={<CompleteProfilePage />} />
+
+          <Route path="/" element={<Das />} />
           <Route path="/add-task" element={<NewTask />} />
           <Route path="/edit-task/:id" element={<NewTask />} />
           <Route path="/update-password" element={<ResetPassword />} />
@@ -67,7 +62,7 @@ function AppUI() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
-      <Toast />
+      <Toaster />
     </>
   );
 }

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useTaskContext } from "@/components/context/TaskContext";
+import { useTaskContext } from "@/context/TaskContext";
+
 
 function CommentSection() {
   const { comments, addComment: createComment } = useTaskContext();
@@ -13,7 +14,6 @@ function CommentSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  
   const handleCommentChange = useCallback((e) => {
     setComment(e.target.value);
     setError(null);

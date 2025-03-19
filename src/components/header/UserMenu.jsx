@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -10,8 +10,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User, Settings, LogOut } from "lucide-react";
+import { useAuthLogic } from "../../features/auth/hooks/useAuth";
 
 function UserMenu() {
+  const { signOut } = useAuthLogic();
+
+  const handleLogout = () => {
+    signOut();
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -23,24 +30,27 @@ function UserMenu() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+        <DropdownMenuLabel>Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer">
           <User className="mr-2 h-4 w-4" />
-          Perfil
+          Profile
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer">
           <Settings className="mr-2 h-4 w-4" />
-          Configuración
+          Setting
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-red-600">
+        <DropdownMenuItem
+          onClick={handleLogout}
+          className="text-red-600 cursor-pointer"
+        >
           <LogOut className="mr-2 h-4 w-4" />
-          Cerrar Sesión
+          Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-export {UserMenu}
+export { UserMenu };

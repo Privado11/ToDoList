@@ -17,12 +17,13 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuthLogic } from "@/components/hooks/useAuth";
-import { useTaskContext } from "@/components/context/TaskContext";
+import { useAuth } from "@/context/AuthContext";
+import { useTaskContext } from "@/context/TaskContext";
+
 
 const SharedTaskInvitationView = () => {
   const { getTodoInvitedById, updateInvitationStatus } = useTaskContext();
-  const { user, loading: authLoading } = useAuthLogic();
+  const { user, loading: authLoading } = useAuth();
   const [task, setTask] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);

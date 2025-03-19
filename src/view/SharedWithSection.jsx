@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { useTaskContext } from "@/components/context/TaskContext";
+import { useTaskContext } from "@/context/TaskContext";
+
 
 const SharedWithSection = () => {
   const [taskToDelete, setTaskToDelete] = useState(null);
@@ -23,6 +24,12 @@ const SharedWithSection = () => {
     error: contextError,
   } = useTaskContext();
   const [localError, setLocalError] = useState(null);
+
+  useEffect(() => {
+    console.log("Shared Tasks:", sharedTasks);
+  }, [sharedTasks]);
+
+
 
   const handleDeleteTask = (task) => {
     setTaskToDelete(task);
@@ -46,7 +53,6 @@ const SharedWithSection = () => {
     setTaskToDelete(null);
   };
 
-  // Error display component
   const ErrorAlert = ({ error }) => (
     <Alert variant="destructive" className="mb-4">
       <AlertDescription>{error}</AlertDescription>
@@ -68,7 +74,7 @@ const SharedWithSection = () => {
         </CardHeader>
         <CardContent>
           <p className="text-gray-500 text-base">
-            This task hasn't been shared with anyone yet.
+            No pending or accepted shared tasks found.
           </p>
         </CardContent>
       </Card>
@@ -77,9 +83,7 @@ const SharedWithSection = () => {
 
   return (
     <Card className="mt-6">
-      {(contextError) && (
-        <ErrorAlert error={contextError} />
-      )}
+      {contextError && <ErrorAlert error={contextError} />}
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-xl font-bold flex items-center gap-2">
           <Users className="w-5 h-5" />
@@ -101,7 +105,11 @@ const SharedWithSection = () => {
                   src={task.profile.avatar || "/api/placeholder/32/32"}
                 />
                 <AvatarFallback>
-                  {task?.profile ? task.profile?.full_name[0] : "?"}
+                  {task?.profile?.full_name
+                    ? task.profile.full_name[0].toUpperCase()
+                    : task?.profile?.username
+                    ? task.profile.username[1].toUpperCase()
+                    : "?"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">

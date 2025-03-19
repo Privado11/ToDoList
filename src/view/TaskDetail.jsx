@@ -23,10 +23,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SharedWithSection } from "./SharedWithSection";
-import { useTaskContext } from "@/components/context/TaskContext";
+
 
 import { CommentSection } from "./CommentSection";
 import AttachmentSection from "./AttachmentSection";
+import { UserSearchShare } from "./UserSearchShare";
+import { useTaskContext } from "@/context/TaskContext";
 
 function TaskDetail() {
   const {
@@ -34,22 +36,18 @@ function TaskDetail() {
     selectedTask,
     clearSelectedTask,
     shareTask,
-    deleteSharedTask,
     attachments,
   } = useTaskContext();
-
 
   const navigate = useNavigate();
   const { id } = useParams();
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [shareEmail, setShareEmail] = useState("");
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [isSharing, setIsSharing] = useState(false);
   const [shareError, setShareError] = useState(null);
-   const [isInitialLoad, setIsInitialLoad] = useState(true);
-
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const friendsList = useMemo(
     () => [
@@ -75,54 +73,51 @@ function TaskDetail() {
     []
   );
 
-   useEffect(() => {
-     if (selectedTask) {
-       console.log("Selected Task Updated:", selectedTask);
-     }
-   }, [selectedTask]);
 
-   // Separated task fetching logic into its own useEffect
-   useEffect(() => {
-     let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-     const fetchTask = async () => {
-       if (!id || !isInitialLoad) return;
+    const fetchTask = async () => {
+      if (!id || !isInitialLoad) return;
 
-       try {
-         await getTaskById(id);
-       } catch (err) {
-         if (isMounted) {
-           setError(err.message || "Failed to fetch task");
-         }
-       } finally {
-         if (isMounted) {
-           setLoading(false);
-           setIsInitialLoad(false);
-         }
-       }
-     };
+      try {
+        await getTaskById(id);
+      } catch (err) {
+        if (isMounted) {
+          setError(err.message || "Failed to fetch task");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          setIsInitialLoad(false);
+        }
+      }
+    };
 
-     fetchTask();
+    fetchTask();
 
-     return () => {
-       isMounted = false;
-       clearSelectedTask();
-     };
-   }, [id, getTaskById, isInitialLoad]);
+    return () => {
+      isMounted = false;
+      clearSelectedTask();
+    };
+  }, [id, getTaskById, isInitialLoad]);
 
-  const handleShareByEmail = useCallback(async () => {
-    setIsSharing(true);
-    setShareError(null);
-    try {
-      const response = await shareTask(id, shareEmail, true);
-      setMessage(response.message);
-      setShareEmail("");
-    } catch (error) {
-      setShareError("Error al compartir la tarea");
-    } finally {
-      setIsSharing(false);
-    }
-  }, [id, shareEmail, shareTask]);
+  const handleShareWithUser = useCallback(
+    async (recipientId) => {
+      setIsSharing(true);
+      setShareError(null);
+      try {
+        const response = await shareTask(recipientId);
+        setMessage(response.message || "Task successfully shared");
+      } catch (error) {
+        setShareError("Error when sharing the task");
+        console.error("Error sharing task:", error);
+      } finally {
+        setIsSharing(false);
+      }
+    },
+    [shareTask]
+  );
 
   const handleFriendSelect = useCallback(
     (friendId) => {
@@ -155,7 +150,6 @@ function TaskDetail() {
       setIsSharing(false);
     }
   }, [id, selectedFriends]);
-
 
   const handleBack = useCallback(() => navigate("/"), [navigate]);
   const handleEdit = useCallback(
@@ -226,8 +220,8 @@ function TaskDetail() {
   }
 
   return (
-    <div className="container">
-      <div className="max-w-4xl space-y-6">
+    <div className="container flex justify-center">
+      <div className="max-w-4xl w-full space-y-6">
         <Button
           variant="ghost"
           onClick={handleBack}
@@ -239,20 +233,20 @@ function TaskDetail() {
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              {selectedTask.task.title}
+              {selectedTask.title}
             </h1>
             <div className="flex gap-4">
               <Badge variant="outline" className="gap-1 text-sm">
                 <Calendar className="w-4 h-4" />
-                {selectedTask.task.due_date
-                  ? formatDateTime(selectedTask.task.due_date)
+                {selectedTask.due_date
+                  ? formatDateTime(selectedTask.due_date)
                   : "No due date"}
               </Badge>
               <Badge className="bg-red-100 text-red-500 text-sm">
-                {selectedTask.priorities.level || "No priority"}
+                {selectedTask.priorities?.level || "No priority"}
               </Badge>
               <Badge className="bg-blue-100 text-blue-500 text-sm">
-                {selectedTask.statuses.name || "No status"}
+                {selectedTask.statuses?.name || "No status"}
               </Badge>
             </div>
           </div>
@@ -270,25 +264,7 @@ function TaskDetail() {
                 </DialogHeader>
 
                 <div className="space-y-6">
-                  {/* Compartir por email */}
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium">Share by email</h3>
-                    <div className="flex gap-2">
-                      <Input
-                        type="email"
-                        placeholder="Enter email address"
-                        value={shareEmail}
-                        onChange={(e) => setShareEmail(e.target.value)}
-                        className="flex-1 text-lg"
-                      />
-                      <Button
-                        onClick={handleShareByEmail}
-                        disabled={!shareEmail || isSharing}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  <UserSearchShare onShareTask={handleShareWithUser} />
 
                   {/* Compartir con amigos */}
                   <div className="space-y-2">
@@ -380,7 +356,7 @@ function TaskDetail() {
             <p
               className="text-gray-600 text-lg"
               dangerouslySetInnerHTML={{
-                __html: formatDescription(selectedTask.task.description),
+                __html: formatDescription(selectedTask.description),
               }}
             />
           </CardContent>
