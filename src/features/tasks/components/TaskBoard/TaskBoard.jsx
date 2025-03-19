@@ -1,4 +1,4 @@
-import { TaskCard } from "./TaskCard";
+import TaskCard from "../TaskCard";
 
 const TaskBoard = ({ tasks, deleteTask }) => {
   return (
@@ -12,4 +12,4 @@ const TaskBoard = ({ tasks, deleteTask }) => {
   );
 };
 
-export { TaskBoard };
+export default TaskBoard;

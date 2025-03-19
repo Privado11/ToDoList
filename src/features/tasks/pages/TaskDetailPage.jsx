@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Calendar, Send, ArrowLeft, Share, X, Plus, Users } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Calendar, ArrowLeft, Share, X, Users } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate, useParams } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -22,15 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SharedWithSection } from "./SharedWithSection";
 
-
-import { CommentSection } from "./CommentSection";
-import AttachmentSection from "./AttachmentSection";
-import { UserSearchShare } from "./UserSearchShare";
 import { useTaskContext } from "@/context/TaskContext";
+import { AttachmentSection, CommentSection, SharedWithSection, UserSearchShare } from "@/features";
 
-function TaskDetail() {
+function TaskDetailPage() {
   const {
     getTaskById,
     selectedTask,
@@ -372,4 +367,4 @@ function TaskDetail() {
   );
 }
 
-export { TaskDetail };
+export default TaskDetailPage;

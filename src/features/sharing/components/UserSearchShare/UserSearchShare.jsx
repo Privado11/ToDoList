@@ -2,16 +2,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Plus, X, Share } from "lucide-react";
-import { useUsers } from "@/features/users/hooks/useUsers";
-import { useSharedTasks } from "@/features/sharing/hooks/useSharedTasks";
+import { X, Share } from "lucide-react";
 import { useTaskContext } from "@/context/TaskContext";
 
 const UserSearchShare = ({ onShareTask }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const { users, isLoading, error, fetchUsers } = useTaskContext();
+  const {users, isLoading, error, fetchUsers } = useTaskContext();
   const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
@@ -176,4 +174,4 @@ const UserSearchShare = ({ onShareTask }) => {
   );
 };
 
-export { UserSearchShare };
+export default UserSearchShare;

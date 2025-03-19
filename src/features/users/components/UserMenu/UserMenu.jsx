@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { User, Settings, LogOut } from "lucide-react";
-import { useAuthLogic } from "../../features/auth/hooks/useAuth";
+import { useAuthLogic } from "../../../auth/hooks/useAuth";
 
 function UserMenu() {
   const { signOut } = useAuthLogic();
@@ -53,4 +53,4 @@ function UserMenu() {
   );
 }
 
-export { UserMenu };
+export default UserMenu;

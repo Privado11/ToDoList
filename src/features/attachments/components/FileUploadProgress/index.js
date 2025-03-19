@@ -1,1 +1,1 @@
-// export {default} from "./FileUploadProgress";
+export { default } from "./FileUploadProgress";

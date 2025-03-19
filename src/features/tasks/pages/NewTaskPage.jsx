@@ -15,13 +15,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { FileUploadProgress } from "./FileUploadProgress";
-import { AttachmentList } from "./AttachmentList";
-import { DialogConfirmation } from "./DialogConfirmation";
+import { DialogConfirmation } from "../../../view/DialogConfirmation";
 import { useTaskContext } from "@/context/TaskContext";
+import { AttachmentList } from "@/features";
 
-
-function NewTask() {
+function NewTaskPage() {
   const {
     createTask,
     updateTask,
@@ -472,7 +470,6 @@ function NewTask() {
               </div>
             )}
 
-            {/* Lista de archivos adjuntos */}
             <AttachmentList
               attachments={attachments}
               onDelete={handleDeleteAttachment}
@@ -496,7 +493,6 @@ function NewTask() {
         </form>
       </CardContent>
 
-      {/* Diálogo de confirmación para eliminar archivos */}
       <DialogConfirmation
         isOpen={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
@@ -510,4 +506,4 @@ function NewTask() {
   );
 }
 
-export { NewTask };
+export default NewTaskPage;

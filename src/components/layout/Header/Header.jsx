@@ -1,9 +1,10 @@
 import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import { UserMenu } from "../../header/UserMenu";
+
 import { ChatNotifications } from "../../header/ChatNotifications";
 import { AppNotifications } from "../../header/AppNotifications";
+import { UserMenu } from "@/features";
 
 function Header() {
   return (

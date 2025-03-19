@@ -1,6 +1,7 @@
-import Header from "../Header";
-import Sidebar from "../Sidebar";
+import { Header } from "../Header";
+import { Sidebar } from "../Sidebar";
 import ActivityFeed from "./ActivityFeed";
+
 
 
 function ActivityPage() {

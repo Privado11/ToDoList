@@ -1,7 +1,6 @@
-import Header from "../Header";
-import Sidebar from "../Sidebar";
-import TaskStats from "./TaskStats";
-
+import { TaskStats } from ".";
+import { Header } from "../Header";
+import { Sidebar } from "../Sidebar";
 
 function StatsPage() {
   return (

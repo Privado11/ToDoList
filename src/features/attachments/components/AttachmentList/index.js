@@ -1,1 +1,1 @@
-// export {default} from "./AttachmentList";
+export {default} from "./AttachmentList";

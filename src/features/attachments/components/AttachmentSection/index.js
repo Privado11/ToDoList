@@ -1,1 +1,1 @@
-// export {default} from "./AttachmentSection";
+export { default } from "./AttachmentSection";

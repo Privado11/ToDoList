@@ -1,1 +1,1 @@
-// export {default} from "./FriendSection"
+export { default } from "./UserMenu";

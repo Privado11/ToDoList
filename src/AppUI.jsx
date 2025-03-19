@@ -1,14 +1,18 @@
 import React from "react";
 import { Route, Routes, Navigate, Outlet } from "react-router-dom";
-import { NewTask } from "./view/NewTask";
-import { TaskDetail } from "./view/TaskDetail";
-import { SharedTaskInvitationView } from "./view/SharedTaskInvitationView.jsx";
-
-import { Das } from "./view/Das";
 import { Toaster } from "./components/ui/sonner";
 import { useAuth } from "./context/AuthContext";
-import { CompleteProfilePage, OAuthSignInPage, PasswordReset, ResetPassword, SignUp } from "./features";
-
+import {
+  CompleteProfilePage,
+  DashboardPage,
+  NewTaskPage,
+  OAuthSignInPage,
+  PasswordReset,
+  ResetPassword,
+  SharedTaskInvitationPage,
+  SignUp,
+  TaskDetailPage,
+} from "./features";
 
 export const ProtectedRoute = () => {
   const { user, loading } = useAuth();
@@ -40,14 +44,14 @@ function AppUI() {
         <Route element={<ProtectedRoute />}>
           <Route path="/complete-profile" element={<CompleteProfilePage />} />
 
-          <Route path="/" element={<Das />} />
-          <Route path="/add-task" element={<NewTask />} />
-          <Route path="/edit-task/:id" element={<NewTask />} />
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/add-task" element={<NewTaskPage />} />
+          <Route path="/edit-task/:id" element={<NewTaskPage />} />
           <Route path="/update-password" element={<ResetPassword />} />
-          <Route path="/task-detail/:id" element={<TaskDetail />} />
+          <Route path="/task-detail/:id" element={<TaskDetailPage />} />
           <Route
             path="/invitation/:token"
-            element={<SharedTaskInvitationView />}
+            element={<SharedTaskInvitationPage />}
           />
         </Route>
 

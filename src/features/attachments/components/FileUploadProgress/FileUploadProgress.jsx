@@ -8,27 +8,27 @@ const FileUploadProgress = ({
   onCancel,
   isComplete = false,
 }) => {
-  // Determinar el tipo de archivo para mostrar un icono apropiado
+ 
   const getFileTypeIcon = () => {
     const extension = file.name.split(".").pop().toLowerCase();
 
-    // Colores basados en tipo de archivo
-    let iconColor = "#718096"; // color por defecto
+    
+    let iconColor = "#718096"; 
 
     if (["jpg", "jpeg", "png", "gif", "svg", "webp"].includes(extension)) {
-      iconColor = "#4299e1"; // azul para imágenes
+      iconColor = "#4299e1"; 
     } else if (
       ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"].includes(extension)
     ) {
-      iconColor = "#ed8936"; // naranja para documentos
+      iconColor = "#ed8936"; 
     } else if (["zip", "rar", "7z", "tar", "gz"].includes(extension)) {
-      iconColor = "#9f7aea"; // púrpura para archivos comprimidos
+      iconColor = "#9f7aea"; 
     }
 
     return <File size={24} color={iconColor} />;
   };
 
-  // Función para formatear el tamaño del archivo
+ 
   const formatFileSize = (bytes) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -84,4 +84,4 @@ const FileUploadProgress = ({
   );
 };
 
-export { FileUploadProgress };
+export default FileUploadProgress;

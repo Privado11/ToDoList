@@ -96,4 +96,4 @@ const AttachmentList = ({
   );
 };
 
-export { AttachmentList };
+export default AttachmentList;

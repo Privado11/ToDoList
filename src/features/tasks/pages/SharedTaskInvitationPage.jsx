@@ -21,7 +21,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTaskContext } from "@/context/TaskContext";
 
 
-const SharedTaskInvitationView = () => {
+const SharedTaskInvitationPage = () => {
   const { getTodoInvitedById, updateInvitationStatus } = useTaskContext();
   const { user, loading: authLoading } = useAuth();
   const [task, setTask] = useState(null);
@@ -238,4 +238,4 @@ const SharedTaskInvitationView = () => {
   );
 };
 
-export { SharedTaskInvitationView };
+export default SharedTaskInvitationPage;

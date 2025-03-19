@@ -1,1 +1,1 @@
-// export { default } from "./CommentSection";
+export { default } from "./CommentSection";

@@ -137,4 +137,4 @@ function CommentSection() {
   );
 }
 
-export { CommentSection };
+export default CommentSection;

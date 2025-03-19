@@ -31,7 +31,7 @@ function PasswordReset() {
 
     try {
       await resetPassword(email);
-      setSuccessMessage("A reset link has been sent to your email!"); // Mensaje de éxito
+      setSuccessMessage("A reset link has been sent to your email!"); 
       setTimeout(() => {
         navigate("/");
       }, 3000); 

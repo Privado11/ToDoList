@@ -10,13 +10,21 @@ import {
   Activity,
 } from "lucide-react";
 
-
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function Sidebar() {
+function Sidebar({ setActiveFilter }) {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleFilterClick = (priority) => {
+    setActiveFilter(priority);
+    // Optional: Close the sidebar on mobile after filtering
+    setIsOpen(false);
+    // Optional: Navigate to home page if we're not already there
+    navigate("/");
+  };
 
   return (
     <>
@@ -34,7 +42,7 @@ function Sidebar() {
         } lg:translate-x-0 transition-transform duration-300 ease-in-out fixed inset-y-0 left-0 z-40 w-64 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:static`}
       >
         <div className="flex h-14 items-center border-b px-4">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
+          <Link to="/" className="flex items-center gap-2 font-semibold">
             <CheckSquare className="h-6 w-6" />
             <span>Piranha Planner</span>
           </Link>
@@ -51,7 +59,7 @@ function Sidebar() {
                   className="w-full justify-start gap-2"
                   asChild
                 >
-                  <Link href="/">
+                  <Link to="/">
                     <Inbox className="h-4 w-4" />
                     Dashboard
                   </Link>
@@ -61,7 +69,7 @@ function Sidebar() {
                   className="w-full justify-start gap-2"
                   asChild
                 >
-                  <Link href="/calendar">
+                  <Link to="/calendar">
                     <Calendar className="h-4 w-4" />
                     Calendar
                   </Link>
@@ -71,7 +79,7 @@ function Sidebar() {
                   className="w-full justify-start gap-2"
                   asChild
                 >
-                  <Link href="/team">
+                  <Link to="/team">
                     <Users className="h-4 w-4" />
                     Team
                   </Link>
@@ -81,7 +89,7 @@ function Sidebar() {
                   className="w-full justify-start gap-2 lg:hidden"
                   asChild
                 >
-                  <Link href="/stats">
+                  <Link to="/stats">
                     <BarChart2 className="h-4 w-4" />
                     Statistics
                   </Link>
@@ -91,7 +99,7 @@ function Sidebar() {
                   className="w-full justify-start gap-2 lg:hidden"
                   asChild
                 >
-                  <Link href="/activity">
+                  <Link to="/activity">
                     <Activity className="h-4 w-4" />
                     Activity
                   </Link>
@@ -101,7 +109,7 @@ function Sidebar() {
                   className="w-full justify-start gap-2"
                   asChild
                 >
-                  <Link href="/settings">
+                  <Link to="/settings">
                     <Settings className="h-4 w-4" />
                     Settings
                   </Link>
@@ -113,17 +121,37 @@ function Sidebar() {
                 Tasks
               </h2>
               <div className="space-y-1">
-                <Button variant="ghost" className="w-full justify-start gap-2">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={() => handleFilterClick("High")}
+                >
                   <span className="h-2 w-2 rounded-full bg-red-500" />
                   High Priority
                 </Button>
-                <Button variant="ghost" className="w-full justify-start gap-2">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={() => handleFilterClick("Medium")}
+                >
                   <span className="h-2 w-2 rounded-full bg-yellow-500" />
                   Medium Priority
                 </Button>
-                <Button variant="ghost" className="w-full justify-start gap-2">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={() => handleFilterClick("Low")}
+                >
                   <span className="h-2 w-2 rounded-full bg-green-500" />
                   Low Priority
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={() => handleFilterClick("all")}
+                >
+                  <span className="h-2 w-2 rounded-full bg-blue-500" />
+                  All Tasks
                 </Button>
               </div>
             </div>

@@ -182,4 +182,4 @@ const SharedWithSection = () => {
   );
 };
 
-export { SharedWithSection };
+export default SharedWithSection;

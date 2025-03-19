@@ -42,7 +42,7 @@ const STATUS_CONFIG = {
     bgColor: "bg-green-50 dark:bg-green-950",
     borderColor: "border-green-200 dark:border-green-800",
   },
-  "in-progress": {
+  "Progress": {
     icon: RotateCw,
     color: "text-blue-600 dark:text-blue-400",
     bgColor: "bg-blue-50 dark:bg-blue-950",
@@ -79,8 +79,14 @@ const PRIORITY_CONFIG = {
 
 const STATUS_STYLES = {
   Completed: "bg-green-500 text-white",
-  "in-progress": "bg-blue-500 text-white",
+  Progress: "bg-blue-500 text-white",
   Pending: "bg-amber-500 text-white",
+};
+
+const PRIORITY_STYLES = {
+  High: "bg-red-500 text-white",
+  Medium: "bg-amber-500 text-white",
+  Low: "bg-green-500 text-white",
 };
 
 const TaskCard = ({
@@ -141,7 +147,7 @@ const TaskCard = ({
     >
       <div
         className={`h-1 w-full ${
-          STATUS_STYLES[statusName]?.split(" ")[0] || "bg-amber-500"
+          PRIORITY_STYLES[priorityLevel]?.split(" ")[0] || "bg-amber-500"
         }`}
       />
       <CardHeader className="space-y-2 pb-3">
@@ -326,4 +332,4 @@ const TaskCard = ({
   );
 };
 
-export { TaskCard };
+export default TaskCard;

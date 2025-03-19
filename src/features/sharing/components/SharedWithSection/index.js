@@ -1,1 +1,1 @@
-// export { default } from "./SharedWithSection";
+export { default } from "./SharedWithSection";
