@@ -26,9 +26,8 @@ const SharedWithSection = () => {
   const [localError, setLocalError] = useState(null);
 
   useEffect(() => {
-    console.log("Shared Tasks:", sharedTasks);
+    console.log("Shared tasks:", sharedTasks);
   }, [sharedTasks]);
-
 
 
   const handleDeleteTask = (task) => {
@@ -102,7 +101,7 @@ const SharedWithSection = () => {
             >
               <Avatar className="w-10 h-10">
                 <AvatarImage
-                  src={task.profile.avatar || "/api/placeholder/32/32"}
+                  src={task?.profile?.avatar || "/api/placeholder/32/32"}
                 />
                 <AvatarFallback>
                   {task?.profile?.full_name

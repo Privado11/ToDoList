@@ -20,20 +20,6 @@ class TaskService extends BaseService {
   )
   `;
 
-  static TASK_LIST_SELECT2 = `
-    id,
-    title, 
-    description,
-    create_at,
-    due_date,
-    status_id,
-    category_id,
-    priority_id,
-    categories(*),
-    priorities(*),
-    statuses(*)
-  `;
-
   static prepareTaskData(data) {
     const {
       user_id,
@@ -51,11 +37,10 @@ class TaskService extends BaseService {
     this.validateRequiredId(userId, "User ID");
 
     try {
-      const { data, error } = await this.supabase
-        .from("tasks")
-        .select(this.TASK_LIST_SELECT)
-        .eq("user_id", userId)
-        .order("create_at", { ascending: false });
+
+      const { data, error } = await this.supabase.rpc("get_all_user_tasks", {
+        p_user_id: userId,
+      });
 
       this.handleError(error, "Error fetching tasks");
       return data || [];
@@ -65,18 +50,18 @@ class TaskService extends BaseService {
     }
   }
 
-  static async getTaskById(id) {
-    this.validateRequiredId(id, "Task ID");
+  static async getTaskById(userId, taskId) {
+    this.validateRequiredId(userId, "User ID");
+    this.validateRequiredId(taskId, "Task ID");
+
+
 
     try {
-      const { data, error } = await this.supabase
-        .from("tasks")
-        .select(this.TASK_LIST_SELECT2)
-        .eq("id", id)
-        .single();
-
+       const { data, error } = await this.supabase.rpc("get_task_details", {
+         p_task_id: taskId,
+         p_user_id: userId,
+       });
       this.handleError(error, "Error fetching task");
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Error fetching task:", error);

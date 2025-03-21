@@ -58,26 +58,22 @@ class SharedTaskService extends BaseService {
   static async shareTask(taskId, userId, recipientId, getTaskById) {
     this.validateRequiredId(taskId, "Task ID");
     this.validateRequiredId(userId, "User ID");
-    this.validateRequiredId(recipientId, "Recipient ID");
 
     try {
-      // const { data, error } = await this.supabase.functions.invoke(
-      //   "sendTaskInvite",
-      //   {
-      //     body: {
-      //       task_id: taskId,
-      //       sender_id: userId,
-      //       recipient: recipientId,
-      //       is_email: isEmail,
-      //     },
-      //   }
-      // );
+      const recipientIds = Array.isArray(recipientId)
+        ? recipientId
+        : [recipientId];
 
-      const { data, error } = await this.supabase.rpc("share_task_with_user", {
-        to_user_id: userId,
-        from_user_id: recipientId,
-        task_id: taskId,
-      });
+      this.validateRecipientIds(recipientIds, "Recipient IDs");
+
+      const { data, error } = await this.supabase.rpc(
+        "share_task_with_multiple_users",
+        {
+          from_user_id: userId,
+          to_user_ids: recipientIds,
+          p_task_id: taskId,
+        }
+      );
 
       this.handleError(error, "Error sharing task");
 
@@ -90,6 +86,22 @@ class SharedTaskService extends BaseService {
       console.error("Error sharing task:", error);
       throw error;
     }
+  }
+
+  static validateRecipientIds(recipientIds, fieldName) {
+    if (
+      !recipientIds ||
+      !Array.isArray(recipientIds) ||
+      recipientIds.length === 0
+    ) {
+      throw new Error(`${fieldName} must be a non-empty array`);
+    }
+
+    recipientIds.forEach((id, index) => {
+      if (!id) {
+        throw new Error(`${fieldName}[${index}] is required`);
+      }
+    });
   }
 
   static async acceptTaskShare(id) {
@@ -172,6 +184,27 @@ class SharedTaskService extends BaseService {
     } catch (error) {
       console.error("Error searching users:", error);
       throw new Error(error.message);
+    }
+  }
+
+  static async getAvailableFriendsForTask(userId, taskId) {
+    this.validateRequiredId(userId, "User ID");
+    this.validateRequiredId(taskId, "Task ID");
+
+    try {
+      const { data, error } = await this.supabase.rpc(
+        "get_available_friends_for_task",
+        {
+          p_user_id: userId,
+          p_task_id: taskId,
+        }
+      );
+
+      this.handleError(error, "Error fetching friendships");
+      return data || [];
+    } catch (error) {
+      console.error("Error fetching friendships:", error);
+      throw error;
     }
   }
 }

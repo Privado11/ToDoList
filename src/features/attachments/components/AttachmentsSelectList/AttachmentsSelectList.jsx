@@ -1,12 +1,14 @@
-import { File } from "lucide-react";
+import { File, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { fileUtils } from "../../utils/FileUtils";
 
-const AttachmentList = ({
+const AttachmentsSelectList = ({
   attachments,
-  onDelete,
   selectedAttachments,
   setSelectedAttachments,
+  onDelete, 
 }) => {
   if (!attachments || attachments.length === 0) return null;
 
@@ -14,6 +16,15 @@ const AttachmentList = ({
     setSelectedAttachments((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedAttachments.length === 0) return;
+
+    const success = await onDelete(selectedAttachments);
+    if (success) {
+      setSelectedAttachments([]); 
+    }
   };
 
   const formatFileSize = (bytes) => {
@@ -52,14 +63,16 @@ const AttachmentList = ({
 
   return (
     <div className="mt-4 space-y-4">
-      <Alert variant="outline" className="bg-blue-50 border-blue-200">
-        <AlertDescription className="flex items-center text-blue-700">
-          Select the file(s) you want to delete.
-        </AlertDescription>
-      </Alert>
+      <div className="flex justify-between items-center">
+        <Alert variant="outline" className="bg-blue-50 border-blue-200 flex-1">
+          <AlertDescription className="flex items-center text-blue-700">
+            Select the file(s) you want to delete.
+          </AlertDescription>
+        </Alert>
+      </div>
 
       <div className="space-y-2">
-        {attachments.map(({ id, file_name, file_size }) => {
+        {attachments.map(({ id, file_name, file_size, file_type }) => {
           const extension = file_name.includes(".")
             ? file_name.split(".").pop()
             : "unknown";
@@ -74,19 +87,22 @@ const AttachmentList = ({
                 onCheckedChange={() => toggleSelection(id)}
                 className="mr-3"
               />
-              <div className="mr-3">{getFileTypeIcon(file_name)}</div>
+              <div className="mr-3">
+                {fileUtils.renderFileIcon(
+                 file_type,
+                  "h-6 w-6 text-gray-600"
+                )}
+              </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-center mb-1">
                   <p className="text-sm font-medium truncate">{file_name}</p>
                   <span className="text-xs text-gray-500">
-                    {formatFileSize(file_size)}
+                    {fileUtils.formatFileSize(file_size)}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-xs text-gray-500">.{extension}</span>
-                </div>
+               
               </div>
             </div>
           );
@@ -96,4 +112,4 @@ const AttachmentList = ({
   );
 };
 
-export default AttachmentList;
+export default AttachmentsSelectList;

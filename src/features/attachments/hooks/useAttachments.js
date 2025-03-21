@@ -47,6 +47,7 @@ export const useAttachments = (taskId) => {
 
   const uploadAttachment = useCallback(
     async (file) => {
+      
       setLoading(true);
       setError(null);
       try {
@@ -66,28 +67,60 @@ export const useAttachments = (taskId) => {
     [taskId]
   );
 
-  const deleteAttachment = useCallback(
-    async (id) => {
-      setLoading(true);
-      setError(null);
-      try {
-        await AttachmentService.deleteAttachment(id);
-        setAttachments((prev) =>
-          prev.filter((attachment) => attachment.id !== id)
-        );
-        if (selectedAttachment?.id === id) {
-          setSelectedAttachment(null);
-        }
-        return true;
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [selectedAttachment?.id]
-  );
+ const deleteAttachment = useCallback(
+   async (ids) => {
+     // Convertir a array si se recibe un solo ID
+     const idArray = Array.isArray(ids) ? ids : [ids];
+     if (idArray.length === 0) return true;
+
+     // Guardar los archivos que se van a eliminar
+     const attachmentsToDelete = idArray
+       .map((id) => attachments.find((attachment) => attachment.id === id))
+       .filter(Boolean);
+
+     if (attachmentsToDelete.length === 0) return false;
+
+     // Crear una copia del estado actual para restaurar en caso de error
+     const previousAttachments = [...attachments];
+
+     // Actualizar el estado UI (eliminar todos los archivos seleccionados)
+     setAttachments((prev) =>
+       prev.filter((attachment) => !idArray.includes(attachment.id))
+     );
+
+     setLoading(true);
+     setError(null);
+
+     try {
+       // Eliminar todos los archivos en paralelo
+       await Promise.all(
+         idArray.map((id) => AttachmentService.deleteAttachment(id))
+       );
+       setLoading(false);
+       return true;
+     } catch (err) {
+       // Restaurar estado anterior
+       setAttachments(previousAttachments);
+
+       toast({
+         variant: "destructive",
+         title: "Error deleting attachments",
+         description: err.message || "Please try again later",
+         action: {
+           label: "Retry",
+           onClick: () => deleteAttachment(ids),
+         },
+       });
+
+       setError(err.message);
+       setLoading(false);
+       return false;
+     }
+   },
+   [attachments]
+ );
+
+ 
 
   useEffect(() => {
     fetchAttachments();

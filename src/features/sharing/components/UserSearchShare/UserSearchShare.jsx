@@ -61,13 +61,13 @@ const UserSearchShare = ({ onShareTask }) => {
       <div className="relative">
         <h3 className="text-lg font-medium mb-2">Share with user</h3>
         <div className="flex gap-2">
-          <div className="relative flex-1">
+          <div className="relative flex-1 text-sm">
             <Input
               type="text"
               placeholder="Search user..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)} // Remove the user from the selected list after successful sharing
-              className="text-lg w-full"
+              onChange={(e) => setSearchQuery(e.target.value)} 
+              className="text-sm w-full"
               onFocus={() => {
                 if (searchQuery.trim().length > 0) {
                   setShowResults(true);

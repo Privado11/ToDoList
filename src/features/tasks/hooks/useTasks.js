@@ -18,7 +18,6 @@ export const useTasks = () => {
     setError(null);
     try {
       const data = await TaskService.getTasks(user.id);
-      console.log("Tasks:", data);
       setTasks(data);
     } catch (err) {
       setError(err.message);
@@ -31,11 +30,14 @@ export const useTasks = () => {
     async (id) => {
       if (!id) return;
 
+      if (!user) return;
+
       setLoading(true);
       setError(null);
       try {
         if (selectedTask?.id !== id) {
-          const task = await TaskService.getTaskById(id);
+          const task = await TaskService.getTaskById(user.id, id);
+          console.log(task);
           setSelectedTask(task);
           return task;
         }
@@ -47,7 +49,7 @@ export const useTasks = () => {
         setLoading(false);
       }
     },
-    [selectedTask]
+    [selectedTask, user]
   );
 
   const createTask = useCallback(

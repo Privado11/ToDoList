@@ -3,13 +3,10 @@ import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-
 import { useTaskContext } from "@/context/TaskContext";
 import { useAuth } from "@/context/AuthContext";
 import { ActivityFeed, Header, Sidebar, TaskStats } from "@/components";
 import { TaskBoard } from "../components";
-
-
 
 const DashboardPage = () => {
   const { tasks, deleteTask } = useTaskContext();
@@ -24,6 +21,9 @@ const DashboardPage = () => {
   const filterTasks = (priority) => {
     if (priority === "all") {
       return tasks;
+    }
+    if (priority === "shared_me") {
+      return tasks.filter((task) => task?.is_shared);
     }
     return tasks.filter((task) => task?.priorities?.level === priority);
   };

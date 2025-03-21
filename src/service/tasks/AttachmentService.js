@@ -12,9 +12,8 @@ class AttachmentService extends BaseService {
     created_at
   `;
 
-  // Define allowed file types and max file size (e.g., 10MB)
   static ALLOWED_FILE_TYPES = [
-    // 🖼️ Imágenes
+
     "image/jpeg",
     "image/png",
     "image/gif",
@@ -23,35 +22,35 @@ class AttachmentService extends BaseService {
     "image/bmp",
     "image/tiff",
 
-    // 📄 Documentos
+
     "application/pdf",
     "text/plain",
 
-    // 📝 Archivos de Word
-    "application/msword", // .doc (Word antiguo)
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx (Word moderno)
 
-    // 📊 Archivos de Excel
-    "application/vnd.ms-excel", // .xls (Excel antiguo)
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx (Excel moderno)
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
 
-    // 📽️ Archivos de PowerPoint
-    "application/vnd.ms-powerpoint", // .ppt (PowerPoint antiguo)
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // .pptx (PowerPoint moderno)
 
-    // 🗜️ Archivos Comprimidos
-    "application/zip", // .zip
-    "application/x-rar-compressed", // .rar
-    "application/x-7z-compressed", // .7z
-    "application/gzip", // .gz
-    "application/x-tar", // .tar
-    "application/x-bzip", // .bz
-    "application/x-bzip2", // .bz2
-    "application/vnd.rar", // .rar (alternativo)
-    "application/x-zip-compressed", // .zip (alternativo)
+    "application/vnd.ms-excel", 
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
+
+    
+    "application/vnd.ms-powerpoint", 
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+
+   
+    "application/zip", 
+    "application/x-rar-compressed", 
+    "application/x-7z-compressed", 
+    "application/gzip", 
+    "application/x-tar", 
+    "application/x-bzip", 
+    "application/x-bzip2", 
+    "application/vnd.rar",
+    "application/x-zip-compressed", 
   ];
 
-  static MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+  static MAX_FILE_SIZE = 10 * 1024 * 1024; 
 
   static validateFile(file) {
     if (!file) {

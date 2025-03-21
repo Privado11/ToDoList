@@ -75,17 +75,17 @@ class FriendShipService extends BaseService {
     this.validateRequiredId(userId, "User ID");
 
     try {
-      const { data, error } = await this.supabase
-        .from("friendships")
-        .select(this.FRIEND_LIST_SELECT)
-        .or(`user_id1.eq.${userId},user_id2.eq.${userId}`)
-        .eq("status", "active")
-        .order("full_name", { ascending: false });
+      const { data, error } = await this.supabase.rpc(
+        "get_friendships_by_user_id",
+        {
+          p_user_id: userId,
+        }
+      );
 
-      this.handleError(error, "Error fetching task");
-      return this.formatTaskResponse(data);
+      this.handleError(error, "Error fetching friendships");
+      return data || [];
     } catch (error) {
-      console.error("Error fetching task:", error);
+      console.error("Error fetching friendships:", error);
       throw error;
     }
   }
@@ -95,13 +95,6 @@ class FriendShipService extends BaseService {
     this.validateRequiredId(friendId, "Friend ID");
 
     try {
-      const preparedData = {
-        friend_id: friendId,
-        user_id: userId,
-        status: "pending",
-        create_at: new Date().toISOString(),
-      };
-
       const { data, error } = await this.supabase.rcp("send_friend_request", {
         sender_id: userId,
         receiver_id: friendId,

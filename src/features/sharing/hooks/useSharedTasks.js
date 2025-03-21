@@ -15,19 +15,17 @@ export const useSharedTasks = (taskId, getTaskById) => {
   const { subscribeToSharedTasks, unsubscribe: unsubscribeFromSharedTasks } =
     useSharedTasksSubscription(setSharedTasks);
 
+  
   useEffect(() => {
-    console.log("Task ID:", taskId);
-    if (taskId) {
-      subscribeToSharedTasks(
-        taskId,
-        async () => await SharedTaskService.getUsersFromSharedTask(taskId)
-      );
+    if (sharedTasks.length === 0 && taskId && !isLoading) {
+      SharedTaskService.getUsersFromSharedTask(taskId).then((data) => {
+        if (data && data.length > 0) {
+          console.log("Setting shared tasks from task id:", data);
+          setSharedTasks(data);
+        }
+      });
     }
-
-    return () => {
-      unsubscribeFromSharedTasks();
-    };
-  }, [taskId, subscribeToSharedTasks, unsubscribeFromSharedTasks]);
+  }, [sharedTasks, taskId, isLoading]);
 
   const fetchUsers = useCallback(
     async (query) => {
@@ -52,11 +50,10 @@ export const useSharedTasks = (taskId, getTaskById) => {
   );
 
   const fetchSharedTasks = useCallback(async () => {
-    if (!user?.id) return;
 
     try {
       setIsLoading(true);
-      const data = await SharedTaskService.getSharedTasks(user.id);
+      const data = await SharedTaskService.getUsersFromSharedTask(taskId);
       setSharedTasks(data);
 
       if (taskId) {
@@ -101,10 +98,11 @@ export const useSharedTasks = (taskId, getTaskById) => {
 
     try {
       setError(null);
+     
       const result = await SharedTaskService.shareTask(
         taskId,
         user.id,
-        recipientId,
+        recipientId, 
         getTaskById
       );
       await fetchSharedTasks();
@@ -115,6 +113,24 @@ export const useSharedTasks = (taskId, getTaskById) => {
     }
   };
 
+ const getAvailableFriendsForTask = useCallback(async () => {
+   if (!user) return;
+
+   try {
+     setIsLoading(true);
+     const data = await SharedTaskService.getAvailableFriendsForTask(
+       user.id,
+       taskId
+     );
+     setError(null);
+     return data;
+   } catch (err) {
+     setError("Error fetching friends");
+     console.error(err.message);
+   } finally {
+     setIsLoading(false);
+   }
+ }, [user, taskId]);
   const updateSharedTaskStatus = (invitationId, status) => {
     setSharedTasks((prev) =>
       prev.map((task) =>
@@ -182,7 +198,6 @@ export const useSharedTasks = (taskId, getTaskById) => {
     }
   };
 
-  // Limpiar error después de 5 segundos
   useEffect(() => {
     if (error) {
       const timer = setTimeout(() => {
@@ -203,6 +218,7 @@ export const useSharedTasks = (taskId, getTaskById) => {
     rejectedTaskShare,
     users,
     fetchUsers,
+    getAvailableFriendsForTask,
     getPendingTasks: () =>
       sharedTasks.filter(
         (task) => task.status === SharedTaskService.SHARED_TASK_STATUSES.PENDING

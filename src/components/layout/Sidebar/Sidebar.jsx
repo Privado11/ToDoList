@@ -20,9 +20,7 @@ function Sidebar({ setActiveFilter }) {
 
   const handleFilterClick = (priority) => {
     setActiveFilter(priority);
-    // Optional: Close the sidebar on mobile after filtering
     setIsOpen(false);
-    // Optional: Navigate to home page if we're not already there
     navigate("/");
   };
 
@@ -144,6 +142,15 @@ function Sidebar({ setActiveFilter }) {
                 >
                   <span className="h-2 w-2 rounded-full bg-green-500" />
                   Low Priority
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={() => handleFilterClick("shared_me")}
+                >
+                  <span className="h-2 w-2 rounded-full bg-blue-500" />
+                  share with me
                 </Button>
                 <Button
                   variant="ghost"

@@ -9,6 +9,7 @@ import {
   Clock,
   RotateCw,
   Flag,
+  UserPlus,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -77,11 +78,6 @@ const PRIORITY_CONFIG = {
   },
 };
 
-const STATUS_STYLES = {
-  Completed: "bg-green-500 text-white",
-  Progress: "bg-blue-500 text-white",
-  Pending: "bg-amber-500 text-white",
-};
 
 const PRIORITY_STYLES = {
   High: "bg-red-500 text-white",
@@ -97,6 +93,8 @@ const TaskCard = ({
   priorities,
   categories,
   statuses,
+  is_shared,
+  shared_by,
   shared_tasks,
   deleteTask,
   onShare,
@@ -251,7 +249,7 @@ const TaskCard = ({
       </CardHeader>
       <CardContent className="flex flex-col flex-grow pb-3">
         <div className="flex-grow mb-3 min-h-20">
-          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3">
+          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-5">
             {description || "No description provided"}
           </p>
         </div>
@@ -275,15 +273,26 @@ const TaskCard = ({
               Uncategorized
             </Badge>
           )}
+
+          {is_shared && (
+            <Badge
+              variant="secondary"
+              className="px-2 py-0.5 text-xs font-medium rounded-md bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 flex items-center gap-1"
+            >
+              <UserPlus className="h-3 w-3" />
+              Shared
+            </Badge>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 px-4 py-3">
         <div className="flex items-center gap-2">
           <Users className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+
           {filteredTasks.length > 0 ? (
             <div className="flex -space-x-2 overflow-hidden">
               <TooltipProvider>
-                {filteredTasks.slice(0, 3).map((collaborator, i) => (
+                {filteredTasks.slice(0, 4).map((collaborator, i) => (
                   <Tooltip key={i}>
                     <TooltipTrigger asChild>
                       <Avatar className="h-6 w-6 border-2 border-background ring-1 ring-white dark:ring-gray-900">
@@ -320,13 +329,11 @@ const TaskCard = ({
               </TooltipProvider>
             </div>
           ) : (
-            <span className="text-xs text-gray-500 dark:text-gray-400"></span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              No collaborators
+            </span>
           )}
         </div>
-        <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-          {filteredTasks.length}{" "}
-          {filteredTasks.length === 1 ? "collaborator" : "collaborators"}
-        </span>
       </CardFooter>
     </Card>
   );
