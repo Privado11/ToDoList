@@ -15,7 +15,6 @@ function NewTaskPage() {
     selectedTask,
     getTaskById,
     loading,
-    clearSelectedTask,
     uploadAttachment,
     deleteAttachment,
     attachments,
@@ -61,15 +60,10 @@ function NewTaskPage() {
         }
       } else if (!id) {
         setTask(initialTaskState);
-        clearSelectedTask();
       }
     };
 
     loadTask();
-
-    return () => {
-      clearSelectedTask();
-    };
   }, [id]);
 
   useEffect(() => {

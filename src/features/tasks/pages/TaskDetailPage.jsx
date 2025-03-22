@@ -13,7 +13,7 @@ import {
 } from "@/features";
 
 function TaskDetailPage() {
-  const { getTaskById, selectedTask, clearSelectedTask, attachments } =
+  const { getTaskById, selectedTask, attachments } =
     useTaskContext();
 
   const navigate = useNavigate();
@@ -21,10 +21,6 @@ function TaskDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-
-  useEffect(() => {
-    console.log("id", id);
-  }, [id]);
 
   useEffect(() => {
     let isMounted = true;
@@ -50,9 +46,8 @@ function TaskDetailPage() {
 
     return () => {
       isMounted = false;
-      clearSelectedTask();
     };
-  }, [id, getTaskById, isInitialLoad, clearSelectedTask]);
+  }, [id, getTaskById, isInitialLoad]);
 
   const handleBack = useCallback(() => navigate("/"), [navigate]);
   const handleEdit = useCallback(

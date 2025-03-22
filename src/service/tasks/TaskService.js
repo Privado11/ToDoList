@@ -20,6 +20,28 @@ class TaskService extends BaseService {
   )
   `;
 
+  static TASK_LIST_SELECT2 = `
+    id,
+    title, 
+    description,
+    create_at,
+    due_date,
+    status_id,
+    category_id,
+    priority_id,
+    categories(*),
+    priorities(*),
+    statuses(*),
+    shared_tasks(
+    id,
+    status,
+    profile:sender_id (
+      full_name,
+      username
+    )
+  )
+  `;
+
   static prepareTaskData(data) {
     const {
       user_id,
@@ -37,7 +59,6 @@ class TaskService extends BaseService {
     this.validateRequiredId(userId, "User ID");
 
     try {
-
       const { data, error } = await this.supabase.rpc("get_all_user_tasks", {
         p_user_id: userId,
       });
@@ -54,14 +75,13 @@ class TaskService extends BaseService {
     this.validateRequiredId(userId, "User ID");
     this.validateRequiredId(taskId, "Task ID");
 
-
-
     try {
-       const { data, error } = await this.supabase.rpc("get_task_details", {
-         p_task_id: taskId,
-         p_user_id: userId,
-       });
+      const { data, error } = await this.supabase.rpc("get_task_details", {
+        p_task_id: taskId,
+        p_user_id: userId,
+      });
       this.handleError(error, "Error fetching task");
+
       return data;
     } catch (error) {
       console.error("Error fetching task:", error);

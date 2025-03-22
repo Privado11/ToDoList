@@ -26,12 +26,12 @@ export const useTasks = () => {
     }
   }, [user]);
 
-  const getTaskById = useCallback(
+ const getTaskById = useCallback(
     async (id) => {
       if (!id) return;
-
+ 
       if (!user) return;
-
+ 
       setLoading(true);
       setError(null);
       try {
@@ -129,11 +129,6 @@ export const useTasks = () => {
     [tasks, selectedTask?.id]
   );
 
-  const clearSelectedTask = useCallback(() => {
-    if (selectedTask) {
-      setSelectedTask(null);
-    }
-  }, [selectedTask]);
 
   const completedTasks = useMemo(
     () => tasks.filter((task) => task?.statuses?.id === 3).length,
@@ -168,7 +163,6 @@ export const useTasks = () => {
     createTask,
     updateTask,
     deleteTask,
-    clearSelectedTask,
     completedTasks,
     inProgressTasks,
     overdueTasks,
