@@ -40,7 +40,8 @@ const MessageItem = ({ message, user }) => {
 
         <div
           className={cn(
-            "rounded-lg px-2.5 py-1.5 max-w-[240px]",
+            "rounded-lg px-2.5 py-1.5 max-w-[240px]", 
+            "break-words overflow-wrap-break-word",
             message.is_from_current_user
               ? "bg-primary text-primary-foreground"
               : "bg-muted"
