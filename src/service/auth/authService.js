@@ -241,12 +241,10 @@ class AuthService {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
-        callback({
-          user: session?.user || null,
-          isVerified: session?.user?.user_metadata?.email_verified ?? null,
-        });
-      }
+      callback({
+        user: session?.user || null,
+        isVerified: session?.user?.user_metadata?.email_verified ?? null,
+      });
     });
     return { unsubscribe: () => subscription.unsubscribe() };
   }

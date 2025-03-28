@@ -6,9 +6,9 @@ class ChatSubscriptionService extends BaseService {
     messages: new Map(),
   };
 
-  static subscribeToConversation(
+  static subscribeToUserConversations(
     userId,
-    { onConversationChange, getConversations }
+    { onConversationsChange, getConversations }
   ) {
     this.validateRequiredId(userId, "User ID");
 
@@ -17,18 +17,19 @@ class ChatSubscriptionService extends BaseService {
     }
 
     const subscription = this.supabase
-      .channel(`conversation-${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "conversations",
-        },
+      .channel(`user-conversations-${userId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*", 
+        schema: "public",
+        table: "user_conversations",
+        filter: `user_id=eq.${userId}`
+      },
         async (payload) => {
           try {
             const updatedConversation = await getConversations(userId);
-            onConversationChange?.(updatedConversation);
+            onConversationsChange?.(updatedConversation);
           } catch (error) {
             console.error("Error updating conversation in real-time:", error);
           }
@@ -43,7 +44,7 @@ class ChatSubscriptionService extends BaseService {
     this.subscriptions.conversations.set(userId, {
       subscription,
       handlers: {
-        onChange: onConversationChange,
+        onChange: onConversationsChange,
         onOptimisticUpdate: null,
         onOptimisticError: null,
       },
@@ -57,8 +58,6 @@ class ChatSubscriptionService extends BaseService {
     { onMessagesChange, getMessages }
   ) {
     this.validateRequiredId(conversationId, "Conversation ID");
-
-    console.log("ENTRA");
 
     if (this.subscriptions.messages.has(conversationId)) {
       this.unsubscribeFromMessages(conversationId);
@@ -92,7 +91,6 @@ class ChatSubscriptionService extends BaseService {
         },
         async (payload) => {
           try {
-            // Verificar si el cambio corresponde a nuestros mensajes
             if (payload.new && payload.new.user_id) {
               const updateMessages = await getMessages(conversationId);
               onMessagesChange?.(updateMessages);
@@ -170,7 +168,6 @@ class ChatSubscriptionService extends BaseService {
     }
   }
 
-  // Modify existing unsubscribe methods to use this
   static unsubscribeFromMessages(conversationId) {
     this.clearSubscription("messages", conversationId);
   }

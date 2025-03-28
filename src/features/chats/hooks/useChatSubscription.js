@@ -8,17 +8,20 @@ export const useChatSubscription = (setConversations) => {
   const subscribeToConversation = useCallback(
     (id, getConversations) => {
       if (activeSubscriptionRef.current && userId) {
-        ChatSubscriptionService.unsubscribeFromConversation();
+        ChatSubscriptionService.unsubscribeFromConversation(userId);
       }
 
       setUserId(id);
 
-      const subscription = ChatSubscriptionService.subscribeToConversation(id, {
-        onConversationChange: (updatedConversation) => {
-          setConversations(updatedConversation);
-        },
-        getConversations,
-      });
+      const subscription = ChatSubscriptionService.subscribeToUserConversations(
+        id,
+        {
+          onConversationsChange: (updatedConversations) => {
+            setConversations(updatedConversations);
+          },
+          getConversations,
+        }
+      );
 
       activeSubscriptionRef.current = subscription;
     },
@@ -27,7 +30,7 @@ export const useChatSubscription = (setConversations) => {
 
   const unsubscribe = useCallback(() => {
     if (activeSubscriptionRef.current && userId) {
-      ChatSubscriptionService.unsubscribeFromConversation();
+      ChatSubscriptionService.unsubscribeFromConversation(userId);
       activeSubscriptionRef.current = null;
       setUserId(null);
     }
@@ -52,7 +55,6 @@ export const useMessageSubscription = (setCurrentMessages) => {
   const subscribeToMessages = useCallback(
     (id, getMessages) => {
       if (activeSubscriptionRef.current && conversationId) {
-        // Pass the current conversationId when unsubscribing
         ChatSubscriptionService.unsubscribeFromMessages(conversationId);
       }
       setConversationId(id);
@@ -71,7 +73,6 @@ export const useMessageSubscription = (setCurrentMessages) => {
 
   const unsubscribe = useCallback(() => {
     if (activeSubscriptionRef.current && conversationId) {
-      // Pass the conversationId when unsubscribing
       ChatSubscriptionService.unsubscribeFromMessages(conversationId);
       activeSubscriptionRef.current = null;
       setConversationId(null);

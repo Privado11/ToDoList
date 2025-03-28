@@ -91,6 +91,12 @@ export const useSharedTasks = (taskId, getTaskById) => {
     getUsersFromSharedTask();
   }, [getUsersFromSharedTask]);
 
+    useEffect(() => {
+      if (taskId) {
+        fetchSharedTasks();
+      }
+    }, [taskId, fetchSharedTasks]);
+
   const shareTask = async (recipientId) => {
     if (!user?.id) return;
 
