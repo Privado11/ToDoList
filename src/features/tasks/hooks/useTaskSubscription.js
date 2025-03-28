@@ -115,7 +115,7 @@ export const useSharedTasksSubscription = (setSharedTasks) => {
 
       setTaskId(id);
 
-      // Validar que getUsersFromSharedTask sea una función
+
       if (typeof getUsersFromSharedTask !== "function") {
         console.error("getUsersFromSharedTask debe ser una función");
         return null;

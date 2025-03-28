@@ -15,4 +15,4 @@ function SearchComponent({ searchTerm, setSearchTerm }) {
   );
 }
 
-export { SearchComponent };
+export default SearchComponent;

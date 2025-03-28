@@ -4,15 +4,18 @@ import { ToastProvider } from "./ToastContext";
 import { TaskProvider } from "./TaskContext";
 import { UserProvider } from "./UserContext";
 import { FriendShipProvider } from "./FriendShipContext";
+import { ChatProvider } from "./ChatContex";
 
 export const CombinedProviders = ({ children }) => (
   <AuthProvider>
     <UserProvider>
-      <ToastProvider>
-        <TaskProvider>
-          <FriendShipProvider>{children}</FriendShipProvider>
-        </TaskProvider>
-      </ToastProvider>
+      <ChatProvider>
+        <ToastProvider>
+          <TaskProvider>
+            <FriendShipProvider>{children}</FriendShipProvider>
+          </TaskProvider>
+        </ToastProvider>
+      </ChatProvider>
     </UserProvider>
   </AuthProvider>
 );

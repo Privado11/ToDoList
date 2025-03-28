@@ -164,11 +164,32 @@ class AuthService {
   static async getUser() {
     const {
       data: { user },
-      error,
+      error: userError,
     } = await supabase.auth.getUser();
-    AuthService.handleAuthError(error, "Error getting user");
+
+    AuthService.handleAuthError(userError, "Error getting user");
+
     if (!user) throw new Error("User not found");
-    return user;
+
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select("full_name, username, avatar_url")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError) {
+      throw new Error(`Error fetching profile: ${profileError.message}`);
+    }
+
+    if (!profileData) {
+      throw new Error("No profile found for this user");
+    }
+    return {
+      ...user,
+      full_name: profileData.full_name,
+      username: profileData.username,
+      avatar_url: profileData.avatar_url,
+    };
   }
 
   static async completeProfile(fullName, password, id) {
@@ -220,10 +241,12 @@ class AuthService {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      callback({
-        user: session?.user || null,
-        isVerified: session?.user?.user_metadata?.email_verified ?? null,
-      });
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        callback({
+          user: session?.user || null,
+          isVerified: session?.user?.user_metadata?.email_verified ?? null,
+        });
+      }
     });
     return { unsubscribe: () => subscription.unsubscribe() };
   }

@@ -13,6 +13,7 @@ import {
   SignUp,
   TaskDetailPage,
 } from "./features";
+import { Dashboard } from "./view/Dashboard";
 
 export const ProtectedRoute = () => {
   const { user, loading } = useAuth();
@@ -45,6 +46,7 @@ function AppUI() {
           <Route path="/complete-profile" element={<CompleteProfilePage />} />
 
           <Route path="/" element={<DashboardPage />} />
+          <Route path="/h" element={<Dashboard />} />
           <Route path="/add-task" element={<NewTaskPage />} />
           <Route path="/edit-task/:id" element={<NewTaskPage />} />
           <Route path="/update-password" element={<ResetPassword />} />

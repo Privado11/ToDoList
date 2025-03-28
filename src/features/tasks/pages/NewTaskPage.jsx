@@ -25,9 +25,6 @@ function NewTaskPage() {
   const [selectedAttachments, setSelectedAttachments] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
-  useEffect(() => {
-    console.log(attachments);
-  }, [attachments]);
 
   const initialTaskState = {
     title: "",
@@ -43,9 +40,6 @@ function NewTaskPage() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [uploading, setUploading] = useState([]);
 
-  useEffect(() => {
-    console.log(task);
-  }, [task]);
 
   useEffect(() => {
     const loadTask = async () => {

@@ -1,46 +1,6 @@
 import BaseService from "../base/baseService";
 
 class TaskService extends BaseService {
-  static TASK_LIST_SELECT = `
-    id,
-    title, 
-    description,
-    create_at,
-    due_date,
-    categories(*),
-    priorities(*),
-    statuses(*),
-    shared_tasks(
-    id,
-    status,
-    profile:recipient_id (
-      full_name,
-      username
-    )
-  )
-  `;
-
-  static TASK_LIST_SELECT2 = `
-    id,
-    title, 
-    description,
-    create_at,
-    due_date,
-    status_id,
-    category_id,
-    priority_id,
-    categories(*),
-    priorities(*),
-    statuses(*),
-    shared_tasks(
-    id,
-    status,
-    profile:sender_id (
-      full_name,
-      username
-    )
-  )
-  `;
 
   static prepareTaskData(data) {
     const {
@@ -50,6 +10,7 @@ class TaskService extends BaseService {
       statuses,
       created_at,
       id,
+      is_shared,
       ...taskData
     } = data;
     return taskData;

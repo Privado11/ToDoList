@@ -33,7 +33,7 @@ class CommentService extends BaseService {
       content,
       task_id: taskId,
       profiles: {
-        full_name: user?.user_metadata?.full_name,
+        full_name: user?.full_name,
       },
       created_at: new Date().toISOString(),
     };

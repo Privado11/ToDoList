@@ -24,6 +24,7 @@ const TaskShareDialog = ({ taskId, isShared }) => {
   const [message, setMessage] = useState("");
   const [isSharing, setIsSharing] = useState(false);
   const [shareError, setShareError] = useState(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -88,64 +89,77 @@ const TaskShareDialog = ({ taskId, isShared }) => {
     setShareError(null);
   }, []);
 
-  const ShareButton = () => (
-    <Button variant="outline" className="gap-2 text-lg" disabled={isShared}>
-      <Share className="w-5 h-5" />
-      Share
-    </Button>
-  );
+  const handleOpenChange = (newOpen) => {
+
+    if (isShared && newOpen) {
+      return;
+    }
+    setOpen(newOpen);
+    if (!newOpen) {
+      handleDialogClose();
+    }
+  };
 
   return (
-      <Dialog onOpenChange={handleDialogClose}>
-        <DialogTrigger asChild>
-          {isShared ? (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="inline-block">
-                    <ShareButton />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>
-                    You cannot share this task because it is being shared with
-                    you. <br /> Only the author can share it.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ) : (
-            <ShareButton />
-          )}
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-md text-lg">
-          <DialogHeader>
-            <DialogTitle className="text-xl">Share Task</DialogTitle>
-          </DialogHeader> 
+    <>
+      {isShared ? (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                className="gap-2 text-lg opacity-60 cursor-not-allowed"
+              >
+                <Share className="w-5 h-5" />
+                Share
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                You cannot share this task because it is being shared with you.{" "}
+                <br /> Only the author can share it.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="gap-2 text-lg">
+              <Share className="w-5 h-5" />
+              Share
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md text-lg">
+            <DialogHeader>
+              <DialogTitle className="text-xl">Share Task</DialogTitle>
+            </DialogHeader>
 
-          <div className="space-y-6">
-            <UserSearchShare onShareTask={handleShareWithUser} />
+            <div className="space-y-6">
+              <UserSearchShare onShareTask={handleShareWithUser} />
 
-            <ShareWithFriends
-              friendsList={friendsList}
-              onShareWithFriends={handleShareWithFriends}
-              isSharing={isSharing}
-            />
+              <ShareWithFriends
+                friendsList={friendsList}
+                onShareWithFriends={handleShareWithFriends}
+                isSharing={isSharing}
+              />
 
-            {message && (
-              <Alert variant="success">
-                <AlertDescription>{message}</AlertDescription>
-              </Alert>
-            )}
+              {message && (
+                <Alert variant="success">
+                  <AlertDescription>{message}</AlertDescription>
+                </Alert>
+              )}
 
-            {shareError && (
-              <Alert variant="destructive">
-                <AlertDescription>{shareError}</AlertDescription>
-              </Alert>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+              {shareError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{shareError}</AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 };
 

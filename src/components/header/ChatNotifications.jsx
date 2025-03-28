@@ -1,52 +1,90 @@
-import React from 'react'
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { MessageSquare } from "lucide-react"
+"use client";
 
-function ChatNotifications({
-  chats,
-  showChats,
-  setShowChats,
-  handleChatClick,
-}) {
-  return (
-    <Popover open={showChats} onOpenChange={setShowChats}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <MessageSquare className="h-5 w-5" />
-          <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0">
-            {/* {chats.reduce((acc, chat) => acc + chat.unread, 0)} */}
-          </Badge>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <div className="space-y-4">
-          <h3 className="font-semibold">Chats</h3>
-          {/* {chats.map((chat) => (
-            <div
-              key={chat.id}
-              className="flex items-start gap-4 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
-              onClick={() => handleChatClick(chat.id)}
-            >
-              <Avatar>
-                <AvatarImage src={chat.avatar} alt={chat.name} />
-                <AvatarFallback>{chat.name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <p className="font-medium">{chat.name}</p>
-                <p className="text-sm text-gray-500 truncate">
-                  {chat.lastMessage}
-                </p>
-              </div>
-              {chat.unread > 0 && <Badge>{chat.unread}</Badge>}
-            </div>
-          ))} */}
-        </div>
-      </PopoverContent>
-    </Popover>
+import { useEffect, useState } from "react";
+import { MessageSquare } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useChat } from "@/context/ChatContex";
+
+const ConversationNotifications = () => {
+  const { conversations, openChat } = useChat();
+
+  useEffect(() => {
+    console.log("Conversaciones actualizadas", conversations);
+  }, [conversations]);
+
+  const [showConversations, setShowConversations] = useState(false);
+
+
+ const handleConversationClick = (conversation) => {
+   openChat(conversation); 
+   setShowConversations(false); 
+ };
+
+
+  const totalUnread = conversations.reduce(
+    (acc, conversation) => acc + conversation.unread_count,
+    0
   );
-}
 
-export  {ChatNotifications}
+  return (
+    <>
+      <Popover open={showConversations} onOpenChange={setShowConversations}>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon" className="relative">
+            <MessageSquare className="h-5 w-5" />
+            {totalUnread > 0 && (
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0">
+                {totalUnread}
+              </Badge>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80">
+          <div className="space-y-4">
+            <h3 className="font-semibold">Chats</h3>
+            {conversations.map((conversation) => (
+              <div
+                key={conversation.id}
+                className="flex items-start gap-4 p-2 rounded-lg hover:bg-gray-50 cursor-pointer"
+                onClick={() => handleConversationClick(conversation)}
+              >
+                <Avatar>
+                  <AvatarImage
+                    src={
+                      conversation.other_user_avatar_url ||
+                      "/api/placeholder/32/32"
+                    }
+                    alt={conversation.other_user_full_name}
+                  />
+                  <AvatarFallback>
+                    {conversation.other_user_full_name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <p className="font-medium">
+                    {conversation.other_user_full_name}
+                  </p>
+                  <p className="text-sm text-gray-500 truncate">
+                    {conversation.last_message}
+                  </p>
+                </div>
+                {conversation.unread_count > 0 && (
+                  <Badge>{conversation.unread_count}</Badge>
+                )}
+              </div>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </>
+  );
+};
+
+export default ConversationNotifications;

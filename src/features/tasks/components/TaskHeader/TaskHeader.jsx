@@ -28,7 +28,7 @@ const TaskHeader = ({ task, onEdit }) => {
   return (
     <div className="flex justify-between items-start">
       <div>
-        <h1 className="text-3xl font-bold mb-2">{task.title}</h1>
+        <h1 className="w-[600px] text-3xl font-bold mb-2">{task.title}</h1>
         <div className="flex gap-4">
           <Badge variant="outline" className="gap-1 text-sm">
             <Calendar className="w-4 h-4" />
@@ -59,7 +59,8 @@ const TaskHeader = ({ task, onEdit }) => {
             </TooltipTrigger>
             <TooltipContent>
               <p>
-                You cannot edit this task because it is being shared with you. <br />
+                You cannot edit this task because it is being shared with you.{" "}
+                <br />
                 Only the author can edit it.
               </p>
             </TooltipContent>

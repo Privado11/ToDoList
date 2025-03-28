@@ -7,6 +7,8 @@ import { useTaskContext } from "@/context/TaskContext";
 import { useAuth } from "@/context/AuthContext";
 import { ActivityFeed, Header, Sidebar, TaskStats } from "@/components";
 import { TaskBoard } from "../components";
+import { ChatComponent } from "@/features/chats";
+
 
 const DashboardPage = () => {
   const { tasks, deleteTask } = useTaskContext();
@@ -40,8 +42,7 @@ const DashboardPage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold tracking-tight">
-                  Welcome back,{" "}
-                  {user?.user_metadata?.full_name?.split(" ")[0] || "Guest"}
+                  Welcome back, {user?.full_name?.split(" ")[0] || "Guest"}
                 </h1>
                 <p className="text-muted-foreground">
                   {activeFilter === "all"
@@ -84,9 +85,13 @@ const DashboardPage = () => {
           </div>
           <div className="hidden lg:block w-[300px] flex-shrink-0">
             <ActivityFeed />
+            {/* El componente ChatComponent se posiciona aquí pero aparecerá con un botón flotante */}
           </div>
         </main>
       </div>
+
+      {/* Chat Component con botón flotante */}
+      <ChatComponent user={user} />
     </div>
   );
 };

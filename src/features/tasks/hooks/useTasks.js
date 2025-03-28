@@ -28,9 +28,7 @@ export const useTasks = () => {
 
  const getTaskById = useCallback(
     async (id) => {
-      if (!id) return;
- 
-      if (!user) return;
+      if (!id || !user) return;
  
       setLoading(true);
       setError(null);

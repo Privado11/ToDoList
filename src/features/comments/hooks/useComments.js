@@ -74,7 +74,7 @@ export const useComments = (taskId) => {
       setComments((prev) =>
         prev.filter((comment) => comment.id !== `temp-${Date.now()}`)
       );
-      setError("Error al crear el comentario");
+      setError("Error creating comment");
       throw err;
     }
   };
