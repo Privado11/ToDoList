@@ -1,4 +1,4 @@
-import ChatSubscriptionService from "@/service/message/ChatSubscriptionService";
+import { ChatSubscriptionService } from "@/service";
 import { useState, useEffect, useCallback, useRef } from "react";
 
 export const useChatSubscription = (setConversations) => {

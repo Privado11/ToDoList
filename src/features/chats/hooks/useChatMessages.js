@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import ChatMessageService from "@/service/message/ChatMessageService";
+import { ChatMessageService } from "@/service";
 import { useAuthLogic } from "@/features/auth";
 import {
   useChatSubscription,
@@ -18,18 +18,20 @@ export const useChatMessages = () => {
 
   const { user } = useAuthLogic();
 
-  const { subscribeToConversation, unsubscribe: unsubscribeFromConversation } =
-    useChatSubscription(setConversations);
+  const {
+    subscribeToConversation,
+    unsubscribe: unsubscribeFromConversation
+  } = useChatSubscription(setConversations);
 
   const { subscribeToMessages, unsubscribe: unsubscribeFromMessages } =
     useMessageSubscription(setCurrentMessages);
 
   useEffect(() => {
-    if (user) {
-      subscribeToConversation(user.id, () =>
-        ChatMessageService.getConversations(user.id)
-      );
-    }
+    if (!user) return;
+
+    subscribeToConversation(user.id, () =>
+      ChatMessageService.getConversations(user.id)
+    );
 
     return () => {
       unsubscribeFromConversation();
@@ -78,6 +80,25 @@ export const useChatMessages = () => {
     }
   }, [user, fetchConversations]);
 
+  const markAllAsRead = useCallback(async () => {
+    if (!user) return;
+
+    const originalConversations = [...conversations];
+
+    try {
+      setConversations((prev) =>
+        prev.map((conversation) => ({ ...conversation, is_read: true }))
+      );
+
+      await ChatMessageService.markAllConversationsAsRead(user.id);
+      toast.success("All conversations marked as read");
+    } catch (err) {
+      setConversations(originalConversations);
+      toast.error("Error marking all conversations as read");
+      console.error("Error marking all conversations as read:", err);
+    }
+  }, [user, conversations]);
+
   const fetchMessages = useCallback(
     async (conversationId) => {
       if (!conversationId || !user) return;
@@ -111,16 +132,12 @@ export const useChatMessages = () => {
       try {
         let conversationId = selectedConversation?.id;
 
-
-
         const optimisticMessage = ChatMessageService.createOptimisticMessage(
           content,
           user
         );
 
-
         setCurrentMessages((prev) => [...prev, optimisticMessage]);
-
 
         const result = await ChatMessageService.sendMessage(
           recipientId,
@@ -154,15 +171,15 @@ export const useChatMessages = () => {
     [fetchMessages]
   );
 
-const closeChat = useCallback(() => {
-  setIsChatOpen(false);
-  if (selectedConversation) {
-    // Pass the specific conversation ID when unsubscribing
-    unsubscribeFromMessages(selectedConversation.id);
-  }
-  setSelectedConversation(null);
-  setCurrentMessages([]);
-}, [unsubscribeFromMessages, selectedConversation]);
+  const closeChat = useCallback(() => {
+    setIsChatOpen(false);
+    if (selectedConversation) {
+      // Pass the specific conversation ID when unsubscribing
+      unsubscribeFromMessages(selectedConversation.id);
+    }
+    setSelectedConversation(null);
+    setCurrentMessages([]);
+  }, [unsubscribeFromMessages, selectedConversation]);
 
   return {
     conversations,
@@ -172,6 +189,7 @@ const closeChat = useCallback(() => {
     selectedConversation,
     currentMessages,
     loadingMessages,
+    markAllAsRead,
     sendMessage,
     openChat,
     closeChat,

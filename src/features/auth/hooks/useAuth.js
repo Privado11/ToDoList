@@ -14,8 +14,6 @@ export const useAuthLogic = () => {
       try {
         const user = await AuthService.getUser();
         setUser(user);
-
-        console.log("User1",user);
         setIsVerified(user?.user_metadata?.email_verified ?? false);
       } catch (error) {
         setUser(null);

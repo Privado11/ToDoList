@@ -109,7 +109,7 @@ class SharedTaskService extends BaseService {
 
     try {
       const { data, error } = await this.supabase.rpc("accept_task_share", {
-        id,
+       request_id: id,
       });
 
       this.handleError(error, "Error updating invitation status");
@@ -125,7 +125,7 @@ class SharedTaskService extends BaseService {
 
     try {
       const { data, error } = await this.supabase.rpc("rejected_share_task", {
-        id,
+        share_task_id: id,
       });
 
       this.handleError(error, "Error updating invitation status to rejected");
@@ -142,7 +142,7 @@ class SharedTaskService extends BaseService {
 
     try {
       const { data, error } = await this.supabase.rpc("cancel_share_tasks", {
-        share_task_id: id,
+        share_task_id : id,
       });
 
       if (error) {

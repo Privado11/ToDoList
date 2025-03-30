@@ -4,7 +4,7 @@ import { SharedTaskService } from "@/service";
 import { useState, useEffect, useCallback } from "react";
 
 
-export const useSharedTasks = (taskId, getTaskById) => {
+export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
   const [users, setUsers] = useState([]);
   const [sharedTasks, setSharedTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -157,6 +157,10 @@ export const useSharedTasks = (taskId, getTaskById) => {
           task.id === invitationId ? { ...task, ...updatedTask } : task
         )
       );
+
+       if (updatedTask.task_id) {
+         await fetchTasks(updatedTask.taskId);
+       }
 
       return updatedTask;
     } catch (err) {

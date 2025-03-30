@@ -19,7 +19,7 @@ export function TaskProvider({ children }) {
   const statusesHook = useStatuses();
   const selectedTaskId = tasksHook?.selectedTask?.id ?? null;
   const commentsHook = useComments(selectedTaskId);
-  const sharedTasksHook = useSharedTasks(selectedTaskId, tasksHook.getTaskById);
+  const sharedTasksHook = useSharedTasks(selectedTaskId, tasksHook.getTaskById, tasksHook.fetchTasks);
   const attachmentsHook = useAttachments(selectedTaskId);
 
   const value = {

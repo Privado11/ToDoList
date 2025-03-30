@@ -111,7 +111,7 @@ class FriendShipService extends BaseService {
     this.validateRequiredId(friendshipId, "Friendship ID");
 
     try {
-      const { data, error } = await this.supabase.rpc("delete_friendship", {
+      const { data, error } = await this.supabase.rpc("deleted_friendship", {
         friendship_id: friendshipId,
       });
 
@@ -128,7 +128,7 @@ class FriendShipService extends BaseService {
 
     try {
       const { data, error } = await this.supabase.rpc("accept_friend_request", {
-        friend_request_id: friendRequestId,
+        request_id: friendRequestId,
       });
 
       this.handleError(error, "Error accepting friend request");
@@ -144,7 +144,7 @@ class FriendShipService extends BaseService {
 
     try {
       const { data, error } = await this.supabase.rpc("reject_friend_request", {
-        friend_request_id: friendRequestId,
+        friendrequestid: friendRequestId,
       });
 
       this.handleError(error, "Error rejecting friend request");
@@ -160,7 +160,7 @@ class FriendShipService extends BaseService {
 
     try {
       const { data, error } = await this.supabase.rpc("cancel_friend_request", {
-        friend_request_id: friendRequestId,
+        friendrequestid: friendRequestId,
       });
 
       this.handleError(error, "Error canceling friend request");

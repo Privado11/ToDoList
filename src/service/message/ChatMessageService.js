@@ -21,7 +21,6 @@ class ChatMessageService extends BaseService {
       throw new Error(error.message);
     }
   }
-
   static async getConversationMessages(conversationId, userId) {
     this.validateRequiredId(conversationId, "Conversation ID");
     this.validateRequiredId(userId, "User ID");
@@ -63,17 +62,14 @@ class ChatMessageService extends BaseService {
     this.validateRequiredId(recipientId, "Recipient ID");
     this.validateRequiredId(content, "Message content");
 
-     const optimisticMessage = this.createOptimisticMessage(
-       content,
-       user
-     );
+    const optimisticMessage = this.createOptimisticMessage(content, user);
 
     try {
-       await ChatSubscriptionService.handleOptimisticUpdate(
-         "messages",
-         conversationId,
-         optimisticMessage
-       );
+      await ChatSubscriptionService.handleOptimisticUpdate(
+        "messages",
+        conversationId,
+        optimisticMessage
+      );
       const { data, error } = await this.supabase.rpc("send_message", {
         recipient_id: recipientId,
         content: content,
@@ -83,13 +79,13 @@ class ChatMessageService extends BaseService {
 
       return data;
     } catch (error) {
-       await ChatSubscriptionService.handleOptimisticError(
-         "messages",
-         conversationId,
-         optimisticMessage,
-         error
-       );
-       throw error;
+      await ChatSubscriptionService.handleOptimisticError(
+        "messages",
+        conversationId,
+        optimisticMessage,
+        error
+      );
+      throw error;
     }
   }
 
@@ -140,7 +136,6 @@ class ChatMessageService extends BaseService {
     this.validateRequiredId(userId, "User ID");
 
     try {
-      // Actualizar last_read_at
       const { data, error } = await this.supabase
         .from("user_conversations")
         .update({ last_read_at: new Date() })
@@ -149,7 +144,6 @@ class ChatMessageService extends BaseService {
 
       this.handleError(error, "Error updating last read timestamp");
 
-      // Marcar todos los mensajes como leídos
       await this.markAllMessagesAsRead(conversationId, userId);
 
       return data;
@@ -159,12 +153,31 @@ class ChatMessageService extends BaseService {
     }
   }
 
+  static async markAllConversationsAsRead(userId) {
+    this.validateRequiredId(userId, "User ID");
+
+    try {
+      const { data, error } = await this.supabase
+        .from("user_conversations")
+        .update({ is_read: true })
+        .eq("user_id", userId)
+        .eq("is_read", false)
+        .select();
+
+      this.handleError(error, "Error marking all conversations as read");
+
+      return data;
+    } catch (error) {
+      console.error("Error marking all conversations as read:", error);
+      throw new Error(error.message);
+    }
+  }
+
   static async deleteMessage(messageId, userId) {
     this.validateRequiredId(messageId, "Message ID");
     this.validateRequiredId(userId, "User ID");
 
     try {
-      // Soft delete para el usuario específico
       const { data, error } = await this.supabase
         .from("user_messages")
         .update({ is_deleted: true })
@@ -185,7 +198,6 @@ class ChatMessageService extends BaseService {
     this.validateRequiredId(userId, "User ID");
 
     try {
-      // Soft delete para el usuario específico
       const { data, error } = await this.supabase
         .from("user_conversations")
         .update({ is_deleted: true })
@@ -217,33 +229,6 @@ class ChatMessageService extends BaseService {
       return data || 0;
     } catch (error) {
       console.error("Error fetching unread conversations count:", error);
-      throw new Error(error.message);
-    }
-  }
-
-  static async getUserConversationStats(userId) {
-    this.validateRequiredId(userId, "User ID");
-
-    try {
-      const { data, error } = await this.supabase.rpc(
-        "get_user_conversation_stats",
-        {
-          p_user_id: userId,
-        }
-      );
-
-      this.handleError(error, "Error fetching user conversation stats");
-
-      return (
-        data || {
-          total_conversations: 0,
-          total_messages: 0,
-          unread_messages: 0,
-          unread_conversations: 0,
-        }
-      );
-    } catch (error) {
-      console.error("Error fetching user conversation stats:", error);
       throw new Error(error.message);
     }
   }
