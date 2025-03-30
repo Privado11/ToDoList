@@ -91,6 +91,8 @@ const AppNotifications = () => {
         return <MessageSquare className="h-4 w-4 text-blue-500" />;
       case "task_share_request":
         return <Share className="h-4 w-4 text-purple-500" />;
+      case "task_share_accepted":
+        return <Share className="h-4 w-4 text-purple-500" />;
       case "friendship_request":
         return <UserPlus className="h-4 w-4 text-green-500" />;
       default:
