@@ -113,13 +113,25 @@ const AppNotifications = () => {
         return {
           name: notification.content.full_name,
           nameLetter: notification.content.full_name[0],
-          message: `Requested to share "${notification.content.task_title}"`,
+          message: `wants to share the task "${notification.content.task_title}" with you.`,
+        };
+      case "task_share_accepted":
+        return {
+          name: notification.content.full_name,
+          nameLetter: notification.content.full_name[0],
+          message: `has accepted the shared task "${notification.content.task_title}". You can now collaborate on it together!`,
         };
       case "friendship_request":
         return {
           name: notification.content.full_name,
           nameLetter: notification.content.full_name[0],
-          message: "Sent you a friend request",
+          message: "has sent you a friend request.",
+        };
+      case "friendship_accepted":
+        return {
+          name: notification.content.full_name,
+          nameLetter: notification.content.full_name[0],
+          message: "has accepted your friend request. You are now connected!",
         };
       default:
         return {
