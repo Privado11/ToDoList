@@ -54,7 +54,7 @@ const ActiveChat = ({
   return (
     <Card
       className={`fixed shadow-xl z-40 border-none ${
-        position === 0 ? "bottom-20 right-20" : "bottom-20 right-[23rem]"
+        position === 0 ? "bottom-0 right-20" : "bottom-0 right-[30rem]"
       } w-80 sm:w-96`}
     >
       <div className="flex justify-between items-center bg-primary text-primary-foreground rounded-t-lg p-4">
