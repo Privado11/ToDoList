@@ -1,4 +1,8 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 import { Send } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,12 +11,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTaskContext } from "@/context/TaskContext";
 
-
-function CommentSection() {
-  const {comments, addComment: createComment } = useTaskContext();
+function CommentSection({ highlightedComment }) {
+  const { comments, addComment: createComment } = useTaskContext();
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (highlightedComment) {
+      const commentElement = document.getElementById(highlightedComment);
+
+      if (commentElement) {
+        commentElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        commentElement.classList.add("highlighted-comment");
+
+        setTimeout(() => {
+          commentElement.classList.remove("highlighted-comment");
+        }, 3000);
+      }
+    }
+  }, [highlightedComment, comments]);
 
   const handleCommentChange = useCallback((e) => {
     setComment(e.target.value);
@@ -65,6 +84,9 @@ function CommentSection() {
     }
   }, []);
 
+  useEffect(() => {
+    console.log("highlightedComment", highlightedComment);
+  }, [highlightedComment]);
   return (
     <Card>
       <CardHeader>
@@ -74,7 +96,11 @@ function CommentSection() {
         <div className="space-y-4">
           {comments.length > 0 ? (
             comments.map((comment) => (
-              <div key={comment.id} className="flex gap-4">
+              <div
+                key={comment.id}
+                id={comment.id}
+                className={`flex gap-4 p-3 rounded-lg transition-all duration-300`}
+              >
                 <Avatar>
                   <AvatarImage src="/api/placeholder/32/32" />
                   <AvatarFallback>

@@ -5,8 +5,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useNotification } from "@/context/NotificationContext";
 
 function ActivityFeed() {
+  const {
+    notifications,
+    loading,
+  } = useNotification();
   return (
     <Card>
       <CardHeader>

@@ -14,6 +14,7 @@ import NotificationsPopover from "./NotificationsPopover";
 import { useNotification } from "@/context/NotificationContext";
 import { useFriendShipContext } from "@/context/FriendShipContext";
 import { useTaskContext } from "@/context/TaskContext";
+import { useNavigate } from "react-router-dom";
 
 const AppNotifications = () => {
   const {
@@ -27,35 +28,42 @@ const AppNotifications = () => {
   } = useNotification();
   const { acceptFriendRequest, rejectFriendRequest } = useFriendShipContext();
   const { acceptTaskShare, rejectedTaskShare } = useTaskContext();
+  const navigate = useNavigate();
 
   const [showNotifications, setShowNotifications] = React.useState(false);
 
   useEffect(() => {
-    console.log("conversation", notifications);
+    console.log("notifications", notifications);
   }, [notifications]);
 
-  const handleNotificationClick = async (notification) => {
-    if (!notification.is_read) {
-      await markAsRead(notification.id);
-    }
-  };
+ const handleNotificationClick = async (notification) => {
+   if (!notification.is_read) {
+     await markAsRead(notification.id);
+   }
+   if (notification.type === "task_comment" && notification.content.task_id) {
+     setShowNotifications(false);
+     // Use a clear comment identifier that will be easy to parse
+     const commentAnchor = notification.content.comment_id
+       ? `#comment-${notification.content.comment_id}`
+       : "";
+     navigate(`/task-detail/${notification.content.task_id}${commentAnchor}`);
+   }
+ };
 
-  const handleNotificationAction = async (notificationId, action) => {
+  const handleNotificationAction = async (requestId, action) => {
     try {
-      await markAsRead(notificationId);
-
       const actionHandlers = {
-        acceptTaskShare: () => acceptTaskShare(notificationId),
-        rejectedTaskShare: () => rejectedTaskShare(notificationId),
-        accept: () => acceptFriendRequest(notificationId),
-        reject: () => rejectFriendRequest(notificationId),
+        acceptTaskShare: () => acceptTaskShare(requestId),
+        rejectedTaskShare: () => rejectedTaskShare(requestId),
+        accept: () => acceptFriendRequest(requestId),
+        reject: () => rejectFriendRequest(requestId),
       };
 
       if (actionHandlers[action]) {
         await actionHandlers[action]();
       }
 
-      return { success: true, notificationId, action };
+      return { success: true, requestId, action };
     } catch (err) {
       console.error(`Failed to process notification action ${action}:`, err);
       throw err;
@@ -197,7 +205,6 @@ const AppNotifications = () => {
                       {formatTime(notification.created_at)}
                     </div>
 
-              
                     {!notification.is_replied && (
                       <>
                         {notification.type === "task_share_request" && (

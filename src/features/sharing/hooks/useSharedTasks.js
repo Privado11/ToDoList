@@ -3,7 +3,6 @@ import { useSharedTasksSubscription } from "@/features/tasks/hooks/useTaskSubscr
 import { SharedTaskService } from "@/service";
 import { useState, useEffect, useCallback } from "react";
 
-
 export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
   const [users, setUsers] = useState([]);
   const [sharedTasks, setSharedTasks] = useState([]);
@@ -15,7 +14,6 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
   const { subscribeToSharedTasks, unsubscribe: unsubscribeFromSharedTasks } =
     useSharedTasksSubscription(setSharedTasks);
 
-  
   useEffect(() => {
     if (sharedTasks.length === 0 && taskId && !isLoading) {
       SharedTaskService.getUsersFromSharedTask(taskId).then((data) => {
@@ -50,7 +48,6 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
   );
 
   const fetchSharedTasks = useCallback(async () => {
-
     try {
       setIsLoading(true);
       const data = await SharedTaskService.getUsersFromSharedTask(taskId);
@@ -91,11 +88,11 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
     getUsersFromSharedTask();
   }, [getUsersFromSharedTask]);
 
-    useEffect(() => {
-      if (taskId) {
-        fetchSharedTasks();
-      }
-    }, [taskId, fetchSharedTasks]);
+  useEffect(() => {
+    if (taskId) {
+      fetchSharedTasks();
+    }
+  }, [taskId, fetchSharedTasks]);
 
   const shareTask = async (recipientId) => {
     if (!user?.id) return;
@@ -104,11 +101,11 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
 
     try {
       setError(null);
-     
+
       const result = await SharedTaskService.shareTask(
         taskId,
         user.id,
-        recipientId, 
+        recipientId,
         getTaskById
       );
       await fetchSharedTasks();
@@ -119,24 +116,24 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
     }
   };
 
- const getAvailableFriendsForTask = useCallback(async () => {
-   if (!user) return;
+  const getAvailableFriendsForTask = useCallback(async () => {
+    if (!user) return;
 
-   try {
-     setIsLoading(true);
-     const data = await SharedTaskService.getAvailableFriendsForTask(
-       user.id,
-       taskId
-     );
-     setError(null);
-     return data;
-   } catch (err) {
-     setError("Error fetching friends");
-     console.error(err.message);
-   } finally {
-     setIsLoading(false);
-   }
- }, [user, taskId]);
+    try {
+      setIsLoading(true);
+      const data = await SharedTaskService.getAvailableFriendsForTask(
+        user.id,
+        taskId
+      );
+      setError(null);
+      return data;
+    } catch (err) {
+      setError("Error fetching friends");
+      console.error(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, taskId]);
   const updateSharedTaskStatus = (invitationId, status) => {
     setSharedTasks((prev) =>
       prev.map((task) =>
@@ -157,16 +154,13 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
           task.id === invitationId ? { ...task, ...updatedTask } : task
         )
       );
-
-       if (updatedTask.task_id) {
-         await fetchTasks(updatedTask.taskId);
-       }
-
       return updatedTask;
     } catch (err) {
       await fetchSharedTasks();
       setError("Something went wrong. Please try again.");
       throw err;
+    } finally {
+      await fetchTasks(user.id);
     }
   };
 

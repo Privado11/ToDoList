@@ -113,6 +113,8 @@ class SharedTaskService extends BaseService {
       });
 
       this.handleError(error, "Error updating invitation status");
+
+
       return data?.[0];
     } catch (error) {
       console.error("Error updating invitation status:", error);

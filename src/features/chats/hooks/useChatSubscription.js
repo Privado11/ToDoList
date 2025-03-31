@@ -48,45 +48,54 @@ export const useChatSubscription = (setConversations) => {
   };
 };
 
-export const useMessageSubscription = (setCurrentMessages) => {
-  const activeSubscriptionRef = useRef(null);
-  const [conversationId, setConversationId] = useState(null);
+export const useMultiMessageSubscription = () => {
+  const activeSubscriptionsRef = useRef(new Map());
 
   const subscribeToMessages = useCallback(
-    (id, getMessages) => {
-      if (activeSubscriptionRef.current && conversationId) {
-        ChatSubscriptionService.unsubscribeFromMessages(conversationId);
+    (conversationId, getMessages, onMessagesChange) => {
+      // Si ya existe una suscripción para esta conversación, no crear otra
+      if (activeSubscriptionsRef.current.has(conversationId)) {
+        return;
       }
-      setConversationId(id);
 
-      const subscription = ChatSubscriptionService.subscribeToMessages(id, {
-        onMessagesChange: (updatedMessages) => {
-          setCurrentMessages(updatedMessages);
-        },
-        getMessages,
-      });
+      const subscription = ChatSubscriptionService.subscribeToMessages(
+        conversationId,
+        {
+          onMessagesChange: (updatedMessages) => {
+            onMessagesChange(conversationId, updatedMessages);
+          },
+          getMessages: () => getMessages(conversationId),
+        }
+      );
 
-      activeSubscriptionRef.current = subscription;
+      activeSubscriptionsRef.current.set(conversationId, subscription);
     },
-    [setCurrentMessages, conversationId]
+    []
   );
 
-  const unsubscribe = useCallback(() => {
-    if (activeSubscriptionRef.current && conversationId) {
+  const unsubscribeFromMessages = useCallback((conversationId) => {
+    if (activeSubscriptionsRef.current.has(conversationId)) {
       ChatSubscriptionService.unsubscribeFromMessages(conversationId);
-      activeSubscriptionRef.current = null;
-      setConversationId(null);
+      activeSubscriptionsRef.current.delete(conversationId);
     }
-  }, [conversationId]);
+  }, []);
+
+  const unsubscribeFromAllMessages = useCallback(() => {
+    activeSubscriptionsRef.current.forEach((_, conversationId) => {
+      ChatSubscriptionService.unsubscribeFromMessages(conversationId);
+    });
+    activeSubscriptionsRef.current.clear();
+  }, []);
 
   useEffect(() => {
     return () => {
-      unsubscribe();
+      unsubscribeFromAllMessages();
     };
-  }, [unsubscribe]);
+  }, [unsubscribeFromAllMessages]);
 
   return {
     subscribeToMessages,
-    unsubscribe,
+    unsubscribeFromMessages,
+    unsubscribeFromAllMessages,
   };
 };

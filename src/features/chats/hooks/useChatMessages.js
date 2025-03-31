@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { ChatMessageService } from "@/service";
 import { useAuthLogic } from "@/features/auth";
 import {
   useChatSubscription,
-  useMessageSubscription,
+  useMultiMessageSubscription,
 } from "./useChatSubscription";
 
 export const useChatMessages = () => {
@@ -13,18 +13,23 @@ export const useChatMessages = () => {
   const [error, setError] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [activeChats, setActiveChats] = useState([]);
+  const [minimizedChats, setMinimizedChats] = useState([]);
+  const messagesRef = useRef(new Map());
   const [currentMessages, setCurrentMessages] = useState([]);
+  const [allMessages, setAllMessages] = useState({});
   const [loadingMessages, setLoadingMessages] = useState(false);
 
   const { user } = useAuthLogic();
 
-  const {
-    subscribeToConversation,
-    unsubscribe: unsubscribeFromConversation
-  } = useChatSubscription(setConversations);
+  const { subscribeToConversation, unsubscribe: unsubscribeFromConversation } =
+    useChatSubscription(setConversations);
 
-  const { subscribeToMessages, unsubscribe: unsubscribeFromMessages } =
-    useMessageSubscription(setCurrentMessages);
+  const {
+    subscribeToMessages,
+    unsubscribeFromMessages,
+    unsubscribeFromAllMessages,
+  } = useMultiMessageSubscription();
 
   useEffect(() => {
     if (!user) return;
@@ -38,25 +43,40 @@ export const useChatMessages = () => {
     };
   }, [user, subscribeToConversation, unsubscribeFromConversation]);
 
+  const handleMessagesChange = useCallback(
+    (conversationId, updatedMessages) => {
+      messagesRef.current.set(conversationId, updatedMessages);
+
+      if (selectedConversation && selectedConversation.id === conversationId) {
+        setCurrentMessages(updatedMessages);
+      }
+
+      setAllMessages((prevAllMessages) => ({
+        ...prevAllMessages,
+        [conversationId]: updatedMessages,
+      }));
+    },
+    [selectedConversation]
+  );
+
   useEffect(() => {
-    if (selectedConversation) {
-      subscribeToMessages(selectedConversation.id, () =>
-        ChatMessageService.getConversationMessages(
-          selectedConversation.id,
-          user.id
-        )
-      );
-    }
+    if (!user) return;
+
+    activeChats.forEach((chat) => {
+      if (chat) {
+        subscribeToMessages(
+          chat.id,
+          (conversationId) =>
+            ChatMessageService.getConversationMessages(conversationId, user.id),
+          handleMessagesChange
+        );
+      }
+    });
 
     return () => {
-      unsubscribeFromMessages();
+      unsubscribeFromAllMessages();
     };
-  }, [
-    selectedConversation,
-    user,
-    subscribeToMessages,
-    unsubscribeFromMessages,
-  ]);
+  }, [user, activeChats, subscribeToMessages, handleMessagesChange]);
 
   const fetchConversations = useCallback(async () => {
     if (!user) return;
@@ -101,7 +121,7 @@ export const useChatMessages = () => {
 
   const fetchMessages = useCallback(
     async (conversationId) => {
-      if (!conversationId || !user) return;
+      if (!conversationId || !user) return [];
 
       setLoadingMessages(true);
       try {
@@ -110,7 +130,20 @@ export const useChatMessages = () => {
           user.id
         );
 
-        setCurrentMessages(messages);
+        messagesRef.current.set(conversationId, messages);
+
+        if (
+          selectedConversation &&
+          selectedConversation.id === conversationId
+        ) {
+          setCurrentMessages(messages);
+        }
+
+        setAllMessages((prevAllMessages) => ({
+          ...prevAllMessages,
+          [conversationId]: messages,
+        }));
+
         return messages;
       } catch (err) {
         setError(err.message);
@@ -119,31 +152,50 @@ export const useChatMessages = () => {
         setLoadingMessages(false);
       }
     },
-    [user]
+    [user, selectedConversation]
   );
 
   const sendMessage = useCallback(
-    async (recipientId, content) => {
+    async (recipientId, content, conversationId) => {
       if (!user || !recipientId || !content.trim()) {
         toast.error("No se puede enviar un mensaje vacío");
         return null;
       }
 
       try {
-        let conversationId = selectedConversation?.id;
+        const targetConversationId = conversationId || selectedConversation?.id;
+
+        if (!targetConversationId) {
+          toast.error("No se ha seleccionado una conversación");
+          return null;
+        }
 
         const optimisticMessage = ChatMessageService.createOptimisticMessage(
           content,
           user
         );
 
-        setCurrentMessages((prev) => [...prev, optimisticMessage]);
+        const currentMsgs = messagesRef.current.get(targetConversationId) || [];
+        const updatedMsgs = [...currentMsgs, optimisticMessage];
+        messagesRef.current.set(targetConversationId, updatedMsgs);
+
+        if (
+          selectedConversation &&
+          selectedConversation.id === targetConversationId
+        ) {
+          setCurrentMessages(updatedMsgs);
+        }
+
+        setAllMessages((prevAllMessages) => ({
+          ...prevAllMessages,
+          [targetConversationId]: updatedMsgs,
+        }));
 
         const result = await ChatMessageService.sendMessage(
           recipientId,
           content,
           user,
-          conversationId
+          targetConversationId
         );
 
         await fetchConversations();
@@ -152,9 +204,29 @@ export const useChatMessages = () => {
       } catch (error) {
         console.error("Error sending message:", error);
         toast.error("The message could not be sent");
-        setCurrentMessages((prev) =>
-          prev.filter((msg) => msg.id !== optimisticMessage.id)
-        );
+
+        if (conversationId || selectedConversation?.id) {
+          const targetConversationId =
+            conversationId || selectedConversation.id;
+          const currentMsgs =
+            messagesRef.current.get(targetConversationId) || [];
+          const filteredMsgs = currentMsgs.filter(
+            (msg) => !msg.id.startsWith("temp-")
+          );
+          messagesRef.current.set(targetConversationId, filteredMsgs);
+
+          if (
+            selectedConversation &&
+            selectedConversation.id === targetConversationId
+          ) {
+            setCurrentMessages(filteredMsgs);
+          }
+
+          setAllMessages((prevAllMessages) => ({
+            ...prevAllMessages,
+            [targetConversationId]: filteredMsgs,
+          }));
+        }
 
         return null;
       }
@@ -164,22 +236,100 @@ export const useChatMessages = () => {
 
   const openChat = useCallback(
     (conversation) => {
+      if (!conversation) return;
+
       setSelectedConversation(conversation);
       setIsChatOpen(true);
+
+      if (!activeChats.some((chat) => chat?.id === conversation.id)) {
+        setActiveChats((prev) => [...prev, conversation]);
+      }
+
+      if (activeChats.length >= 2) {
+        const oldestChatId = activeChats[0].id;
+        console.log("oldestChatId", oldestChatId);
+        minimizeChat(oldestChatId);
+      }
+
+      setMinimizedChats((prev) =>
+        prev.filter((chat) => chat?.id !== conversation.id)
+      );
+
       fetchMessages(conversation.id);
+
+      if (user && conversation.unread_count > 0) {
+        ChatMessageService.markConversationAsRead(conversation.id, user.id);
+      }
     },
-    [fetchMessages]
+    [fetchMessages, activeChats, user]
   );
 
-  const closeChat = useCallback(() => {
-    setIsChatOpen(false);
-    if (selectedConversation) {
-      // Pass the specific conversation ID when unsubscribing
-      unsubscribeFromMessages(selectedConversation.id);
-    }
+  const minimizeChat = useCallback(
+    (conversationId) => {
+      const chat = activeChats.find((c) => c?.id === conversationId);
+      if (!chat) return;
+
+      setActiveChats((prev) => prev.filter((c) => c?.id !== conversationId));
+
+      if (!minimizedChats.some((c) => c?.id === conversationId)) {
+        setMinimizedChats((prev) => [...prev, chat]);
+      }
+
+      if (selectedConversation?.id === conversationId) {
+        const remainingChats = activeChats.filter(
+          (c) => c?.id !== conversationId
+        );
+        if (remainingChats.length > 0) {
+          setSelectedConversation(remainingChats[0]);
+          setCurrentMessages(
+            messagesRef.current.get(remainingChats[0].id) || []
+          );
+        } else {
+          setSelectedConversation(null);
+          setCurrentMessages([]);
+          setIsChatOpen(false);
+        }
+      }
+    },
+    [activeChats, minimizedChats, selectedConversation]
+  );
+
+  const closeChat = useCallback(
+    (conversationId) => {
+      const targetId = conversationId || selectedConversation?.id;
+      if (!targetId) return;
+
+      setActiveChats((prev) => prev.filter((c) => c?.id !== targetId));
+
+      setMinimizedChats((prev) => prev.filter((c) => c?.id !== targetId));
+
+      unsubscribeFromMessages(targetId);
+
+      if (selectedConversation?.id === targetId) {
+        const remainingChats = activeChats.filter((c) => c?.id !== targetId);
+        if (remainingChats.length > 0) {
+          setSelectedConversation(remainingChats[0]);
+          setCurrentMessages(
+            messagesRef.current.get(remainingChats[0].id) || []
+          );
+        } else {
+          setSelectedConversation(null);
+          setCurrentMessages([]);
+          setIsChatOpen(false);
+        }
+      }
+    },
+    [selectedConversation, activeChats, unsubscribeFromMessages]
+  );
+
+  const closeAllChats = useCallback(() => {
+    setActiveChats([]);
+    setMinimizedChats([]);
     setSelectedConversation(null);
     setCurrentMessages([]);
-  }, [unsubscribeFromMessages, selectedConversation]);
+    setIsChatOpen(false);
+    unsubscribeFromAllMessages();
+  }, [unsubscribeFromAllMessages]);
 
   return {
     conversations,
@@ -189,10 +339,15 @@ export const useChatMessages = () => {
     selectedConversation,
     currentMessages,
     loadingMessages,
+    activeChats,
+    minimizedChats,
+    allMessages,
     markAllAsRead,
     sendMessage,
     openChat,
+    minimizeChat,
     closeChat,
+    closeAllChats,
     fetchMessages,
     fetchConversations,
   };

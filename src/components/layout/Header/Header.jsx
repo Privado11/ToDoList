@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { UserMenu } from "@/features";
 import { AppNotifications, ChatNotifications } from "@/components/header";
 
-
 function Header() {
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -16,7 +15,8 @@ function Header() {
           <Input
             type="search"
             placeholder="Search tasks..."
-            className="w-full pl-8 bg-background hidden lg:block"
+            className="w-full bg-background hidden lg:block"
+            style={{ paddingLeft: "2rem" }}
           />
           <Button
             variant="ghost"

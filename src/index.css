@@ -98,3 +98,13 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+.highlighted-comment {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left: 4px solid #3b82f6;
+  transition: background-color 0.3s ease;
+}
+
+input[type="search"] {
+  padding-left: 2rem !important;
+}

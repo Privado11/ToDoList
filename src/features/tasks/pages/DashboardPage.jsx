@@ -7,7 +7,7 @@ import { useTaskContext } from "@/context/TaskContext";
 import { useAuth } from "@/context/AuthContext";
 import { ActivityFeed, Header, Sidebar, TaskStats } from "@/components";
 import { TaskBoard } from "../components";
-import { ChatComponent } from "@/features/chats";
+import { ChatComponent, MultiChatManager } from "@/features/chats";
 
 
 const DashboardPage = () => {
@@ -33,11 +33,17 @@ const DashboardPage = () => {
   const filteredTasks = filterTasks(activeFilter);
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
-      <Sidebar setActiveFilter={setActiveFilter} />
-      <div className="flex-1">
-        <Header />
-        <main className="flex flex-col lg:flex-row gap-4 p-4 md:p-6">
+    <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
+      <div className="lg:h-screen lg:sticky lg:top-0">
+        <Sidebar setActiveFilter={setActiveFilter} />
+      </div>
+
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <div className="sticky top-0 z-10">
+          <Header />
+        </div>
+
+        <main className="flex flex-col lg:flex-row gap-4 p-4 md:p-6 overflow-y-auto">
           <div className="flex-1 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -60,6 +66,7 @@ const DashboardPage = () => {
                 New Task
               </Button>
             </div>
+
             <div className="hidden lg:block">
               <TaskStats />
             </div>
@@ -83,15 +90,16 @@ const DashboardPage = () => {
               </div>
             )}
           </div>
-          <div className="hidden lg:block w-[300px] flex-shrink-0">
+
+          <div className="hidden lg:block w-[300px] flex-shrink-0 lg:sticky lg:top-0">
             <ActivityFeed />
-            {/* El componente ChatComponent se posiciona aquí pero aparecerá con un botón flotante */}
           </div>
         </main>
       </div>
 
-      {/* Chat Component con botón flotante */}
-      <ChatComponent user={user} />
+      {/* <ChatComponent user={user} /> */}
+      <MultiChatManager user={user} />
+
     </div>
   );
 };
