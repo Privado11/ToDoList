@@ -1,8 +1,10 @@
 import React from "react";
+import { X, Minus } from "lucide-react";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@mui/base";
 
-const ChatHeader = ({ conversation }) => {
+const ChatHeader = ({ conversation, onMinimize, onClose }) => {
   const getOtherUserInitials = () => {
     if (!conversation?.other_user_full_name) return "U";
     const nameParts = conversation.other_user_full_name.split(" ");
@@ -28,7 +30,9 @@ const ChatHeader = ({ conversation }) => {
           )}
         </Avatar>
         <span>{conversation.other_user_full_name}</span>
+        
       </CardTitle>
+
     </CardHeader>
   );
 };
