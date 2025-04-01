@@ -2,6 +2,7 @@ import BaseService from "../base/baseService";
 import ChatSubscriptionService from "./ChatSubscriptionService";
 
 class ChatMessageService extends BaseService {
+
   static async getConversations(userId) {
     this.validateRequiredId(userId, "User ID");
 
@@ -21,6 +22,7 @@ class ChatMessageService extends BaseService {
       throw new Error(error.message);
     }
   }
+  
   static async getConversationMessages(conversationId, userId) {
     this.validateRequiredId(conversationId, "Conversation ID");
     this.validateRequiredId(userId, "User ID");
@@ -138,9 +140,10 @@ class ChatMessageService extends BaseService {
     try {
       const { data, error } = await this.supabase
         .from("user_conversations")
-        .update({ last_read_at: new Date() })
+        .update({ last_read_at: new Date(), is_read: true })
         .eq("conversation_id", conversationId)
         .eq("user_id", userId);
+
 
       this.handleError(error, "Error updating last read timestamp");
 

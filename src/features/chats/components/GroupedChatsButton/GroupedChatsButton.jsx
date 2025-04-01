@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,35 +13,66 @@ const GroupedChatsButton = ({
   conversations,
   onOpenChat,
   onCloseChat,
+  isAnimated,
 }) => {
+  const [isHovering, setIsHovering] = useState(false);
+  const chat = conversations.find((c) => c.id === groupedChats[0]);
+
+   const totalUnreadCount = groupedChats.reduce((total, chatId) => {
+     const currentChat = conversations.find((c) => c.id === chatId);
+     return total + (currentChat?.unread_count || 0);
+   }, 0);
+
   return (
     <TooltipProvider>
-      <Tooltip>
+      <Tooltip delayDuration={50}>
         <TooltipTrigger asChild>
-          <div className="relative">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="h-12 w-12 rounded-full shadow-md relative bg-gray-200 hover:bg-gray-300"
-            >
-              <span className="text-sm font-bold">+{groupedChats.length}</span>
-            </Button>
-            <Button
-              variant="destructive"
-              size="icon"
-              className="h-5 w-5 p-0 rounded-full absolute -top-1 -right-1 shadow-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                groupedChats.forEach((id) => onCloseChat(id));
-              }}
-            >
-              <X className="h-3 w-3" />
-            </Button>
+          <div
+            className="relative"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
+          >
+            <div className="h-12 w-12 rounded-full overflow-hidden cursor-pointer shadow-md relative">
+              {chat.other_user_avatar_url ? (
+                <img
+                  src={chat.other_user_avatar_url}
+                  alt={chat.other_user_full_name}
+                  className="h-full w-full object-cover opacity-80"
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center bg-primary text-primary-foreground opacity-80">
+                  {chat.other_user_full_name.charAt(0)}
+                </div>
+              )}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-sm font-bold bg-opacity-30 text-black px-1 rounded">
+                  +{groupedChats.length}
+                </span>
+              </div>
+            </div>
+            {totalUnreadCount > 0 && (
+              <div className="absolute -bottom-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white rounded-full text-xs">
+                {totalUnreadCount}
+              </div>
+            )}
+            {isHovering && (
+              <Button
+                variant="destructive"
+                size="icon"
+                className="h-5 w-5 p-0 rounded-full absolute -top-1 -right-1 shadow-sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  groupedChats.forEach((id) => onCloseChat(id));
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
           </div>
         </TooltipTrigger>
         <TooltipContent side="left" align="center">
           <div className="p-1">
-            <h4 className="font-medium mb-1">Chats agrupados</h4>
+            <h4 className="font-medium mb-1">Grouped chats</h4>
             <ul className="space-y-1">
               {groupedChats.map((chatId) => {
                 const chat = conversations.find((c) => c.id === chatId);

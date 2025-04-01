@@ -1,5 +1,5 @@
-import { useAuthLogic, useChatMessages, useChatSubscription } from "@/features";
-import React, { createContext, useContext, useCallback } from "react";
+import { useGlobalChat, useChatMessages } from "@/features";
+import React, { createContext, useContext } from "react";
 
 const ChatContext = createContext();
 

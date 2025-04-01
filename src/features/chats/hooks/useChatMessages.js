@@ -6,6 +6,7 @@ import {
   useChatSubscription,
   useMultiMessageSubscription,
 } from "./useChatSubscription";
+import { MinimizedChat } from "../components";
 
 export const useChatMessages = () => {
   const [conversations, setConversations] = useState([]);
@@ -234,35 +235,6 @@ export const useChatMessages = () => {
     [user, selectedConversation, fetchConversations]
   );
 
-  const openChat = useCallback(
-    (conversation) => {
-      if (!conversation) return;
-
-      setSelectedConversation(conversation);
-      setIsChatOpen(true);
-
-      if (!activeChats.some((chat) => chat?.id === conversation.id)) {
-        setActiveChats((prev) => [...prev, conversation]);
-      }
-
-      if (activeChats.length >= 2) {
-        const oldestChatId = activeChats[0].id;
-        console.log("oldestChatId", oldestChatId);
-        minimizeChat(oldestChatId);
-      }
-
-      setMinimizedChats((prev) =>
-        prev.filter((chat) => chat?.id !== conversation.id)
-      );
-
-      fetchMessages(conversation.id);
-
-      if (user && conversation.unread_count > 0) {
-        ChatMessageService.markConversationAsRead(conversation.id, user.id);
-      }
-    },
-    [fetchMessages, activeChats, user]
-  );
 
   const minimizeChat = useCallback(
     (conversationId) => {
@@ -292,6 +264,37 @@ export const useChatMessages = () => {
       }
     },
     [activeChats, minimizedChats, selectedConversation]
+  );
+
+  const openChat = useCallback(
+    (conversation) => {
+      if (!conversation) return;
+
+      setSelectedConversation(conversation);
+      setIsChatOpen(true);
+
+      if (!activeChats.some((chat) => chat?.id === conversation.id)) {
+        setActiveChats((prev) => [...prev, conversation]);
+        fetchMessages(conversation.id);
+      }
+
+      if (
+        activeChats.length >= 2 &&
+        !activeChats.some((chat) => chat.id === conversation.id)
+      ) {
+        const oldestChatId = activeChats[0].id;
+        minimizeChat(oldestChatId);
+      }
+
+      setMinimizedChats((prev) =>
+        prev.filter((chat) => chat?.id !== conversation.id)
+      );
+
+      if (user && conversation.unread_count > 0) {
+        ChatMessageService.markConversationAsRead(conversation.id, user.id);
+      }
+    },
+    [fetchMessages, activeChats, MinimizedChat, user]
   );
 
   const closeChat = useCallback(

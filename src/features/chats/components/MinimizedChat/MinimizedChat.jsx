@@ -24,7 +24,7 @@ const MinimizedChat = ({ chat, onOpen, onClose, isAnimated }) => {
             onMouseLeave={() => setIsHovering(false)}
           >
             <div
-              className={`h-12 w-12 rounded-full overflow-hidden cursor-pointer shadow-md border-2 ${
+              className={`h-12 w-12 rounded-full overflow-hidden cursor-pointer shadow-md ${
                 isAnimated
                   ? "animate-bounce border-blue-500"
                   : "border-gray-200"
@@ -64,7 +64,7 @@ const MinimizedChat = ({ chat, onOpen, onClose, isAnimated }) => {
           </div>
         </TooltipTrigger>
         <TooltipContent side="left" align="center" sideOffset={5}>
-          <div className="p-1 w-[120px] ">
+          <div className="p-1 w-[190px] ">
             <h4 className="font-bold text-white">
               {chat.other_user_full_name}
             </h4>

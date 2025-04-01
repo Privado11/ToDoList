@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"; 
+} from "@/components/ui/tooltip";
 
 const NewChatButton = ({ onClick }) => {
   return (
@@ -17,7 +17,7 @@ const NewChatButton = ({ onClick }) => {
             onClick={onClick}
             variant="default"
             size="icon"
-            className="fixed bottom-6 right-6 h-12 w-12 rounded-full shadow-lg z-50"
+            className="h-12 w-12 rounded-full shadow-lg z-50"
           >
             <Edit size={20} />
           </Button>

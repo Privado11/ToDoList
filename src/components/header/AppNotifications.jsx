@@ -42,7 +42,6 @@ const AppNotifications = () => {
    }
    if (notification.type === "task_comment" && notification.content.task_id) {
      setShowNotifications(false);
-     // Use a clear comment identifier that will be easy to parse
      const commentAnchor = notification.content.comment_id
        ? `#comment-${notification.content.comment_id}`
        : "";

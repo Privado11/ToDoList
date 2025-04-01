@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useAuthLogic } from "@/features/auth";
 import { NotificationService } from "@/service";
-import { useNotificationsSuscription } from "./useNotificationsSuscription";
+
+import NotificationGlobalService from "@/service/notification/NotificationGlobalService";
 
 export const useNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -14,43 +15,21 @@ export const useNotifications = () => {
 
   const { user } = useAuthLogic();
 
-  const {
-    subscribeToNotifications,
-    unsubscribe: unsubscribeFromNotifications,
-  } = useNotificationsSuscription(setNotifications);
-
   useEffect(() => {
     if (!user) return;
 
-    subscribeToNotifications(user.id, () =>
-      NotificationService.getUserNotifications(user.id)
+    NotificationGlobalService.initialize(user.id);
+
+    const unsubscribe = NotificationGlobalService.subscribe(
+      (updatedNotifications) => {
+        setNotifications(updatedNotifications);
+        setLoading(false);
+      }
     );
 
     return () => {
-      unsubscribeFromNotifications();
+      unsubscribe();
     };
-  }, [user, subscribeToNotifications, unsubscribeFromNotifications]);
-
-  const fetchNotifications = useCallback(async () => {
-    if (!user) return;
-
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await NotificationService.getUserNotifications(user.id, {
-        limit,
-        offset: 0,
-      });
-      setNotifications(data);
-      setHasMore(data.length === limit);
-      setPage(1);
-    } catch (err) {
-      setError(err.message);
-      toast.error("Error loading notifications");
-      console.error("Error fetching notifications:", err);
-    } finally {
-      setLoading(false);
-    }
   }, [user]);
 
   const loadMoreNotifications = useCallback(async () => {
@@ -72,76 +51,35 @@ export const useNotifications = () => {
       setPage((prev) => prev + 1);
     } catch (err) {
       setError(err.message);
-      toast.error("Error loading more notifications");
+      toast.error("Error al cargar más notificaciones");
       console.error("Error loading more notifications:", err);
     } finally {
       setLoading(false);
     }
   }, [user, hasMore, loading, page]);
 
-  const markAsRead = useCallback(
-    async (notificationId) => {
-      if (!user || !notificationId) return;
-
-      try {
-        setNotifications((prev) =>
-          prev.map((notification) =>
-            notification.id === notificationId
-              ? { ...notification, is_read: true }
-              : notification
-          )
-        );
-
-        await NotificationService.markNotificationAsRead(
-          notificationId,
-          user.id
-        );
-      } catch (err) {
-        setNotifications((prev) =>
-          prev.map((notification) =>
-            notification.id === notificationId && notification.is_read
-              ? { ...notification, is_read: false }
-              : notification
-          )
-        );
-        toast.error("Error marking notification as read");
-        console.error("Error marking notification as read:", err);
-      }
-    },
-    [user]
-  );
+  const markAsRead = useCallback(async (notificationId) => {
+    if (!notificationId) return;
+    await NotificationGlobalService.markAsRead(notificationId);
+  }, []);
 
   const markAllAsRead = useCallback(async () => {
-    if (!user) return;
+    await NotificationGlobalService.markAllAsRead();
+  }, []);
 
-    const originalNotifications = [...notifications];
-
-    try {
-      setNotifications((prev) =>
-        prev.map((notification) => ({ ...notification, is_read: true }))
-      );
-
-      await NotificationService.markAllNotificationsAsRead(user.id);
-      toast.success("All notifications marked as read");
-    } catch (err) {
-      setNotifications(originalNotifications);
-      toast.error("Error marking all notifications as read");
-      console.error("Error marking all notifications as read:", err);
-    }
-  }, [user, notifications]);
-
-  useEffect(() => {
+  const refreshNotifications = useCallback(() => {
     if (user) {
-      fetchNotifications();
+      setLoading(true);
+      NotificationGlobalService.fetchNotifications();
     }
-  }, [user, fetchNotifications]);
+  }, [user]);
 
   return {
     notifications,
     loading,
     error,
     hasMore,
-    fetchNotifications,
+    refreshNotifications,
     loadMoreNotifications,
     markAsRead,
     markAllAsRead,

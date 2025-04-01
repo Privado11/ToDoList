@@ -1,17 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useChat } from "@/context/ChatContex";
 import { useAuthLogic } from "@/features/auth";
-import NewChatButton from "../NewChatButton";
-import ContactSelector from "../ContactSelector";
 import MinimizedChatsContainer from "../MinimizedChatsContainer";
 import ActiveChat from "../ActiveChat";
-
 
 const MultiChatManager = () => {
   const {
     conversations,
     selectedConversation,
-    currentMessages,
     loadingMessages,
     activeChats,
     minimizedChats,
@@ -20,25 +16,17 @@ const MultiChatManager = () => {
     sendMessage,
     openChat,
     minimizeChat,
-    fetchConversations,
   } = useChat();
   const { user } = useAuthLogic();
 
-  const [message, setMessage] = useState("");
-  const [showNewChatButton, setShowNewChatButton] = useState(true);
+  const [messages, setMessages] = useState({});
   const [newMessageAnimation, setNewMessageAnimation] = useState({});
 
   const chatContainerRefs = useRef({});
 
-  useEffect(() => {
-    if (currentMessages?.length > 0 && selectedConversation) {
-      const ref = chatContainerRefs.current[selectedConversation.id];
-      if (ref) {
-        ref.scrollTop = ref.scrollHeight;
-      }
-    }
-  }, [currentMessages, selectedConversation]);
-
+  useEffect (() => {
+    console.log(conversations);
+  }, [conversations]);
 
   useEffect(() => {
     conversations.forEach((conv) => {
@@ -61,42 +49,36 @@ const MultiChatManager = () => {
     });
   }, [conversations, activeChats]);
 
+  const updateMessage = (conversationId, newMessage) => {
+    setMessages((prev) => ({
+      ...prev,
+      [conversationId]: newMessage,
+    }));
+  };
 
   const handleSendMessage = (e, conversationId) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    const currentMessage = messages[conversationId] || "";
+
+    if (!currentMessage.trim()) return;
 
     const conversation = conversations.find(
       (conv) => conv.id === conversationId
     );
     if (conversation) {
-      sendMessage(conversation.other_user_id, message, conversation.id);
-      setMessage("");
+      sendMessage(conversation.other_user_id, currentMessage, conversation.id);
+
+      updateMessage(conversationId, "");
     }
   };
 
- 
-  const handleSelectContact = (conversation) => {
-    openChat(conversation);
-    setShowNewChatButton(true);
-  };
 
-  
   const minimizedChatIds = minimizedChats
     .map((chat) => chat?.id)
     .filter(Boolean);
 
   return (
     <div className="relative">
-      {showNewChatButton ? (
-        <NewChatButton onClick={() => setShowNewChatButton(false)} />
-      ) : (
-        <ContactSelector
-          conversations={conversations}
-          onSelectContact={handleSelectContact}
-          onClose={() => setShowNewChatButton(true)}
-        />
-      )}
 
       <MinimizedChatsContainer
         minimizedChatIds={minimizedChatIds}
@@ -110,19 +92,20 @@ const MultiChatManager = () => {
         if (!chat) return null;
 
         const isSelected = selectedConversation?.id === chat.id;
-        const messages = allMessages[chat.id] || [];
+        const chatMessages = allMessages[chat.id] || [];
+        const currentMessage = messages[chat.id] || "";
 
         return (
           <ActiveChat
             key={chat.id}
             conversation={chat}
-            messages={messages}
+            messages={chatMessages}
             isSelected={isSelected}
             position={index}
             loadingMessages={loadingMessages && isSelected}
             user={user}
-            message={isSelected ? message : ""}
-            setMessage={setMessage}
+            message={currentMessage}
+            setMessage={(newMessage) => updateMessage(chat.id, newMessage)}
             onSendMessage={handleSendMessage}
             onSelectChat={openChat}
             onMinimize={minimizeChat}

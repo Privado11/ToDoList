@@ -26,7 +26,7 @@ const ContactSelector = ({ conversations, onSelectContact, onClose }) => {
   return (
     <Card className="fixed bottom-20 right-6 w-64 shadow-xl z-50">
       <div className="flex justify-between items-center bg-primary text-primary-foreground p-3 rounded-t-lg">
-        <h3 className="text-sm font-medium">Nueva conversación</h3>
+        <h3 className="text-sm font-medium">New message</h3>
         <Button
           variant="ghost"
           size="icon"
@@ -39,9 +39,7 @@ const ContactSelector = ({ conversations, onSelectContact, onClose }) => {
       <CardContent className="p-0">
         <ScrollArea className="h-64 py-2">
           {conversations.length === 0 ? (
-            <p className="text-sm text-center text-gray-500 py-8">
-              No tienes conversaciones
-            </p>
+            <p className="text-sm text-center text-gray-500 py-8">No chats</p>
           ) : (
             conversations.map((conversation) => (
               <div
