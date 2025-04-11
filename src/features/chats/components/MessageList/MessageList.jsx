@@ -8,8 +8,7 @@ const MessageList = ({
   user,
   chatContainerRef,
 }) => {
-  // Usamos useLayoutEffect en lugar de useEffect para que el scroll se aplique
-  // antes de que el navegador pinte la pantalla, evitando cualquier efecto visible
+ 
   useLayoutEffect(() => {
     if (chatContainerRef && chatContainerRef.current && messages.length > 0) {
       chatContainerRef.current.scrollTop =

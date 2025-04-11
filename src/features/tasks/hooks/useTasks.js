@@ -142,7 +142,7 @@ export const useTasks = () => {
     () =>
       tasks.filter(
         (task) =>
-          !task?.statuses?.id === 3 && new Date(task.due_date) < new Date()
+          task?.statuses?.id !== 3 && new Date(task.due_date) < new Date()
       ).length,
     [tasks]
   );

@@ -16,7 +16,7 @@ import {
 import { Dashboard } from "./view/Dashboard";
 
 export const ProtectedRoute = () => {
-  const { user, loading } = useAuth();
+  const { user, isProfileComplete, loading } = useAuth();
 
   if (loading) {
     return <div>Cargando...</div>;
@@ -32,12 +32,6 @@ export const PublicRoute = () => {
 };
 
 function AppUI() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <div>Cargando...</div>;
-  }
-
   return (
     <>
       <Routes>

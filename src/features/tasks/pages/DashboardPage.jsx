@@ -7,12 +7,12 @@ import { useTaskContext } from "@/context/TaskContext";
 import { useAuth } from "@/context/AuthContext";
 import { ActivityFeed, Header, Sidebar, TaskStats } from "@/components";
 import { TaskBoard } from "../components";
-import { ChatComponent, MultiChatManager } from "@/features/chats";
+import {MultiChatManager } from "@/features/chats";
 
 
 const DashboardPage = () => {
   const { tasks, deleteTask } = useTaskContext();
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("all");
 
@@ -48,7 +48,7 @@ const DashboardPage = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold tracking-tight">
-                  Welcome back, {user?.full_name?.split(" ")[0] || "Guest"}
+                  Welcome back, {profile?.full_name?.split(" ")[0] || "Guest"}
                 </h1>
                 <p className="text-muted-foreground">
                   {activeFilter === "all"
@@ -97,8 +97,7 @@ const DashboardPage = () => {
         </main>
       </div>
 
-      {/* <ChatComponent user={user} /> */}
-      <MultiChatManager user={user} />
+      <MultiChatManager profile={profile} />
 
     </div>
   );

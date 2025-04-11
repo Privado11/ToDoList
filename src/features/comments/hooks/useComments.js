@@ -8,7 +8,7 @@ export const useComments = (taskId) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { user } = useAuthLogic();
+  const { profile } = useAuthLogic();
 
   const { subscribeToComments, unsubscribe: unsubscribeFromComments } =
     useCommentsSubscription(setComments);
@@ -46,29 +46,16 @@ export const useComments = (taskId) => {
   }, [taskId, fetchComments]);
 
   const addComment = async (content) => {
-    if (!taskId || !user?.id) return;
+    if (!taskId || !profile?.id) return;
 
     try {
-      const optimisticComment = CommentService.createOptimisticComment(
-        content,
-        taskId,
-        user
-      );
-
-      setComments((prev) => [...prev, optimisticComment]);
-
       const savedComment = await CommentService.saveComment(
         content,
         taskId,
-        user.id
+        profile
       );
 
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment.id === optimisticComment.id ? savedComment : comment
-        )
-      );
-
+      setComments((prev) => [...prev, savedComment]);
       return savedComment;
     } catch (err) {
       setComments((prev) =>

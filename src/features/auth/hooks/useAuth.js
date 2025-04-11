@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 
 export const useAuthLogic = () => {
   const [user, setUser] = useState(null);
-  const [isVerified, setIsVerified] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
@@ -13,11 +13,13 @@ export const useAuthLogic = () => {
     const checkUser = async () => {
       try {
         const user = await AuthService.getUser();
-        setUser(user);
-        setIsVerified(user?.user_metadata?.email_verified ?? false);
+        setUser(user || null);
+        if(user){
+          const profile = await AuthService.getProfile(user.id);
+          setProfile(profile);
+        }
       } catch (error) {
         setUser(null);
-        setIsVerified(false);
       } finally {
         setLoading(false);
       }
@@ -25,16 +27,30 @@ export const useAuthLogic = () => {
 
     checkUser();
 
-    const { unsubscribe } = AuthService.onAuthStateChange(
-      ({ user, isVerified }) => {
+    const { unsubscribe } = AuthService.onAuthStateChange(async ({ user }) => {
         setUser(user);
-        setIsVerified(isVerified);
-        setLoading(false);
+        try {
+          if (user) {
+            const profile = await AuthService.getProfile(user.id);
+            setProfile(profile);
+          } else {
+            setProfile(null);
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+          setProfile(null); 
+        } finally {
+          setLoading(false);
+        }
       }
     );
 
     return () => unsubscribe();
   }, []);
+
+  const isProfileComplete = () => {
+    return profile?.is_complete;
+  };
 
   const handleAuth = useCallback(async (authFunction, ...params) => {
     setIsProcessing(true);
@@ -53,10 +69,11 @@ export const useAuthLogic = () => {
 
   return {
     user,
-    isVerified,
     loading,
     isProcessing,
     error,
+    profile,
+    isProfileComplete,
     signInWithGoogle: () => handleAuth(() => AuthService.signInWithGoogle()),
     signInWithFacebook: () =>
       handleAuth(() => AuthService.signInWithFacebook()),

@@ -4,7 +4,7 @@ import { useAuthLogic } from "@/features/auth";
 import MinimizedChatsContainer from "../MinimizedChatsContainer";
 import ActiveChat from "../ActiveChat";
 
-const MultiChatManager = () => {
+const MultiChatManager = ({user}) => {
   const {
     conversations,
     selectedConversation,
@@ -17,7 +17,6 @@ const MultiChatManager = () => {
     openChat,
     minimizeChat,
   } = useChat();
-  const { user } = useAuthLogic();
 
   const [messages, setMessages] = useState({});
   const [newMessageAnimation, setNewMessageAnimation] = useState({});

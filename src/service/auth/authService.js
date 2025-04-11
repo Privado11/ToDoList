@@ -171,26 +171,25 @@ class AuthService {
 
     if (!user) throw new Error("User not found");
 
-    const { data: profileData, error: profileError } = await supabase
+    return user;
+  }
+
+  static async getProfile(userId) {
+    if (!userId ) {
+      throw new Error("User ID are required");
+    }
+
+    const { data, error } = await supabase
       .from("profiles")
-      .select("full_name, username, avatar_url")
-      .eq("id", user.id)
+      .select('*')
+      .eq('id', userId)
       .single();
 
-    if (profileError) {
-      throw new Error(`Error fetching profile: ${profileError.message}`);
-    }
+    AuthService.handleAuthError(error, "Error updating profile");
 
-    if (!profileData) {
-      throw new Error("No profile found for this user");
-    }
-    return {
-      ...user,
-      full_name: profileData.full_name,
-      username: profileData.username,
-      avatar_url: profileData.avatar_url,
-    };
+    return data;
   }
+
 
   static async completeProfile(fullName, password, id) {
     if (!fullName || !password) {
@@ -242,8 +241,7 @@ class AuthService {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       callback({
-        user: session?.user || null,
-        isVerified: session?.user?.user_metadata?.email_verified ?? null,
+        user: session?.user || null
       });
     });
     return { unsubscribe: () => subscription.unsubscribe() };
