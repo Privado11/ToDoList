@@ -1,1 +1,1 @@
-export { default } from "./authService";
+export { default as AuthService} from "./authService";

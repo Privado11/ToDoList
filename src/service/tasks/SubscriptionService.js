@@ -12,7 +12,6 @@ class SubscriptionService extends BaseService {
   ) {
     this.validateRequiredId(taskId, "Task ID");
 
-    // Suscribirse a comentarios
     this.subscribeToComments(taskId, {
       onCommentsChange,
       getComments: async () => {
@@ -21,7 +20,7 @@ class SubscriptionService extends BaseService {
       },
     });
 
-    // Suscribirse a tareas compartidas
+
     this.subscribeToSharedTasks(taskId, {
       onSharedTasksChange,
       getUsersFromSharedTask: async () => {
@@ -30,7 +29,7 @@ class SubscriptionService extends BaseService {
       },
     });
 
-    // Retornar un objeto de suscripción combinado
+   
     return {
       unsubscribe: () => {
         this.unsubscribeFromComments(taskId);

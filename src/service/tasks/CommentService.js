@@ -39,13 +39,13 @@ class CommentService extends BaseService {
     };
   }
 
-  static async saveComment(content, taskId, userId) {
-    this.validateRequiredId(userId, "User ID");
+  static async saveComment(content, taskId, user) {
+    this.validateRequiredId(user, "User");
 
     const optimisticComment = this.createOptimisticComment(
       content,
       taskId,
-      userId
+      user
     );
 
     try {
@@ -57,7 +57,7 @@ class CommentService extends BaseService {
 
       const { data: insertedData, error } = await this.supabase.rpc(
         "create_task_comment",
-        { p_user_id: userId, p_task_id: taskId, p_content: content }
+        { p_user_id: user.id, p_task_id: taskId, p_content: content }
       );
       this.handleError(error, "Error creating comment");
       return insertedData;

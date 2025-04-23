@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import logoImg from "../../../../assets/logo-piranha.webp"; 
-import "../../../auth/components/SignIn/OAuthSignInPage.css";
+import logoImg from "../../../../assets/logo-piranha.webp";
 import { useAuth } from "@/context/AuthContext";
-
+import { cn } from "@/lib/utils";
 
 const providers = [
   { id: 1, name: "Google", icon: <FcGoogle /> },
@@ -15,14 +14,14 @@ const providers = [
 
 function SignUp() {
   const { signInWithGoogle, signInWithFacebook, signUpWithEmail } = useAuth();
-  const [email, setEmail] = useState(""); 
+  const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
 
   const navigate = useNavigate();
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleSignIn = async (provider) => {
+  const handleSignUp = async (provider) => {
     try {
       if (provider.id === 1) {
         await signInWithGoogle();
@@ -32,7 +31,6 @@ function SignUp() {
       navigate("/");
     } catch (error) {
       console.error("Error signing in:", error);
-     
     }
   };
 
@@ -40,19 +38,17 @@ function SignUp() {
     e.preventDefault();
 
     if (!isValidEmail(email)) {
-      setEmailError("Please enter a valid email.");
+      setEmailError("Please enter a valid email address.");
       return;
     } else {
       setEmailError("");
     }
-
 
     try {
       await signUpWithEmail(email);
       navigate("/");
     } catch (error) {
       console.error("Error signing up:", error);
-     
     }
   };
 
@@ -61,73 +57,80 @@ function SignUp() {
   };
 
   return (
-    <div className="oauth-signin-container">
-      <div className="oauth-signin">
-        <div className="signin-header">
-          <div
-            className="signin-icon"
-            style={{
-              width: "9rem",
-              height: "9rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto",
-              marginBottom: "2rem",
-            }}
-          >
+    <div className="flex justify-center items-center min-h-screen w-full p-4 md:p-8 bg-slate-50">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <div className="text-center mb-6">
+          <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4">
             <img
               src={logoImg}
               alt="Piranha Planner Logo"
-              style={{
-                width: "9rem",
-                height: "9rem",
-                objectFit: "contain",
-                borderRadius: "50%",
-              }}
+              className="w-full h-full object-contain rounded-full"
             />
           </div>
 
-          <h1 className="signin-title">Sign Up</h1>
+          <h1 className="text-2xl font-semibold text-slate-700">Sign Up</h1>
+          <button
+            className="flex items-center text-sm font-medium text-slate-600 mx-auto mt-2"
+            onClick={handleBackClick}
+          >
+            <IoIosArrowRoundBack className="mr-1 h-5 w-5 text-slate-600" />
+            Back to Login
+          </button>
         </div>
-        <button onClick={handleBackClick} className="back-button">
-          <IoIosArrowRoundBack className="back-icon" />
-          Back
-        </button>
-        <div className="signin-container">
+
+        <div className="space-y-4">
           {providers.map((provider) => (
             <button
               key={provider.id}
-              className="signin-button"
-              onClick={() => handleSignIn(provider)}
+              className="flex w-full items-center justify-center rounded-md border border-slate-300 bg-white py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all"
+              onClick={() => handleSignUp(provider)}
             >
-              {provider.icon} Sign Up With {provider.name}
+              <span className="mr-2 text-xl">{provider.icon}</span>
+              Sign Up With {provider.name}
             </button>
           ))}
 
-          <div className="divider">
-            <span className="divider-text">or</span>
+          <div className="relative flex items-center justify-center my-4">
+            <div className="h-px flex-1 bg-slate-200"></div>
+            <span className="relative px-4 text-sm font-medium text-slate-500 bg-white">
+              or
+            </span>
+            <div className="h-px flex-1 bg-slate-200"></div>
           </div>
 
-          <form className="signin-form" onSubmit={handleSubmit}>
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-slate-700 mb-1"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
+              />
+              {emailError && (
+                <p className="mt-1 text-xs text-red-500">{emailError}</p>
+              )}
+            </div>
 
-            <div className="signup-link-container">
-              <span>
+            <div className="mt-1 w-full text-left">
+              <span className="text-xs text-slate-500">
                 By entering your email to sign up, you agree to our Terms and to
                 receive service-related emails from us.
               </span>
             </div>
-            <button type="submit" className="submit-button">
+
+            <button
+              type="submit"
+              className="mt-4 w-full rounded-md px-4 py-2.5 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 transition-all"
+            >
               Sign Up
             </button>
           </form>

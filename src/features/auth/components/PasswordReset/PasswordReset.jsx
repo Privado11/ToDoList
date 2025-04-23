@@ -11,6 +11,7 @@ function PasswordReset() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [successMessage, setSuccessMessage] = useState(""); 
+
   useEffect(() => {
     setEmail(location.state?.email || "");
   }, [location]);
@@ -45,42 +46,35 @@ function PasswordReset() {
   };
 
   return (
-    <div className="oauth-signin-container">
-      <div className="oauth-signin">
-        <div className="signin-header">
-          <div
-            className="signin-icon"
-            style={{
-              width: "9rem",
-              height: "9rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto",
-              marginBottom: "2rem",
-            }}
-          >
+    <div className="flex justify-center items-center h-screen w-full p-8 overflow-hidden">
+      <div className="w-96 h-full flex flex-col justify-center">
+        <div className="text-left">
+          <div className="w-28 h-28 flex items-center justify-center mx-auto mb-8">
             <img
               src={logoImg}
               alt="Piranha Planner Logo"
-              style={{
-                width: "9rem",
-                height: "9rem",
-                objectFit: "contain",
-                borderRadius: "50%",
-              }}
+              className="w-28 h-28 object-contain rounded-full"
             />
           </div>
-
-          <h1 className="signin-title">Reset Password</h1>
+          <h1 className="text-3xl font-semibold text-slate-600 mb-2 mt-0">
+            Reset Password
+          </h1>
+          <button
+            className="flex items-center h-3 mt-4 text-sm font-medium text-slate-600"
+            onClick={handleBackClick}
+          >
+            <IoIosArrowRoundBack className="back-icon" />
+            Back
+          </button>
         </div>
-        <button onClick={handleBackClick} className="back-button">
-          <IoIosArrowRoundBack className="back-icon" />
-          Back
-        </button>
 
-        <form className="signin-form" onSubmit={handleSubmit}>
-          <label htmlFor="email">Email</label>
+        <form className="text-left mt-4" onSubmit={handleSubmit}>
+          <label
+            htmlFor="email"
+            className="text-sm font-medium leading-8 text-[#5C6F8A]"
+          >
+            Email
+          </label>
           <input
             type="email"
             id="email"
@@ -88,12 +82,18 @@ function PasswordReset() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className="mb-2 h-10 w-full rounded-md border border-[#5C6F8A] px-4 py-2 text-sm font-normal text-[#5C6F8A] outline-none"
           />
-          {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+          {emailError && (
+            <div className="mb-4 text-xs text-red-500">{emailError}</div>
+          )}
           {successMessage && (
-            <p style={{ color: "green" }}>{successMessage}</p>
-          )}{" "}
-          <button type="submit" className="submit-button">
+            <div className="mb-4 text-xs text-green-500">{successMessage}</div>
+          )}
+          <button
+            type="submit"
+            className="mt-2 w-full rounded-md border border-[#3FA6F0] bg-[#3FA6F0] px-4 py-2.5 text-sm font-medium text-white"
+          >
             Reset Password
           </button>
         </form>

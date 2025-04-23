@@ -4,15 +4,19 @@ import { SharedTaskService } from "@/service";
 import { useState, useEffect, useCallback } from "react";
 
 export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
+  const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [sharedTasks, setSharedTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { user } = useAuthLogic();
+  const { profile: user } = useAuthLogic();
 
-  const { subscribeToSharedTasks, unsubscribe: unsubscribeFromSharedTasks } =
-    useSharedTasksSubscription(setSharedTasks);
+ 
+  const {
+   subscribeToSharedTasks,
+    unsubscribe: unsubscribeFromSharedTasks,
+  } = useSharedTasksSubscription(setSharedTasks);
 
   useEffect(() => {
     if (sharedTasks.length === 0 && taskId && !isLoading) {
@@ -25,27 +29,36 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
     }
   }, [sharedTasks, taskId, isLoading]);
 
-  const fetchUsers = useCallback(
-    async (query) => {
-      if (!user) return;
+  useEffect(() => {
+    const searchUsers = async () => {
+      if (!query.trim()) {
+        setUsers([]);
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
+
       try {
-        const data = await SharedTaskService.searchUsersForSharedTask(
+        const results = await SharedTaskService.searchUsersForSharedTask(
           query,
           user.id,
           taskId
         );
-        setUsers(data);
+        setUsers(results);
       } catch (err) {
-        setError("Error fetching users");
-        console.error(err.message);
+        setError(
+          err instanceof Error ? err : new Error("Unknown error occurred")
+        );
       } finally {
         setIsLoading(false);
       }
-    },
-    [user, taskId]
-  );
+    };
+
+   
+    const timeoutId = setTimeout(searchUsers, 300);
+    return () => clearTimeout(timeoutId);
+  }, [query, user, taskId]);
 
   const fetchSharedTasks = useCallback(async () => {
     try {
@@ -212,6 +225,8 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
   }, [error]);
 
   return {
+    query,
+    setQuery,
     sharedTasks,
     isLoading,
     error,
@@ -221,7 +236,7 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
     refreshSharedTasks: fetchSharedTasks,
     rejectedTaskShare,
     users,
-    fetchUsers,
+    // fetchUsers,
     getAvailableFriendsForTask,
     getPendingTasks: () =>
       sharedTasks.filter(

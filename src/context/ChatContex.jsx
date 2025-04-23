@@ -1,4 +1,4 @@
-import { useGlobalChat, useChatMessages } from "@/features";
+import {useChatMessages } from "@/features";
 import React, { createContext, useContext } from "react";
 
 const ChatContext = createContext();

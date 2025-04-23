@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { FaKey } from "react-icons/fa";
 import { ImMagicWand } from "react-icons/im";
-import "./PasswordLogin.css";
 import { useNavigate } from "react-router-dom";
-import emailImg from "../../../../assets/correo-electronico.png";
+import { ChevronRight } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-
+import MagicLinkModal from "./MagicLinkModal";
 
 function PasswordLogin({ changeToPasswordScreen, email }) {
   const { signInWithEmail, signInWithMagicLink } = useAuth();
@@ -30,6 +28,7 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
     setShowPasswordForm((prev) => !prev);
     if (showPasswordForm) {
       setPassword("");
+      setErrorMessage("");
     }
   };
 
@@ -40,14 +39,13 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
       navigate("/");
     } catch (error) {
       console.error("Error signing in:", error);
-      setErrorMessage(error.message);
+      setErrorMessage(error.message || "Failed to sign in");
     }
   };
 
   const closeMagicModal = () => {
     setShowMagicModal(false);
-    changeToPasswordScreen(false);
-    setResendMessage(""); 
+    setResendMessage("");
   };
 
   const handleMagicSignIn = async (e) => {
@@ -55,133 +53,155 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
     if (showPasswordForm) {
       setShowPasswordForm(false);
     }
+
+    setErrorMessage("");
     try {
-      setShowMagicModal(true);
       await signInWithMagicLink(email);
+      setShowMagicModal(true);
     } catch (error) {
       console.error("Magic link sign-in error:", error);
-      setErrorMessage(error.message);
+      setErrorMessage(error.message || "Failed to send magic link");
     }
   };
 
   const handleResendMagicLink = async () => {
     setIsResending(true);
-    setResendMessage(""); 
+    setResendMessage("");
     try {
       await signInWithMagicLink(email);
-      setResendMessage("Magic link resent successfully!"); 
+      setResendMessage("Magic link resent successfully!");
     } catch (error) {
       console.error("Error resending magic link:", error);
-      setErrorMessage(error.message);
+      setErrorMessage(error.message || "Failed to resend magic link");
     } finally {
       setIsResending(false);
     }
   };
 
   const SignInButton = ({ text, icon, onClick, rotateIcon }) => (
-    <button className="button" onClick={onClick}>
-      <MdOutlineKeyboardArrowRight
-        className={`arrow-icon ${rotateIcon ? "rotate" : ""}`}
+    <button
+      className="flex items-center justify-start gap-2 py-2 pl-2 pr-12 cursor-pointer relative"
+      onClick={onClick}
+    >
+      <ChevronRight
+        className={`absolute right-6 text-slate-400 text-sm transition-all duration-300 ease-in-out ${
+          rotateIcon ? "rotate-90" : ""
+        }`}
       />
-      <div className="passkey-icon-container">{icon}</div>
-      <span>{text}</span>
-    </button>
-  );
-
-  const MagicModal = () => (
-    <>
-      <div className="modal-backdrop" />
-      <div className="modal-dialog-centered">
-        <div className="modal-content">
-          <div className="modal-body text-center">
-            <img
-              src={emailImg}
-              alt="Email"
-              className="img-fluid"
-              style={{ width: "9rem", height: "9rem" }}
-            />
-            <h2 className="card-title mb-3">An email is on its way!</h2>
-            <p className="card-text text-muted mb-4">
-              We sent an email to <strong>{email}</strong>.<br />
-              <br />
-              If this email address has an account on{" "}
-              <strong>piranhaplanner.online</strong>, you'll find a magic link
-              that will allow you to sign in to the application.
-            </p>
-            {resendMessage && <p style={{ color: "green" }}>{resendMessage}</p>}{" "}
-
-            <button
-              className="btn btn-primary mt-3"
-              onClick={handleResendMagicLink}
-              disabled={isResending}
-            >
-              {isResending ? "Resending..." : "Resend Magic Link"}
-            </button>
-            <button className="btn btn-link" onClick={closeMagicModal}>
-              <i className="bi bi-arrow-left me-2"></i> Back to Login
-            </button>
-          </div>
-        </div>
+      <div className="inline-flex self-start p-2 rounded-lg bg-sky-50 text-sky-500 w-8 h-8">
+        {icon}
       </div>
-    </>
+      <span className="text-sm leading-8 text-slate-500 font-normal">
+        {text}
+      </span>
+    </button>
   );
 
   return (
     <>
-      <div className="container-password">
-        <button onClick={handleBackClick} className="back-button">
-          <IoIosArrowRoundBack className="back-icon" />
-          Back
-        </button>
-        <div className="button-container">
-          <div className="button-passkey-password">
-            <SignInButton
-              text="Sign in with Magic Link"
-              icon={<ImMagicWand className="passkey-icon" />}
-              onClick={handleMagicSignIn}
-            />
-          </div>
+      <button
+        className="flex items-center h-3 mt-4 text-sm font-medium text-slate-600"
+        onClick={handleBackClick}
+        type="button"
+      >
+        <IoIosArrowRoundBack className="mr-2 h-[1.6rem] w-[1.6rem] text-[2.9rem] text-[#5c6f8a] my-8" />
+        Back
+      </button>
 
-          <div className="button-passkey-password">
-            <SignInButton
-              text="Sign in with Password"
-              icon={<FaKey className="passkey-icon" />}
-              onClick={togglePasswordForm}
-              rotateIcon={showPasswordForm}
-            />
-            {showPasswordForm && (
-              <form
-                className={`signin-form-password ${
-                  showPasswordForm ? "show" : ""
+      <div className="flex flex-col gap-4 mt-2">
+        <div className="flex flex-col p-0 relative overflow-hidden box-border rounded-lg border border-slate-400">
+          <SignInButton
+            text="Sign in with Magic Link"
+            icon={<ImMagicWand className="passkey-icon" />}
+            onClick={handleMagicSignIn}
+          />
+        </div>
+        <div className="flex flex-col p-0 relative overflow-hidden box-border rounded-lg border border-slate-400">
+          <SignInButton
+            text="Sign in with Password"
+            icon={<FaKey className="passkey-icon" />}
+            onClick={togglePasswordForm}
+            rotateIcon={showPasswordForm}
+          />
+
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              showPasswordForm ? "max-h-64" : "max-h-0"
+            }`}
+          >
+            <form
+              className="px-4 pb-4 flex flex-col gap-4"
+              onSubmit={handleSignIn}
+            >
+              <div
+                className={`transition-all duration-500 ease-in-out transform ${
+                  showPasswordForm
+                    ? "translate-y-0 opacity-100"
+                    : "-translate-y-8 opacity-0"
                 }`}
-                onSubmit={handleSignIn}
               >
                 <input
-                  className="password-input"
+                  className="mt-2 h-10 w-full rounded-md border border-[#5C6F8A] px-4 py-2 text-sm font-normal text-[#5C6F8A] outline-none"
                   type="password"
                   placeholder="Password"
                   value={password}
                   onChange={handleOnChange}
                   required
                 />
-                {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-                <button type="submit" className="submit-button-password">
+              </div>
+
+              {errorMessage && (
+                <div
+                  className={`text-xs text-red-500 transition-all duration-500 ease-in-out ${
+                    showPasswordForm ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  {errorMessage}
+                </div>
+              )}
+
+              <div
+                className={`transition-all duration-500 ease-in-out transform ${
+                  showPasswordForm
+                    ? "translate-y-0 opacity-100 delay-100"
+                    : "-translate-y-8 opacity-0"
+                }`}
+              >
+                <button
+                  type="submit"
+                  className="w-full py-2.5 px-4 bg-sky-500 text-white border border-sky-500 rounded cursor-pointer text-sm font-medium whitespace-nowrap"
+                >
                   Sign In
                 </button>
-              </form>
-            )}
+              </div>
+            </form>
           </div>
         </div>
-        <div className="forgot-password-container">
-          <a
-            className="forgot-password"
-            onClick={() => navigate("/password-reset", { state: { email } })}
-          >
-            Forgot password?
-          </a>
-        </div>
       </div>
-      {showMagicModal && <MagicModal />}
+
+      <div className="w-full text-center text-[12px] text-[#5c6f8a] font-light mt-4">
+        <span
+          onClick={() => navigate("/password-reset", { state: { email } })}
+          className="ml-0.5 cursor-pointer text-xs font-medium text-[#6E829E] hover:underline"
+        >
+          Forgot password?
+        </span>
+      </div>
+
+      {showMagicModal && (
+        <MagicLinkModal
+          email={email}
+          onClose={closeMagicModal}
+          onResend={handleResendMagicLink}
+          isResending={isResending}
+        />
+      )}
+
+      {resendMessage && (
+        <div className="mt-4 text-center text-green-500 text-sm">
+          {resendMessage}
+        </div>
+      )}
     </>
   );
 }

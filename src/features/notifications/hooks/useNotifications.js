@@ -13,7 +13,7 @@ export const useNotifications = () => {
   const [page, setPage] = useState(0);
   const limit = 20;
 
-  const { user } = useAuthLogic();
+  const { profile: user } = useAuthLogic();
 
   useEffect(() => {
     if (!user) return;

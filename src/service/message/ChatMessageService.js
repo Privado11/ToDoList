@@ -46,6 +46,7 @@ class ChatMessageService extends BaseService {
   }
 
   static createOptimisticMessage(content, user) {
+    console.log(user);
     return {
       id: `temp-${Date.now()}`,
       content,

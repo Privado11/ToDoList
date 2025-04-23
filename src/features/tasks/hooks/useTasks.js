@@ -9,7 +9,7 @@ export const useTasks = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const { user } = useAuthLogic();
+  const { profile: user } = useAuthLogic();
 
   const fetchTasks = useCallback(async () => {
     if (!user) return;
@@ -35,7 +35,6 @@ export const useTasks = () => {
       try {
         if (selectedTask?.id !== id) {
           const task = await TaskService.getTaskById(user.id, id);
-          console.log(task);
           setSelectedTask(task);
           return task;
         }

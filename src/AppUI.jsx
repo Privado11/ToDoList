@@ -32,11 +32,6 @@ export const PublicRoute = () => {
 };
 
 function AppUI() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <div>Cargando...</div>;
-  }
 
   return (
     <>

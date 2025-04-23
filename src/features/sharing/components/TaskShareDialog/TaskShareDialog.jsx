@@ -1,30 +1,20 @@
 import { useState, useCallback, useEffect } from "react";
-import { Share } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useTaskContext } from "@/context/TaskContext";
 import { ShareWithFriends, UserSearchShare } from "@/features";
 
-const TaskShareDialog = ({ taskId, isShared }) => {
-  const { shareTask, getAvailableFriendsForTask } = useTaskContext();
+const TaskShareDialog = ({ taskId, open, setOpen }) => {
+  const {shareTask, getAvailableFriendsForTask } = useTaskContext();
   const [friendsList, setFriendsList] = useState([]);
   const [message, setMessage] = useState("");
   const [isSharing, setIsSharing] = useState(false);
   const [shareError, setShareError] = useState(null);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -37,17 +27,17 @@ const TaskShareDialog = ({ taskId, isShared }) => {
       }
     };
 
-    if (taskId) {
+    if (taskId && open) {
       fetchFriends();
     }
-  }, [taskId, getAvailableFriendsForTask, shareTask]);
+  }, [taskId, getAvailableFriendsForTask, open]); 
 
   const handleShareWithUser = useCallback(
     async (recipientId) => {
       setIsSharing(true);
       setShareError(null);
       try {
-        const response = await shareTask(recipientId);
+        const response = await shareTask(recipientId);  
         setMessage(response.message || "Task successfully shared");
       } catch (error) {
         setShareError("Error when sharing the task");
@@ -56,7 +46,7 @@ const TaskShareDialog = ({ taskId, isShared }) => {
         setIsSharing(false);
       }
     },
-    [shareTask]
+    [shareTask, taskId]
   );
 
   const handleShareWithFriends = useCallback(
@@ -70,9 +60,7 @@ const TaskShareDialog = ({ taskId, isShared }) => {
       setShareError(null);
       try {
         const friendIds = selectedFriends.map((friend) => friend.friend_id);
-
-        const response = await shareTask(friendIds);
-
+        const response = await shareTask(taskId, friendIds);
         setMessage(response.message || "Task successfully shared with friends");
       } catch (error) {
         setShareError("Error sharing with friends");
@@ -81,85 +69,49 @@ const TaskShareDialog = ({ taskId, isShared }) => {
         setIsSharing(false);
       }
     },
-    [taskId, shareTask]
+    [shareTask, taskId]
   );
 
-  const handleDialogClose = useCallback(() => {
-    setMessage("");
-    setShareError(null);
-  }, []);
-
   const handleOpenChange = (newOpen) => {
-
-    if (isShared && newOpen) {
-      return;
+    if (!newOpen) {
+      setMessage("");
+      setShareError(null);
     }
     setOpen(newOpen);
-    if (!newOpen) {
-      handleDialogClose();
-    }
   };
 
   return (
-    <>
-      {isShared ? (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                className="gap-2 text-lg opacity-60 cursor-not-allowed"
-              >
-                <Share className="w-5 h-5" />
-                Share
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>
-                You cannot share this task because it is being shared with you.{" "}
-                <br /> Only the author can share it.
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      ) : (
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-          <DialogTrigger asChild>
-            <Button variant="outline" className="gap-2 text-lg">
-              <Share className="w-5 h-5" />
-              Share
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md text-lg">
-            <DialogHeader>
-              <DialogTitle className="text-xl">Share Task</DialogTitle>
-            </DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-md text-sm">
+        <DialogHeader>
+          <DialogTitle className="text-lg">Share Task</DialogTitle>
+        </DialogHeader>
 
-            <div className="space-y-6">
-              <UserSearchShare onShareTask={handleShareWithUser} />
+        <div className="space-y-4">
+          <UserSearchShare onShareTask={handleShareWithUser} />
 
-              <ShareWithFriends
-                friendsList={friendsList}
-                onShareWithFriends={handleShareWithFriends}
-                isSharing={isSharing}
-              />
+          <ShareWithFriends
+            friendsList={friendsList}
+            onShareWithFriends={handleShareWithFriends}
+            isSharing={isSharing}
+          />
 
-              {message && (
-                <Alert variant="success">
-                  <AlertDescription>{message}</AlertDescription>
-                </Alert>
-              )}
+          {message && (
+            <Alert variant="success">
+              <AlertDescription className="text-sm">{message}</AlertDescription>
+            </Alert>
+          )}
 
-              {shareError && (
-                <Alert variant="destructive">
-                  <AlertDescription>{shareError}</AlertDescription>
-                </Alert>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-    </>
+          {shareError && (
+            <Alert variant="destructive">
+              <AlertDescription className="text-sm">
+                {shareError}
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

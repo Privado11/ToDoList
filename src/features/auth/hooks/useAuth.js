@@ -1,23 +1,36 @@
-import AuthService from "@/service/auth";
-import { useEffect, useState, useCallback } from "react";
-
+import { AuthService } from "@/service";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 export const useAuthLogic = () => {
   const [user, setUser] = useState(null);
-  const [isVerified, setIsVerified] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
+  const currentProfileIdRef = useRef(null);
 
   useEffect(() => {
     const checkUser = async () => {
       try {
         const user = await AuthService.getUser();
         setUser(user);
-        setIsVerified(user?.user_metadata?.email_verified ?? false);
+
+        if (user && currentProfileIdRef.current !== user.id) {
+          try {
+            const profileData = await AuthService.getProfile(user.id);
+            setProfile(profileData);
+            currentProfileIdRef.current = user.id;
+          } catch (profileError) {
+            console.error("Error loading profile:", profileError);
+            setProfile(null);
+            currentProfileIdRef.current = null;
+          }
+        }
       } catch (error) {
+        console.error("Error verifying user:", error);
         setUser(null);
-        setIsVerified(false);
+        setProfile(null);
+        currentProfileIdRef.current = null;
       } finally {
         setLoading(false);
       }
@@ -26,15 +39,36 @@ export const useAuthLogic = () => {
     checkUser();
 
     const { unsubscribe } = AuthService.onAuthStateChange(
-      ({ user, isVerified }) => {
+      async ({ event, user }) => {
         setUser(user);
-        setIsVerified(isVerified);
+
+        if (user) {
+          if (currentProfileIdRef.current !== user.id) {
+            try {
+              const profileData = await AuthService.getProfile(user.id);
+              setProfile(profileData);
+              currentProfileIdRef.current = user.id;
+            } catch (profileError) {
+              console.error("Error loading profile:", profileError);
+              setProfile(null);
+              currentProfileIdRef.current = null;
+            }
+          }
+        } else {
+          setProfile(null);
+          currentProfileIdRef.current = null;
+        }
+
         setLoading(false);
       }
     );
 
     return () => unsubscribe();
   }, []);
+
+  const isProfileComplete = () => {
+    return profile.is_complete;
+  };
 
   const handleAuth = useCallback(async (authFunction, ...params) => {
     setIsProcessing(true);
@@ -53,7 +87,8 @@ export const useAuthLogic = () => {
 
   return {
     user,
-    isVerified,
+    profile,
+    isProfileComplete,
     loading,
     isProcessing,
     error,
@@ -78,5 +113,6 @@ export const useAuthLogic = () => {
       ),
     updatePassword: (password) =>
       handleAuth(() => AuthService.updatePassword(password)),
+    checkEmail: (email) => handleAuth(() => AuthService.checkEmail(email)),
   };
 };

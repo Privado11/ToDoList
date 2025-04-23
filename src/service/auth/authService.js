@@ -1,83 +1,24 @@
 import { supabase } from "../base/supabase";
 
 class AuthService {
-  static getPopupConfig(width = 600, height = 700) {
-    const left = (window.innerWidth - width) / 2 + window.screenX;
-    const top = (window.innerHeight - height) / 2 + window.screenY;
-
-    return {
-      dimensions: { width, height, left, top },
-      features: [
-        `width=${width}`,
-        `height=${height}`,
-        `left=${left}`,
-        `top=${top}`,
-        "status=yes",
-        "toolbar=no",
-        "location=no",
-        "menubar=no",
-        "resizable=yes",
-        "scrollbars=yes",
-      ].join(","),
-    };
-  }
-
   static async handleOAuthSignIn(provider, options = {}) {
-    const { dimensions, features } = AuthService.getPopupConfig();
-
     try {
-      const popup = window.open(
-        "about:blank",
-        `Login with ${provider}`,
-        features
-      );
-
-      if (!popup) {
-        throw new Error("Popup was blocked by the browser");
-      }
-
-      popup.moveTo(dimensions.left, dimensions.top);
-      popup.resizeTo(dimensions.width, dimensions.height);
-
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: `${window.location.origin}/`,
-          skipBrowserRedirect: true,
           ...options,
         },
       });
 
       if (error) throw error;
 
-      if (data?.url && popup) {
-        popup.location.href = data.url;
+      // Redirect to the OAuth provider's authentication page
+      if (data?.url) {
+        window.location.href = data.url;
       }
 
-      return new Promise((resolve, reject) => {
-        const messageHandler = (event) => {
-          if (event.origin !== window.location.origin) return;
-          if (event.data?.type === "SUPABASE_AUTH_COMPLETE") {
-            cleanup();
-            resolve(event.data);
-          }
-        };
-
-        const checkInterval = setInterval(() => {
-          if (popup?.closed) {
-            cleanup();
-            reject(new Error("Authentication window closed"));
-          }
-        }, 500);
-
-        const cleanup = () => {
-          window.removeEventListener("message", messageHandler);
-          clearInterval(checkInterval);
-          popup?.close();
-        };
-
-        window.addEventListener("message", messageHandler);
-      });
+      return data;
     } catch (error) {
       AuthService.handleAuthError(error, `Error logging in with ${provider}`);
       throw error;
@@ -156,7 +97,7 @@ class AuthService {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error("Error detallado:", error);
+      console.error("Error:", error);
       AuthService.handleAuthError(error, "Error signing in as guest");
     }
   }
@@ -171,25 +112,23 @@ class AuthService {
 
     if (!user) throw new Error("User not found");
 
-    const { data: profileData, error: profileError } = await supabase
+    return user;
+  }
+
+  static async getProfile(userId) {
+    if (!userId) {
+      throw new Error("User Id are required");
+    }
+
+    const { data, error } = await supabase
       .from("profiles")
-      .select("full_name, username, avatar_url")
-      .eq("id", user.id)
+      .select("*")
+      .eq("id", userId)
       .single();
 
-    if (profileError) {
-      throw new Error(`Error fetching profile: ${profileError.message}`);
-    }
-
-    if (!profileData) {
-      throw new Error("No profile found for this user");
-    }
-    return {
-      ...user,
-      full_name: profileData.full_name,
-      username: profileData.username,
-      avatar_url: profileData.avatar_url,
-    };
+    AuthService.handleAuthError(error, "Error updating profile");
+    if (!data) throw new Error("Profile not found");
+    return data;
   }
 
   static async completeProfile(fullName, password, id) {
@@ -237,13 +176,22 @@ class AuthService {
     AuthService.handleAuthError(error, "Error signing out");
   }
 
+  static async checkEmail(email) {
+    if (!email) throw new Error("Email is required");
+    const { data, error } = await supabase.rpc("check_email_registered", {
+      email_query: email,
+    });
+    AuthService.handleAuthError(error, "Error checking email");
+    return data;
+  }
+
   static onAuthStateChange(callback) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       callback({
+        event,
         user: session?.user || null,
-        isVerified: session?.user?.user_metadata?.email_verified ?? null,
       });
     });
     return { unsubscribe: () => subscription.unsubscribe() };

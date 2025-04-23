@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Check, CheckCheck } from "lucide-react";
 
 const MessageItem = ({ message, user }) => {
+
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
     const date = new Date(timestamp);

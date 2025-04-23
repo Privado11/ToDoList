@@ -2,17 +2,16 @@ import { useEffect, useState } from "react";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-
 import { useTaskContext } from "@/context/TaskContext";
 import { useAuth } from "@/context/AuthContext";
 import { ActivityFeed, Header, Sidebar, TaskStats } from "@/components";
 import { TaskBoard } from "../components";
-import { ChatComponent, MultiChatManager } from "@/features/chats";
+import { MultiChatManager } from "@/features/chats";
 
 
 const DashboardPage = () => {
   const { tasks, deleteTask } = useTaskContext();
-  const { user } = useAuth();
+  const { profile: user } = useAuth();
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("all");
 
@@ -96,8 +95,6 @@ const DashboardPage = () => {
           </div>
         </main>
       </div>
-
-      {/* <ChatComponent user={user} /> */}
       <MultiChatManager user={user} />
 
     </div>

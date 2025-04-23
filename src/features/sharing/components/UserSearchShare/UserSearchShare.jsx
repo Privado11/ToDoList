@@ -2,36 +2,22 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { X, Share } from "lucide-react";
+import { X, Share, Users } from "lucide-react";
 import { useTaskContext } from "@/context/TaskContext";
 
 const UserSearchShare = ({ onShareTask }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showResults, setShowResults] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const {users, isLoading, error, fetchUsers } = useTaskContext();
+  const { query, setQuery, users, isLoading, error } = useTaskContext();
   const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (searchQuery.trim().length > 0) {
-        fetchUsers(searchQuery);
-        setShowResults(true);
-      } else {
-        setShowResults(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery, fetchUsers]);
+    console.log(selectedUsers);
+  }, [selectedUsers]);
 
   const handleSelectUser = useCallback(
     (user) => {
-      if (!selectedUsers.some((selected) => selected.id === user.id)) {
-        setSelectedUsers((prev) => [...prev, user]);
-      }
-      setSearchQuery("");
-      setShowResults(false);
+      setSelectedUsers((prev) => [...prev, user]);
+      setQuery("");
     },
     [selectedUsers]
   );
@@ -40,20 +26,36 @@ const UserSearchShare = ({ onShareTask }) => {
     setSelectedUsers((prev) => prev.filter((user) => user.id !== userId));
   }, []);
 
-  const handleShare = useCallback(
+  const handleShareWithUser = useCallback(
     async (user) => {
       setSharing(true);
-      console.log("sharing with user_id:", user.user_id);
       try {
         await onShareTask(user.user_id);
         removeUser(user.id);
       } catch (error) {
-        console.error("Error al compartir:", error);
+        console.error("Sharing error:", error);
       } finally {
         setSharing(false);
       }
     },
     [onShareTask, removeUser]
+  );
+
+  const handleShareWithAll = useCallback(
+    async (user) => {
+      if (selectedUsers.length === 0) return;
+      setSharing(true);
+      try {
+        const userIds = selectedUsers.map((user) => user.user_id);
+        await onShareTask(userIds);
+        setSelectedUsers([]);
+      } catch (error) {
+        console.error("Sharing error:", error);
+      } finally {
+        setSharing(false);
+      }
+    },
+    [selectedUsers, onShareTask]
   );
 
   return (
@@ -65,17 +67,12 @@ const UserSearchShare = ({ onShareTask }) => {
             <Input
               type="text"
               placeholder="Search user..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)} 
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               className="text-sm w-full"
-              onFocus={() => {
-                if (searchQuery.trim().length > 0) {
-                  setShowResults(true);
-                }
-              }}
             />
 
-            {showResults && (
+            {query.trim() !== "" && (
               <div
                 className="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto border border-gray-200"
                 onClick={(e) => e.stopPropagation()}
@@ -98,9 +95,9 @@ const UserSearchShare = ({ onShareTask }) => {
 
                 {!isLoading && !error && users && users.length > 0 && (
                   <ul>
-                    {users.map((user) => (
+                    {users.map((user, index) => (
                       <li
-                        key={user.id}
+                        key={`search-${user.id || index}`}
                         className="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
                         onClick={() => handleSelectUser(user)}
                       >
@@ -128,48 +125,65 @@ const UserSearchShare = ({ onShareTask }) => {
         </div>
       </div>
 
-      <div className="space-y-2">
-        {selectedUsers.map((user) => (
-          <div
-            key={user.id}
-            className="flex items-center justify-between bg-gray-50 p-3 rounded-md"
-          >
-            <div className="flex items-center gap-3">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={user.avatar_url} />
-                <AvatarFallback>
-                  {user.username?.[0] || user.full_name?.[0] || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="font-medium">
-                  {user.full_name || "Sin nombre"}
+      {selectedUsers.length > 0 && (
+        <div className="space-y-2">
+          {selectedUsers.length > 1 && (
+            <div className="flex justify-end mb-2">
+              <Button
+                onClick={handleShareWithAll}
+                disabled={sharing}
+                className="flex items-center gap-1"
+              >
+                <Users className="w-4 h-4" />
+                {sharing
+                  ? "Sharing..."
+                  : `Share with all (${selectedUsers.length})`}
+              </Button>
+            </div>
+          )}
+
+          {selectedUsers.map((user, index) => (
+            <div
+              key={`selected-${user.id || index}`}
+              className="flex items-center justify-between bg-gray-50 p-3 rounded-md"
+            >
+              <div className="flex items-center gap-3">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user.avatar_url} />
+                  <AvatarFallback>
+                    {user.username?.[0] || user.full_name?.[0] || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium">
+                    {user.full_name || "Sin nombre"}
+                  </div>
+                  <div className="text-sm text-gray-500">{user.username}</div>
                 </div>
-                <div className="text-sm text-gray-500">{user.username}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleShareWithUser(user)}
+                  className="flex items-center gap-1"
+                  disabled={sharing}
+                >
+                  <Share className="w-4 h-4" />
+                  {sharing ? "Sharing..." : "Share"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeUser(user.id)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleShare(user)}
-                className="flex items-center gap-1"
-                disabled={sharing}
-              >
-                <Share className="w-4 h-4" />
-                {sharing ? "Sharing..." : "Share"}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => removeUser(user.id)}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

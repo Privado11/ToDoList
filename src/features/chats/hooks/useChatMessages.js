@@ -21,7 +21,7 @@ export const useChatMessages = () => {
   const [allMessages, setAllMessages] = useState({});
   const [loadingMessages, setLoadingMessages] = useState(false);
 
-  const { user } = useAuthLogic();
+  const { profile: user } = useAuthLogic();
 
   const { subscribeToConversation, unsubscribe: unsubscribeFromConversation } =
     useChatSubscription(setConversations);

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import logoImg from "../../../assets/logo-piranha.webp";
-import "../components/SignIn/OAuthSignInPage.css"
 import { PasswordLogin, SignInOptions } from "../components/SignIn";
 
 const OAuthSignInPage = () => {
@@ -15,35 +14,19 @@ const OAuthSignInPage = () => {
   };
 
   return (
-    <div className="oauth-signin-container">
-      <div className="oauth-signin">
-        <div className="signin-header">
-          <div
-            className="signin-icon"
-            style={{
-              width: "9rem",
-              height: "9rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto",
-              marginBottom: "2rem",
-            }}
-          >
+    <div className="flex justify-center items-center min-h-screen w-full p-4 md:p-8 bg-slate-50">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <div className="text-left mb-6">
+          <div className="w-20 h-20 flex items-center justify-center mx-auto mb-4">
             <img
               src={logoImg}
               alt="Piranha Planner Logo"
-              style={{
-                width: "9rem",
-                height: "9rem",
-                objectFit: "contain",
-                borderRadius: "50%",
-              }}
+              className="w-full h-full object-contain rounded-full"
             />
           </div>
 
-          <h1 className="signin-title">Sign In</h1>
-          <p className="signin-welcome">
+          <h1 className="text-2xl font-semibold text-slate-700">Sign In</h1>
+          <p className="text-sm font-medium text-slate-600">
             Welcome user, please sign in to continue
           </p>
         </div>
