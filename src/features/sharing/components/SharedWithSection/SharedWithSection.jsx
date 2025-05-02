@@ -65,14 +65,14 @@ const SharedWithSection = () => {
           <ErrorAlert error={contextError || localError} />
         )}
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-xl font-bold flex items-center gap-2">
+          <CardTitle className="text-base sm:text-xl font-bold flex items-center gap-2">
             <Users className="w-5 h-5" />
             Shared With
           </CardTitle>
           <Badge variant="secondary">0 task</Badge>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-500 text-base">
+          <p className="text-gray-500 text-sm sm:text-lg">
             No pending or accepted shared tasks found.
           </p>
         </CardContent>
@@ -81,14 +81,14 @@ const SharedWithSection = () => {
   }
 
   return (
-    <Card className="mt-6">
+    <Card>
       {contextError && <ErrorAlert error={contextError} />}
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-xl font-bold flex items-center gap-2">
+        <CardTitle className="text-base sm:text-xl font-bold flex items-center gap-2">
           <Users className="w-5 h-5" />
           Shared With
         </CardTitle>
-        <Badge variant="secondary">
+        <Badge variant="secondary" className="text-xs sm:text-base">
           {sharedTasks.length} {sharedTasks.length === 1 ? "user" : "users"}
         </Badge>
       </CardHeader>
@@ -97,7 +97,7 @@ const SharedWithSection = () => {
           {sharedTasks.map((task) => (
             <div
               key={task.id}
-              className="flex items-center gap-4 p-2 rounded-lg hover:bg-gray-50"
+              className="flex items-center gap-4 rounded-lg hover:bg-gray-50"
             >
               <Avatar className="w-10 h-10">
                 <AvatarImage
@@ -112,16 +112,16 @@ const SharedWithSection = () => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <p className="font-medium text-base">
+                <p className="font-medium text-xs sm:text-base">
                   {task.profile?.full_name || "Unknown User"}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xxs sm:text-sm text-gray-500">
                   {task.profile?.username || "No username provided"}
                 </p>
               </div>
               <Badge
                 variant={task.status === "accepted" ? "success" : "warning"}
-                className="capitalize"
+                className="capitalize text-xxs sm:text-base"
               >
                 {task.status}
               </Badge>
@@ -131,7 +131,7 @@ const SharedWithSection = () => {
                 aria-label={`Delete ${task.recipient_name}`}
                 onClick={() => handleDeleteTask(task)}
               >
-                <X className="w-5 h-5" />
+                <X className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
               </Button>
             </div>
           ))}

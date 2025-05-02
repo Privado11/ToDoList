@@ -98,11 +98,11 @@ export const useSharedTasks = (taskId, getTaskById, fetchTasks) => {
   }, [taskId]);
 
   useEffect(() => {
-    getUsersFromSharedTask();
+    if (taskId && !user?.is_anonymous) getUsersFromSharedTask();
   }, [getUsersFromSharedTask]);
 
   useEffect(() => {
-    if (taskId) {
+    if (taskId && !user?.is_anonymous) {
       fetchSharedTasks();
     }
   }, [taskId, fetchSharedTasks]);

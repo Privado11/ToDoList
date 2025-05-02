@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Bell,
   Check,
@@ -15,12 +15,14 @@ import { useNotification } from "@/context/NotificationContext";
 import { useFriendShipContext } from "@/context/FriendShipContext";
 import { useTaskContext } from "@/context/TaskContext";
 import { useNavigate } from "react-router-dom";
+import { usePopover } from "@/context/PopoverContext";
 
 const AppNotifications = () => {
   const {
     notifications,
     loading,
     hasMore,
+    anonymousMessage,
     loadMoreNotifications,
     markAsRead,
     markAllAsRead,
@@ -30,24 +32,30 @@ const AppNotifications = () => {
   const { acceptTaskShare, rejectedTaskShare } = useTaskContext();
   const navigate = useNavigate();
 
-  const [showNotifications, setShowNotifications] = React.useState(false);
+  const { activePopover, openPopover, closePopover, isPopoverOpen } =
+    usePopover();
+  const isOpen = isPopoverOpen("notifications");
 
-  useEffect(() => {
-    console.log("notifications", notifications);
-  }, [notifications]);
+  const handleOpenChange = (open) => {
+    if (open) {
+      openPopover("notifications");
+    } else {
+      closePopover();
+    }
+  };
 
- const handleNotificationClick = async (notification) => {
-   if (!notification.is_read) {
-     await markAsRead(notification.id);
-   }
-   if (notification.type === "task_comment" && notification.content.task_id) {
-     setShowNotifications(false);
-     const commentAnchor = notification.content.comment_id
-       ? `#comment-${notification.content.comment_id}`
-       : "";
-     navigate(`/task-detail/${notification.content.task_id}${commentAnchor}`);
-   }
- };
+  const handleNotificationClick = async (notification) => {
+    if (!notification.is_read) {
+      await markAsRead(notification.id);
+    }
+    if (notification.type === "task_comment" && notification.content.task_id) {
+      closePopover();
+      const commentAnchor = notification.content.comment_id
+        ? `#comment-${notification.content.comment_id}`
+        : "";
+      navigate(`/task-detail/${notification.content.task_id}${commentAnchor}`);
+    }
+  };
 
   const handleNotificationAction = async (requestId, action) => {
     try {
@@ -73,21 +81,26 @@ const AppNotifications = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffSeconds = Math.floor(diffTime / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
 
-    if (diffDays === 0) {
-      return date.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } else if (diffDays === 1) {
-      return "Yesterday";
+    if (diffSeconds < 60) {
+      return `${diffSeconds} seconds ago`;
+    } else if (diffMinutes < 60) {
+      return `${diffMinutes} ${diffMinutes === 1 ? "minute" : "minutes"} ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`;
     } else if (diffDays < 7) {
-      return `${diffDays} days ago`;
+      return `${diffDays} ${diffDays === 1 ? "day" : "days"} ago`;
     } else {
       return date.toLocaleDateString("en-US", {
-        day: "2-digit",
-        month: "2-digit",
+        day: "numeric",
+        month: "short",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
       });
     }
   };
@@ -95,15 +108,15 @@ const AppNotifications = () => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case "task_comment":
-        return <MessageSquare className="h-4 w-4 text-blue-500" />;
+        return <MessageSquare className="h-3 w-3 text-blue-500" />;
       case "task_share_request":
-        return <Share className="h-4 w-4 text-purple-500" />;
+        return <Share className="h-3 w-3 text-purple-500" />;
       case "task_share_accepted":
-        return <Share className="h-4 w-4 text-purple-500" />;
-      case "friendship_request":
-        return <UserPlus className="h-4 w-4 text-green-500" />;
+        return <Share className="h-3 w-3 text-purple-500" />;
+      case "friend_request":
+        return <UserPlus className="h-3 w-3 text-green-500" />;
       default:
-        return <Bell className="h-4 w-4 text-gray-500" />;
+        return <Bell className="h-3 w-3 text-gray-500" />;
     }
   };
 
@@ -113,22 +126,51 @@ const AppNotifications = () => {
         return {
           name: notification.content.from_full_name,
           nameLetter: notification.content.from_full_name[0],
-          message: `Commented on "${notification.content.task_title}"`,
+          message: (
+            <>
+              commented on{" "}
+              <strong title={notification.content.task_title}>
+                {notification.content.task_title.length > 20
+                  ? `${notification.content.task_title.substring(0, 20)}...`
+                  : notification.content.task_title}
+              </strong>{" "}
+            </>
+          ),
           comment: notification.content.comment_excerpt,
         };
       case "task_share_request":
         return {
           name: notification.content.full_name,
           nameLetter: notification.content.full_name[0],
-          message: `wants to share the task "${notification.content.task_title}" with you.`,
+          message: (
+            <>
+              wants to share the task{" "}
+              <strong title={notification.content.task_title}>
+                {notification.content.task_title.length > 20
+                  ? `${notification.content.task_title.substring(0, 20)}...`
+                  : notification.content.task_title}
+              </strong>{" "}
+              with you.
+            </>
+          ),
         };
       case "task_share_accepted":
         return {
           name: notification.content.full_name,
           nameLetter: notification.content.full_name[0],
-          message: `has accepted the shared task "${notification.content.task_title}". You can now collaborate on it together!`,
+          message: (
+            <>
+              has accepted the shared task{" "}
+              <strong title={notification.content.task_title}>
+                {notification.content.task_title.length > 20
+                  ? `${notification.content.task_title.substring(0, 20)}...`
+                  : notification.content.task_title}
+              </strong>
+              . You can now collaborate on it together!
+            </>
+          ),
         };
-      case "friendship_request":
+      case "friend_request":
         return {
           name: notification.content.full_name,
           nameLetter: notification.content.full_name[0],
@@ -156,16 +198,20 @@ const AppNotifications = () => {
       icon={<Bell className="h-5 w-5" />}
       title="Notifications"
       unreadCount={unreadCount}
-      isOpen={showNotifications}
-      setIsOpen={setShowNotifications}
+      isOpen={isOpen}
+      setIsOpen={handleOpenChange}
       loading={loading}
       refreshAction={fetchNotifications}
       markAllAsReadAction={markAllAsRead}
       hasUnread={notifications.some((n) => !n.is_read)}
     >
       {notifications.length === 0 ? (
-        <p className="text-sm text-center text-gray-500 py-8">
-          {loading ? "Loading notifications..." : "You have no notifications"}
+        <p className="text-sm text-center text-gray-500 py-4">
+          {anonymousMessage
+            ? anonymousMessage
+            : loading
+            ? "Loading notifications..."
+            : "You have no notifications"}
         </p>
       ) : (
         <>
@@ -175,42 +221,52 @@ const AppNotifications = () => {
             return (
               <div key={notification.id}>
                 <div
-                  className={`flex items-start gap-3 p-3 hover:bg-gray-50 cursor-pointer ${
+                  className={`flex items-center gap-2 py-2 px-3 hover:bg-gray-50 cursor-pointer ${
                     !notification.is_read ? "bg-blue-50" : ""
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
-                  <div className="flex-shrink-0 mt-1">
-                    <Avatar className="h-8 w-8">
+                  <div className="flex-shrink-0 relative">
+                    <Avatar className="h-10 w-10">
                       <AvatarFallback className="text-xs">
                         {content.nameLetter}
                       </AvatarFallback>
                     </Avatar>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1 mb-1">
+                    <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
                       {getNotificationIcon(notification.type)}
-                      <p className="text-sm font-medium">{content.name}</p>
                     </div>
-                    <p className="text-sm text-gray-600">{content.message}</p>
-                    {notification.type === "task_comment" &&
-                      content.comment && (
-                        <p className="text-sm italic mt-1 text-gray-800 bg-gray-100 px-2 py-1 rounded">
-                          "{content.comment}"
-                        </p>
-                      )}
-                    <div className="flex items-center mt-1 text-xs text-gray-500">
-                      <Clock className="h-3 w-3 mr-1" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="mb-0.5">
+                      <span className="text-xs font-bold">{content.name}</span>{" "}
+                      <span className="text-xs">
+                        {content.message}
+                        {notification.type === "task_comment" &&
+                          content.comment && (
+                            <>
+                              : "
+                              <span className="line-clamp-1 break-words overflow-hidden">
+                                {content.comment}
+                              </span>
+                              "
+                            </>
+                          )}
+                      </span>
+                    </div>
+
+                    <div className="text-xs text-gray-500">
+                      <Clock className="h-2.5 w-2.5 inline mr-1" />
                       {formatTime(notification.created_at)}
                     </div>
 
                     {!notification.is_replied && (
                       <>
                         {notification.type === "task_share_request" && (
-                          <div className="flex gap-2 mt-2">
+                          <div className="flex gap-2 mt-1">
                             <Button
                               size="sm"
-                              className="h-7 px-2 py-0"
+                              className="h-6 px-2 py-0 text-xs"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleNotificationAction(
@@ -219,12 +275,12 @@ const AppNotifications = () => {
                                 );
                               }}
                             >
-                              <Check className="w-3 h-3 mr-1" /> Accept
+                              <Check className="w-2.5 h-2.5 mr-1" /> Accept
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-7 px-2 py-0"
+                              className="h-6 px-2 py-0 text-xs"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleNotificationAction(
@@ -233,16 +289,16 @@ const AppNotifications = () => {
                                 );
                               }}
                             >
-                              <X className="w-3 h-3 mr-1" /> Reject
+                              <X className="w-2.5 h-2.5 mr-1" /> Reject
                             </Button>
                           </div>
                         )}
 
-                        {notification.type === "friendship_request" && (
-                          <div className="flex gap-2 mt-2">
+                        {notification.type === "friend_request" && (
+                          <div className="flex gap-2 mt-1">
                             <Button
                               size="sm"
-                              className="h-7 px-2 py-0"
+                              className="h-6 px-2 py-0 text-xs"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleNotificationAction(
@@ -251,12 +307,12 @@ const AppNotifications = () => {
                                 );
                               }}
                             >
-                              <Check className="w-3 h-3 mr-1" /> Accept
+                              <Check className="w-2.5 h-2.5 mr-1" /> Accept
                             </Button>
                             <Button
                               size="sm"
                               variant="outline"
-                              className="h-7 px-2 py-0"
+                              className="h-6 px-2 py-0 text-xs"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleNotificationAction(
@@ -265,7 +321,7 @@ const AppNotifications = () => {
                                 );
                               }}
                             >
-                              <X className="w-3 h-3 mr-1" /> Reject
+                              <X className="w-2.5 h-2.5 mr-1" /> Reject
                             </Button>
                           </div>
                         )}
@@ -274,9 +330,9 @@ const AppNotifications = () => {
                   </div>
                   <div className="flex-shrink-0">
                     {notification.is_read ? (
-                      <Check className="h-4 w-4 text-green-500" />
+                      <Check className="h-3 w-3 text-green-500" />
                     ) : (
-                      <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                      <div className="h-1.5 w-1.5 bg-blue-500 rounded-full"></div>
                     )}
                   </div>
                 </div>
@@ -287,13 +343,13 @@ const AppNotifications = () => {
             );
           })}
           {hasMore && (
-            <div className="p-3 text-center">
+            <div className="p-2 text-center">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={loadMoreNotifications}
                 disabled={loading}
-                className="text-blue-600 hover:text-blue-800"
+                className="text-blue-600 hover:text-blue-800 text-xs h-6"
               >
                 {loading ? <span className="mr-2">Loading</span> : "Load more"}
               </Button>

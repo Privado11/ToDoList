@@ -1,70 +1,19 @@
 import BaseService from "../base/baseService";
 
 class FriendShipService extends BaseService {
-  static PENDING_FRIEND_REQUEST_SELECT = `
-    id,
-    status, 
-    create_at,
-    update_at,
-    sender:profiles!sender_id (
-        id,
-        full_name,
-        username,
-        avatar_url
-    ),
-    recipient:profiles!!recipient_id (
-        id,
-        full_name,
-        username,
-        avatar_url
-    )
-  `;
-
-  static FRIEND_LIST_SELECT = `
-    id,
-    status, 
-    create_at,
-    update_at,
-    user1:profiles!user_id1 (
-        id,
-        full_name,
-        username,
-        avatar_url
-    ),
-     user2:profiles!user_id2 (
-        id,
-        full_name,
-        username,
-        avatar_url
-    )
-  `;
-
-  static DEFAULT_FRIENDSHIP_RELATIONS = {
-    profiles: [],
-  };
-
-  static formatTaskResponse(data) {
-    if (!data) return null;
-    return {
-      ...data,
-      ...this.DEFAULT_FRIENDSHIP_RELATIONS,
-      profiles: data.profiles || [],
-    };
-  }
-
   static async getPendingFriendRequestsByUserId(userId) {
     this.validateRequiredId(userId, "User ID");
 
     try {
-      const { data, error } = await this.supabase
-        .from("friend_requests")
-        .select(this.PENDING_FRIEND_REQUEST_SELECT)
-        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-        .eq("status", "pending")
-        .order("created_at", { ascending: false });
+      const { data, error } = await this.supabase.rpc(
+        "get_pending_friend_requests_by_user_id",
+        {
+          p_user_id: userId,
+        }
+      );
 
       this.handleError(error, "Error fetching pending friend requests");
-      return this.formatTaskResponse(data);
+      return data || [];
     } catch (error) {
       console.error("Error fetching pending friend requests:", error);
       throw error;
@@ -95,12 +44,12 @@ class FriendShipService extends BaseService {
     this.validateRequiredId(friendId, "Friend ID");
 
     try {
-      const { data, error } = await this.supabase.rcp("send_friend_request", {
+      const { data, error } = await this.supabase.rpc("send_friend_request", {
         sender_id: userId,
         receiver_id: friendId,
       });
       this.handleError(error, "Error request friendship");
-      return data?.[0];
+      return data;
     } catch (error) {
       console.error("Error request friendship:", error);
       throw error;
@@ -167,6 +116,101 @@ class FriendShipService extends BaseService {
       return data?.[0];
     } catch (error) {
       console.error("Error canceling friend request:", error);
+      throw error;
+    }
+  }
+
+  static async searchUsers(query, currentUserId) {
+    this.validateRequiredId(currentUserId, "Current User ID");
+
+    try {
+      const { data, error } = await this.supabase.rpc("search_users", {
+        current_user_id: currentUserId,
+        search_query: query,
+      });
+
+      this.handleError(error, "Error searching users");
+
+      return data;
+    } catch (error) {
+      console.error("Error searching users:", error);
+      throw new Error(error.message);
+    }
+  }
+
+  static async getUserById(userId) {
+    this.validateRequiredId(userId, "User ID");
+
+    try {
+      const { data, error } = await this.supabase
+        .from("profiles")
+        .select()
+        .eq("id", userId)
+        .single();
+
+      this.handleError(error, "Error fetching user");
+
+      return data;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  static async blockUser(blockerId, blockedId, reason) {
+    this.validateRequiredId(blockerId, "Blocker ID");
+    this.validateRequiredId(blockedId, "Blocked ID");
+
+    try {
+      const { data, error } = await this.supabase.rpc(
+        "block_user_cascade_delete",
+        {
+          blocker_id: blockerId,
+          blocked_id: blockedId,
+          reason,
+        }
+      );
+
+      this.handleError(error, "Error blocking user");
+
+      return data?.[0];
+    } catch (error) {
+      console.error("Error blocking user:", error);
+      throw error;
+    }
+  }
+
+  static async unblockUser(id) {
+    this.validateRequiredId(id, "ID");
+
+    try {
+      const { data, error } = await this.supabase
+        .from("blocked_users")
+        .delete()
+        .eq("id", id)
+        .select();
+
+      this.handleError(error, "Error unblocking user");
+
+      return data?.[0];
+    } catch (error) {
+      console.error("Error unblocking user:", error);
+      throw error;
+    }
+  }
+
+  static async getBlockedUsers(userId) {
+    this.validateRequiredId(userId, "User ID");
+
+    try {
+      const { data, error } = await this.supabase.rpc("get_blocked_users", {
+        user_id: userId,
+      });
+
+      this.handleError(error, "Error fetching blocked users");
+
+      return data || [];
+    } catch (error) {
+      console.error("Error fetching blocked users:", error);
       throw error;
     }
   }

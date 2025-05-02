@@ -1,8 +1,4 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-} from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Send } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,21 +60,44 @@ function CommentSection({ highlightedComment }) {
     [comment, createComment]
   );
 
-  const formatDateTime = useCallback((dateString) => {
+  const formatRelativeTime = useCallback((dateString) => {
     if (!dateString) return "Invalid date";
 
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return "Invalid date";
 
-      return new Intl.DateTimeFormat("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }).format(date);
+      const now = new Date();
+      const diffInSeconds = Math.floor((now - date) / 1000);
+
+      if (diffInSeconds < 60) {
+        return `${diffInSeconds} s`;
+      }
+
+      const diffInMinutes = Math.floor(diffInSeconds / 60);
+      if (diffInMinutes < 60) {
+        return `${diffInMinutes} min`;
+      }
+
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      if (diffInHours < 24) {
+        return `${diffInHours} h`;
+      }
+
+      const diffInDays = Math.floor(diffInHours / 24);
+      if (diffInDays < 30) {
+        return `hace ${diffInDays} d`;
+      }
+
+      const diffInMonths = Math.floor(diffInDays / 30);
+      if (diffInMonths < 12) {
+        return `hace ${diffInMonths} ${
+          diffInMonths === 1 ? "month" : "months"
+        }`;
+      }
+
+      const diffInYears = Math.floor(diffInMonths / 12);
+      return `hace ${diffInYears} ${diffInYears === 1 ? "year" : "years"}`;
     } catch {
       return "Invalid date";
     }
@@ -87,6 +106,7 @@ function CommentSection({ highlightedComment }) {
   useEffect(() => {
     console.log("highlightedComment", highlightedComment);
   }, [highlightedComment]);
+
   return (
     <Card>
       <CardHeader>
@@ -113,10 +133,10 @@ function CommentSection({ highlightedComment }) {
                       {comment?.profiles?.full_name}
                     </p>
                     <span className="text-sm text-gray-500">
-                      {formatDateTime(comment.created_at)}
+                      {formatRelativeTime(comment.created_at)}
                     </span>
                   </div>
-                  <p className="text-gray-600 mt-1 text-base">
+                  <p className="text-gray-600 mt-1 text-base break-words">
                     {comment.content}
                   </p>
                 </div>

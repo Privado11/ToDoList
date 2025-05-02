@@ -194,13 +194,9 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
           onClose={closeMagicModal}
           onResend={handleResendMagicLink}
           isResending={isResending}
+          open={showMagicModal}
+          message={resendMessage}
         />
-      )}
-
-      {resendMessage && (
-        <div className="mt-4 text-center text-green-500 text-sm">
-          {resendMessage}
-        </div>
       )}
     </>
   );

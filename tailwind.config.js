@@ -4,6 +4,9 @@ export default {
     content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
   	extend: {
+		fontSize: {
+        'xxs': '0.625rem', 
+      },
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
@@ -53,5 +56,5 @@ export default {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"),require('tailwind-scrollbar')],
 };

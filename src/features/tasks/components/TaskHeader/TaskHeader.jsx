@@ -15,9 +15,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const TaskHeader = ({ task, onEdit }) => {
   const [shareOpen, setShareOpen] = useState(false);
+  const { profile: user } = useAuth();
 
   const handleShare = () => {
     if (!task?.is_shared) {
@@ -49,7 +51,7 @@ const TaskHeader = ({ task, onEdit }) => {
     <div className="flex flex-col gap-2">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center">
         <div className="flex justify-between items-center w-full">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold pr-2 flex-1">
+          <h1 className="text-base sm:text-xl md:text-2xl font-bold pr-2 flex-1">
             {task.title}
           </h1>
 
@@ -104,21 +106,28 @@ const TaskHeader = ({ task, onEdit }) => {
                   <Button
                     className="text-lg w-32"
                     onClick={handleShare}
-                    disabled={task?.is_shared}
+                    disabled={task?.is_shared || user?.is_anonymous}
                   >
                     <Share className="w-5 h-5 mr-2" />
                     Share
                   </Button>
                 </div>
               </TooltipTrigger>
-              <TooltipContent>
-                {task?.is_shared && (
-                  <p>
-                    You cannot share this task because it is being shared with
-                    you. <br /> Only the author can share it.
-                  </p>
-                )}
-              </TooltipContent>
+              {(task?.is_shared || user?.is_anonymous) && (
+                <TooltipContent>
+                  {task?.is_shared ? (
+                    <p>
+                      You cannot share this task because it is being shared with
+                      you. <br /> Only the author can share it.
+                    </p>
+                  ) : user?.is_anonymous ? (
+                    <p className="text-sm">
+                      Sharing is only available for registered users. <br />
+                      Please create a full account to use this feature.
+                    </p>
+                  ) : null}
+                </TooltipContent>
+              )}
             </Tooltip>
           </TooltipProvider>
           <TooltipProvider>
@@ -135,26 +144,28 @@ const TaskHeader = ({ task, onEdit }) => {
                   </Button>
                 </div>
               </TooltipTrigger>
-              <TooltipContent>
-                {task?.is_shared && (
-                  <p className="text-sm">
-                    You cannot edit this task because it is being shared with
-                    you. <br />
-                    Only the author can edit it.
-                  </p>
-                )}
-              </TooltipContent>
+              {task?.is_shared && (
+                <TooltipContent>
+                  {task?.is_shared && (
+                    <p className="text-sm">
+                      You cannot edit this task because it is being shared with
+                      you. <br />
+                      Only the author can edit it.
+                    </p>
+                  )}
+                </TooltipContent>
+              )}
             </Tooltip>
           </TooltipProvider>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2 sm:gap-4">
-        <Badge variant="outline" className="gap-1 text-xs sm:text-sm">
+        <Badge variant="outline" className="gap-1 text-xxs sm:text-sm">
           <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
           {task.due_date ? formatDateTime(task.due_date) : "No due date"}
         </Badge>
-        <Badge className="bg-red-100 text-red-500 text-xs sm:text-sm">
+        <Badge className="bg-red-100 text-red-500 text-xxs sm:text-sm">
           {task.priorities?.level || "No priority"}
         </Badge>
         <Badge className="bg-blue-100 text-blue-500 text-xs sm:text-sm">

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { FaUserSecret } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import { cn } from "@/lib/utils";
+import { set } from "date-fns";
 
 const providers = [
   { id: 1, name: "Google", icon: <FcGoogle /> },
@@ -17,13 +17,17 @@ function SignInOptions({ changeToPasswordScreen }) {
     signInWithGoogle,
     signInWithFacebook,
     signInAsGuest,
-    signInWithPhone,
+    resendEmailSignUp,
     checkEmail,
   } = useAuth();
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const prefilledEmail = location.state?.email || "";
+  const [email, setEmail] = useState(prefilledEmail);
   const [emailError, setEmailError] = useState("");
+  const [emailResend, setEmailResend] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
   const navigate = useNavigate();
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -58,13 +62,23 @@ function SignInOptions({ changeToPasswordScreen }) {
       setEmailError("Please enter a valid email address.");
       return;
     }
-    setLoading(true);
-    try {
-      const isRegistered = await checkEmail(email);
 
-      if (isRegistered) {
-        changeToPasswordScreen(email);
+    setLoading(true);
+    setNeedsVerification(false);
+
+    try {
+      const result = await checkEmail(email);
+
+      if (result.user_exists) {
+        if (result.email_verified) {
+          
+          changeToPasswordScreen(email);
+        } else {
+        
+          setNeedsVerification(true);
+        }
       } else {
+        
         setEmailError("Email not registered. Would you like to sign up?");
       }
     } catch (error) {
@@ -74,10 +88,25 @@ function SignInOptions({ changeToPasswordScreen }) {
     }
   };
 
+  const handleResendVerification = async () => {
+    setLoading(true);
+    try {
+      await resendEmailSignUp(email);
+      setEmailResend("Verification email sent. Please check your inbox.");
+      setNeedsVerification(false);
+      setEmailError("");
+    } catch (error) {
+      setErrorMessage("Error sending verification email: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleOnChange = (e) => {
     setEmail(e.target.value);
     setEmailError("");
     setErrorMessage("");
+    setNeedsVerification(false);
   };
 
   return (
@@ -125,6 +154,26 @@ function SignInOptions({ changeToPasswordScreen }) {
           {errorMessage && (
             <p className="mt-1 text-xs text-red-500">{errorMessage}</p>
           )}
+          {emailResend && (
+            <p className="mt-1 text-xs text-green-500">{emailResend}</p>
+          )}
+
+          {needsVerification && (
+            <div className="mt-2">
+              <p className="text-xs text-amber-600 mb-1">
+                Your email is not verified yet. Please check your inbox or
+                request a new verification email.
+              </p>
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                className="text-xs font-medium text-sky-600 hover:text-sky-800"
+                disabled={loading}
+              >
+                Resend verification email
+              </button>
+            </div>
+          )}
         </div>
 
         <button
@@ -140,7 +189,7 @@ function SignInOptions({ changeToPasswordScreen }) {
         <span className="text-xs text-slate-500">
           Need an account?{" "}
           <span
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/signup", { state: { email } })}
             className="ml-0.5 cursor-pointer font-medium text-slate-700 hover:underline"
           >
             Sign Up

@@ -27,6 +27,7 @@ export const useAuthLogic = () => {
           }
         }
       } catch (error) {
+        // Solo registramos el error pero no lo mostramos al usuario
         console.error("Error verifying user:", error);
         setUser(null);
         setProfile(null);
@@ -38,6 +39,7 @@ export const useAuthLogic = () => {
 
     checkUser();
 
+    // Configuramos el suscriptor para cambios de autenticación
     const { unsubscribe } = AuthService.onAuthStateChange(
       async ({ event, user }) => {
         setUser(user);
@@ -66,9 +68,19 @@ export const useAuthLogic = () => {
     return () => unsubscribe();
   }, []);
 
-  const isProfileComplete = () => {
-    return profile.is_complete;
-  };
+  const isProfileComplete = useCallback(() => {
+    if (!user) return false;
+
+    const isAnonymous = user.is_anonymous;
+
+    if (isAnonymous) return true;
+
+    const fullName = user.user_metadata?.full_name;
+
+    if (!fullName || fullName.trim() === "") return false;
+
+    return user.user_metadata?.email_verified === true;
+  }, [user]);
 
   const handleAuth = useCallback(async (authFunction, ...params) => {
     setIsProcessing(true);
@@ -85,6 +97,13 @@ export const useAuthLogic = () => {
     }
   }, []);
 
+  const updateLocalProfileData = useCallback((avatarUrl) => {
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      avatar_url: avatarUrl,
+    }));
+  }, []);
+
   return {
     user,
     profile,
@@ -98,6 +117,8 @@ export const useAuthLogic = () => {
     signInAsGuest: () => handleAuth(() => AuthService.signInAsGuest()),
     signUpWithEmail: (email, password) =>
       handleAuth(() => AuthService.signUpWithEmail(email, password)),
+    resendEmailSignUp: (email) =>
+      handleAuth(() => AuthService.resendEmailSignUp(email)),
     signInWithPhone: (phone) =>
       handleAuth(() => AuthService.signInWithPhone(phone)),
     signOut: () => handleAuth(() => AuthService.signOut()),
@@ -107,12 +128,35 @@ export const useAuthLogic = () => {
       handleAuth(() => AuthService.signInWithMagicLink(email)),
     resetPassword: (email) =>
       handleAuth(() => AuthService.resetPassword(email)),
-    completeProfile: (fullName, password) =>
-      handleAuth(() =>
-        AuthService.completeProfile(fullName, password, user?.id)
-      ),
+    completeProfile: (fullName, password, avatarFile) =>
+      handleAuth(async () => {
+        const result = await AuthService.completeProfile(
+          fullName,
+          password,
+          user?.id,
+          avatarFile
+        );
+        if (avatarFile) {
+          updateLocalProfileData(result.user.user_metadata.avatar_url);
+        }
+        return result;
+      }),
     updatePassword: (password) =>
       handleAuth(() => AuthService.updatePassword(password)),
     checkEmail: (email) => handleAuth(() => AuthService.checkEmail(email)),
+
+    // New avatar methods
+    uploadAvatar: (file) =>
+      handleAuth(async () => {
+        const avatarUrl = await AuthService.updateAvatar(user?.id, file);
+        updateLocalProfileData(avatarUrl);
+        return avatarUrl;
+      }),
+    deleteAvatar: () =>
+      handleAuth(async () => {
+        await AuthService.deleteAvatar(user?.id);
+        updateLocalProfileData(null);
+        return true;
+      }),
   };
 };

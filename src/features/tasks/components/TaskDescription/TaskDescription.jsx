@@ -9,7 +9,7 @@ const TaskDescription = ({ description }) => {
     <Card>
       <CardContent className="pt-6">
         <p
-          className="text-gray-600 text-lg"
+          className="text-gray-600 text-sm sm:text-lg"
           dangerouslySetInnerHTML={{
             __html: formatDescription(description),
           }}

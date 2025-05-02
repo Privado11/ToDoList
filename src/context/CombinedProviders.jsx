@@ -6,19 +6,22 @@ import { UserProvider } from "./UserContext";
 import { FriendShipProvider } from "./FriendShipContext";
 import { ChatProvider } from "./ChatContex";
 import { NotificationProvider } from "./NotificationContext";
+import { PopoverProvider } from "./PopoverContext";
 
 export const CombinedProviders = ({ children }) => (
   <AuthProvider>
     <UserProvider>
-      <ChatProvider>
-        <NotificationProvider>
-          <ToastProvider>
-            <TaskProvider>
-              <FriendShipProvider>{children}</FriendShipProvider>
-            </TaskProvider>
-          </ToastProvider>
-        </NotificationProvider>
-      </ChatProvider>
+      <PopoverProvider>
+        <ChatProvider>
+          <NotificationProvider>
+            <ToastProvider>
+              <TaskProvider>
+                <FriendShipProvider>{children}</FriendShipProvider>
+              </TaskProvider>
+            </ToastProvider>
+          </NotificationProvider>
+        </ChatProvider>
+      </PopoverProvider>
     </UserProvider>
   </AuthProvider>
 );

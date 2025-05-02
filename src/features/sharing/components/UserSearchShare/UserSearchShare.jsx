@@ -10,10 +10,6 @@ const UserSearchShare = ({ onShareTask }) => {
   const { query, setQuery, users, isLoading, error } = useTaskContext();
   const [sharing, setSharing] = useState(false);
 
-  useEffect(() => {
-    console.log(selectedUsers);
-  }, [selectedUsers]);
-
   const handleSelectUser = useCallback(
     (user) => {
       setSelectedUsers((prev) => [...prev, user]);
@@ -42,7 +38,7 @@ const UserSearchShare = ({ onShareTask }) => {
   );
 
   const handleShareWithAll = useCallback(
-    async (user) => {
+    async () => {
       if (selectedUsers.length === 0) return;
       setSharing(true);
       try {

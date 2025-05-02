@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageSquare } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import NotificationsPopover from "./NotificationsPopover";
 import { useChat } from "@/context/ChatContex";
 import { formatConversationDate } from "@/lib/formatConversationDate";
+import { usePopover } from "@/context/PopoverContext";
 
 const ChatNotifications = () => {
   const {
@@ -13,12 +14,24 @@ const ChatNotifications = () => {
     openChat,
     fetchConversations,
     markAllAsRead,
+    anonymousMessage,
   } = useChat();
-  const [showConversations, setShowConversations] = useState(false);
+
+  const { activePopover, openPopover, closePopover, isPopoverOpen } =
+    usePopover();
+  const isOpen = isPopoverOpen("chat");
+
+  const handleOpenChange = (open) => {
+    if (open) {
+      openPopover("chat");
+    } else {
+      closePopover();
+    }
+  };
 
   const handleConversationClick = (conversation) => {
     openChat(conversation);
-    setShowConversations(false);
+    closePopover();
   };
 
   const totalUnread = conversations.reduce(
@@ -33,8 +46,8 @@ const ChatNotifications = () => {
       icon={<MessageSquare className="h-5 w-5" />}
       title="Chats"
       unreadCount={totalUnread}
-      isOpen={showConversations}
-      setIsOpen={setShowConversations}
+      isOpen={isOpen}
+      setIsOpen={handleOpenChange}
       loading={loading}
       refreshAction={fetchConversations}
       markAllAsReadAction={markAllAsRead}
@@ -42,7 +55,11 @@ const ChatNotifications = () => {
     >
       {conversations.length === 0 ? (
         <p className="text-sm text-center text-gray-500 py-8">
-          {loading ? "Loading conversations..." : "You have no conversations"}
+          {anonymousMessage
+            ? anonymousMessage
+            : loading
+            ? "Loading conversations..."
+            : "You have no conversations"}
         </p>
       ) : (
         <>

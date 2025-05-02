@@ -1,87 +1,12 @@
 import { useAuthLogic } from "@/features/auth";
 import UserService from "@/service/users";
-import { useCallback, useState } from "react";
-
+import { useCallback, useEffect, useState } from "react";
 
 export const useUsers = () => {
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [blockedUsers, setBlockedUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const { user } = useAuthLogic();
-
-  const fetchUsers = useCallback(
-    async (query) => {
-      if (!user) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await UserService.searchUsers(query, user.id);
-        setUsers(data);
-      } catch (err) {
-        setError("Error fetching users");
-        console.error(err.message);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [user]
-  );
-
-  const getBlockedUsers = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await UserService.getBlockedUsers(user.id);
-      setBlockedUsers(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  const getUserById = useCallback(
-    async (userId) => {
-      if (!userId) return;
-      setLoading(true);
-      setError(null);
-      try {
-        if (selectedUser?.id !== userId) {
-          const data = await UserService.getUserById(userId);
-          setSelectedUser(data);
-          return data;
-        }
-      } catch (err) {
-        setError(err.message);
-        selectedUser(null);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [selectedUser]
-  );
-
-  const getUserByUsername = useCallback(
-    async (username) => {
-      if (!username) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await UserService.getUserByUsername(username);
-        setSelectedUser(data);
-        return data;
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [selectedUser]
-  );
 
   const completeProfile = useCallback(
     async (fullName, password) => {
@@ -94,42 +19,7 @@ export const useUsers = () => {
           fullName,
           password
         );
-        setSelectedUser(data);
         return data;
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [selectedUser]
-  );
-
-  const blockUser = useCallback(
-    async (userId) => {
-      if (!user) return;
-      setLoading(true);
-      setError(null);
-      try {
-        const blockedUser = await UserService.blockUser(user.id, userId);
-        setBlockedUsers((prev) => [blockedUser, ...prev]);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [user]
-  );
-
-  const unblockUser = useCallback(
-    async (userId) => {
-      if (!user) return;
-      setLoading(true);
-      setError(null);
-      try {
-        await UserService.unblockUser(user.id, userId);
-        setBlockedUsers((prev) => prev.filter((user) => user.id !== userId));
       } catch (err) {
         setError(err.message);
       } finally {
@@ -224,18 +114,9 @@ export const useUsers = () => {
   }, []);
 
   return {
-    users,
-    selectedUser,
-    blockedUsers,
     loading,
     error,
-    fetchUsers,
-    getBlockedUsers,
-    getUserById,
-    getUserByUsername,
     completeProfile,
-    blockUser,
-    unblockUser,
     checkFullNameUpdateTime,
     checkUsernameUpdateTime,
     checkUsernameAvailability,

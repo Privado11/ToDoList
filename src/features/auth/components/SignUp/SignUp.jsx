@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import logoImg from "../../../../assets/logo-piranha.webp";
 import { useAuth } from "@/context/AuthContext";
-import { cn } from "@/lib/utils";
+import MagicLinkModal from "../SignIn/MagicLinkModal";
 
 const providers = [
   { id: 1, name: "Google", icon: <FcGoogle /> },
@@ -13,9 +13,20 @@ const providers = [
 ];
 
 function SignUp() {
-  const { signInWithGoogle, signInWithFacebook, signUpWithEmail } = useAuth();
-  const [email, setEmail] = useState("");
+  const {
+    signInWithGoogle,
+    signInWithFacebook,
+    signUpWithEmail,
+    resendEmailSignUp,
+  } = useAuth();
+  const location = useLocation();
+  const prefilledEmail = location.state?.email || "";
+  const [email, setEmail] = useState(prefilledEmail);
   const [emailError, setEmailError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showMagicModal, setShowMagicModal] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -36,24 +47,63 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setEmailError("");
 
     if (!isValidEmail(email)) {
       setEmailError("Please enter a valid email address.");
       return;
-    } else {
-      setEmailError("");
     }
 
     try {
+      setIsSubmitting(true);
       await signUpWithEmail(email);
-      navigate("/");
+      setShowMagicModal(true);
     } catch (error) {
       console.error("Error signing up:", error);
+
+      if (error.message && error.message.includes("already registered")) {
+        setEmailError(
+          "This email is already registered. Please sign in instead."
+        );
+      } else {
+        setEmailError("Sign up failed. Please try again later.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleBackClick = () => {
     navigate("/login");
+  };
+
+  const handleSignInRedirect = () => {
+    navigate("/login", { state: { email } });
+  };
+
+  const closeMagicModal = () => {
+    setShowMagicModal(false);
+    setResendMessage("");
+    navigate("/login");
+  };
+
+  const handleResendMagicLink = async () => {
+    setIsResending(true);
+    setResendMessage("");
+    try {
+      await resendEmailSignUp(email);
+      setResendMessage("Confirmation email resent successfully!");
+    } catch (error) {
+      console.error("Error resending confirmation email:", error);
+      setEmailError(error.message || "Failed to resend confirmation email");
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setEmailError("");
   };
 
   return (
@@ -111,12 +161,23 @@ function SignUp() {
                 id="email"
                 placeholder="Email Address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 required
                 className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
               />
               {emailError && (
-                <p className="mt-1 text-xs text-red-500">{emailError}</p>
+                <div className="mt-2">
+                  <p className="text-xs text-red-500">{emailError}</p>
+                  {emailError.includes("already registered") && (
+                    <button
+                      type="button"
+                      onClick={handleSignInRedirect}
+                      className="text-xs text-sky-600 font-medium mt-1 hover:text-sky-700"
+                    >
+                      Go to sign in page
+                    </button>
+                  )}
+                </div>
               )}
             </div>
 
@@ -129,13 +190,30 @@ function SignUp() {
 
             <button
               type="submit"
-              className="mt-4 w-full rounded-md px-4 py-2.5 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 transition-all"
+              disabled={isSubmitting}
+              className={`mt-4 w-full rounded-md px-4 py-2.5 text-sm font-medium text-white ${
+                isSubmitting
+                  ? "bg-sky-400 cursor-not-allowed"
+                  : "bg-sky-500 hover:bg-sky-600"
+              } transition-all`}
             >
-              Sign Up
+              {isSubmitting ? "Signing Up..." : "Sign Up"}
             </button>
           </form>
         </div>
       </div>
+
+      {showMagicModal && (
+        <MagicLinkModal
+          email={email}
+          onClose={closeMagicModal}
+          onResend={handleResendMagicLink}
+          isResending={isResending}
+          mode="register"
+          open={showMagicModal}
+          message={resendMessage}
+        />
+      )}
     </div>
   );
 }

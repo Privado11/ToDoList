@@ -12,6 +12,7 @@ export const useChatMessages = () => {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [anonymousMessage, setAnonymousMessage] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [activeChats, setActiveChats] = useState([]);
@@ -33,7 +34,21 @@ export const useChatMessages = () => {
   } = useMultiMessageSubscription();
 
   useEffect(() => {
-    if (!user) return;
+    if (user?.is_anonymous) {
+      setAnonymousMessage(
+        "Chats are only available for registered users.\nCreate a full account to access this feature."
+      );
+      setLoading(false);
+      return;
+    }
+
+    setAnonymousMessage(null);
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    
 
     subscribeToConversation(user.id, () =>
       ChatMessageService.getConversations(user.id)
@@ -61,7 +76,7 @@ export const useChatMessages = () => {
   );
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || user.is_anonymous) return;
 
     activeChats.forEach((chat) => {
       if (chat) {
@@ -80,7 +95,10 @@ export const useChatMessages = () => {
   }, [user, activeChats, subscribeToMessages, handleMessagesChange]);
 
   const fetchConversations = useCallback(async () => {
-    if (!user) return;
+    if (!user || user.is_anonymous) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -96,8 +114,10 @@ export const useChatMessages = () => {
   }, [user]);
 
   useEffect(() => {
-    if (user) {
+    if (user && !user.is_anonymous) {
       fetchConversations();
+    } else {
+      setLoading(false);
     }
   }, [user, fetchConversations]);
 
@@ -338,6 +358,7 @@ export const useChatMessages = () => {
     conversations,
     loading,
     error,
+    anonymousMessage,
     isChatOpen,
     selectedConversation,
     currentMessages,

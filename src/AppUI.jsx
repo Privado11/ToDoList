@@ -1,5 +1,4 @@
-import React from "react";
-import { Route, Routes, Navigate, Outlet } from "react-router-dom";
+import { Route, Routes, Navigate, Outlet} from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 import { useAuth } from "./context/AuthContext";
 import {
@@ -13,13 +12,47 @@ import {
   SignUp,
   TaskDetailPage,
 } from "./features";
-import { Dashboard } from "./view/Dashboard";
+
+const LoadingScreen = () => (
+  <div className="flex justify-center items-center h-screen">Cargando...</div>
+);
+
+
+export const ProfileVerificationRoute = () => {
+  const { user, loading, isProfileComplete } = useAuth();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  if (user && !isProfileComplete()) {
+    return <Navigate to="/complete-profile" replace />;
+  }
+
+  return <Outlet />;
+};
+
+
+export const CompleteProfileRoute = () => {
+  const { user, loading, isProfileComplete } = useAuth();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  
+  if (user && isProfileComplete()) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
+};
 
 export const ProtectedRoute = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return <LoadingScreen />;
   }
 
   return user ? <Outlet /> : <Navigate to="/login" replace />;
@@ -32,24 +65,30 @@ export const PublicRoute = () => {
 };
 
 function AppUI() {
-
   return (
     <>
       <Routes>
         {/* Rutas protegidas */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/complete-profile" element={<CompleteProfilePage />} />
+          {/* Ruta de complete-profile con protección especial */}
+          <Route element={<CompleteProfileRoute />}>
+            <Route path="/complete-profile" element={<CompleteProfilePage />} />
+          </Route>
 
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/h" element={<Dashboard />} />
-          <Route path="/add-task" element={<NewTaskPage />} />
-          <Route path="/edit-task/:id" element={<NewTaskPage />} />
+          {/* Rutas que requieren perfil completo */}
+          <Route element={<ProfileVerificationRoute />}>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/add-task" element={<NewTaskPage />} />
+            <Route path="/edit-task/:id" element={<NewTaskPage />} />
+            <Route path="/task-detail/:id" element={<TaskDetailPage />} />
+            <Route
+              path="/invitation/:token"
+              element={<SharedTaskInvitationPage />}
+            />
+          </Route>
+
+          {/* Estas rutas están protegidas pero no requieren perfil completo */}
           <Route path="/update-password" element={<ResetPassword />} />
-          <Route path="/task-detail/:id" element={<TaskDetailPage />} />
-          <Route
-            path="/invitation/:token"
-            element={<SharedTaskInvitationPage />}
-          />
         </Route>
 
         {/* Rutas públicas */}

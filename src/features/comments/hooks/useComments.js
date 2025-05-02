@@ -14,7 +14,7 @@ export const useComments = (taskId) => {
     useCommentsSubscription(setComments);
 
   useEffect(() => {
-    if (taskId) {
+    if (taskId && !profile.is_anonymous) {
       subscribeToComments(taskId, () => CommentService.getComments(taskId));
     }
 

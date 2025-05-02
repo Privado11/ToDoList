@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { useAuthLogic } from "@/features/auth";
 import { NotificationService } from "@/service";
-
 import NotificationGlobalService from "@/service/notification/NotificationGlobalService";
 
 export const useNotifications = () => {
@@ -10,13 +9,27 @@ export const useNotifications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hasMore, setHasMore] = useState(true);
+  const [anonymousMessage, setAnonymousMessage] = useState(null);
   const [page, setPage] = useState(0);
   const limit = 20;
 
   const { profile: user } = useAuthLogic();
 
   useEffect(() => {
-    if (!user) return;
+    if (user?.is_anonymous) {
+      setAnonymousMessage(
+        "Notifications are only available for registered users.\nCreate a full account to access this feature."
+      );
+      setLoading(false);
+      return;
+    }
+
+    setAnonymousMessage(null);
+
+     if (!user) {
+       setLoading(false);
+       return;
+     }
 
     NotificationGlobalService.initialize(user.id);
 
@@ -33,7 +46,7 @@ export const useNotifications = () => {
   }, [user]);
 
   const loadMoreNotifications = useCallback(async () => {
-    if (!user || !hasMore || loading) return;
+    if (!user || user.is_anonymous || !hasMore || loading) return;
 
     setLoading(true);
     try {
@@ -79,6 +92,7 @@ export const useNotifications = () => {
     loading,
     error,
     hasMore,
+    anonymousMessage,
     refreshNotifications,
     loadMoreNotifications,
     markAsRead,

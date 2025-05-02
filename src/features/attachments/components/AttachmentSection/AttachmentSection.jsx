@@ -95,7 +95,7 @@ const AttachmentSection = ({ attachments = [], taskId }) => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl flex items-center gap-2">
+          <CardTitle className="text-base sm:text-xl flex items-center gap-2">
             <BsFileEarmark className="w-5 h-5" />
             Attachments ({attachments.length})
           </CardTitle>

@@ -1,34 +1,26 @@
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
 import { UserMenu } from "@/features";
-import { AppNotifications, ChatNotifications } from "@/components/header";
+import {
+  AppNotifications,
+  ChatNotifications,
+  SearchComponent,
+} from "@/components/header";
 
 function Header() {
+  const [searchTerm, setSearchTerm] = useState("");
+
   return (
-    <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex flex-1 items-center gap-4">
-        <div className="relative w-full max-w-[300px]">
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
-            <Search className="h-4 w-4" />
-          </div>
-          <Input
-            type="search"
-            placeholder="Search tasks..."
-            className="w-full bg-background hidden lg:block"
-            style={{ paddingLeft: "2rem" }}
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            aria-label="Search"
-          >
-            <Search className="h-4 w-4 text-muted-foreground" />
-          </Button>
-        </div>
+    <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-background/95 px-4 md:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex items-center">
+        <div className="w-10 lg:hidden"></div>
+        <SearchComponent
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          placeholder="Search tasks..."
+        />
       </div>
-      <div className="flex items-center gap-4">
+
+      <div className="flex items-center gap-2 md:gap-4">
         <ChatNotifications />
         <AppNotifications />
         <UserMenu />

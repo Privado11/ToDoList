@@ -1,68 +1,6 @@
 import BaseService from "../base/baseService";
 
 class UserService extends BaseService {
-  static formatTaskResponse(data) {
-    if (!data) return null;
-    return {
-      ...data,
-      ...DEFAULT_BLOCKED_RELATIONS,
-      profiles: data.profiles || [],
-    };
-  }
-
-  static async searchUsers(query, currentUserId) {
-    this.validateRequiredId(currentUserId, "Current User ID");
-
-    try {
-      const { data, error } = await this.supabase.rpc("search_users", {
-        current_user_id: currentUserId,
-        search_query: query,
-      });
-
-      this.handleError(error, "Error searching users");
-
-      return data;
-    } catch (error) {
-      console.error("Error searching users:", error);
-      throw new Error(error.message);
-    }
-  }
-
-  static async getUserById(userId) {
-    this.validateRequiredId(userId, "User ID");
-
-    try {
-      const { data, error } = await this.supabase
-        .from("profiles")
-        .select()
-        .eq("id", userId)
-        .single();
-
-      this.handleError(error, "Error fetching user");
-
-      return data;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-
-  static async getUserByUsername(username) {
-    this.validateRequiredString(username, "Username");
-
-    try {
-      const { data, error } = await this.supabase
-        .from("profiles")
-        .select()
-        .eq("username", username)
-        .single();
-
-      this.handleError(error, "Error fetching user");
-
-      return data;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
 
   static async completeProfile(userId, fullName, password) {
     this.validateRequiredId(userId, "User ID");
@@ -155,13 +93,13 @@ class UserService extends BaseService {
 
     const parts = [];
     if (data.time_remaining_days > 0) {
-      parts.push(`${Math.floor(data.time_remaining_days)} días`);
+      parts.push(`${Math.floor(data.time_remaining_days)} days`);
     }
     if (data.time_remaining_hours > 0) {
-      parts.push(`${Math.floor(data.time_remaining_hours)} horas`);
+      parts.push(`${Math.floor(data.time_remaining_hours)} hours`);
     }
     if (data.time_remaining_minutes > 0) {
-      parts.push(`${Math.floor(data.time_remaining_minutes)} minutos`);
+      parts.push(`${Math.floor(data.time_remaining_minutes)} minutes`);
     }
 
     return `You can update in ${parts.join(", ")}`;
@@ -241,68 +179,7 @@ class UserService extends BaseService {
       throw new Error(error.message);
     }
   }
-  f;
-  static async blockUser(blockerId, blockedId, reason) {
-    this.validateRequiredId(blockerId, "Blocker ID");
-    this.validateRequiredId(blockedId, "Blocked ID");
-
-    try {
-      const { data, error } = await this.supabase.rpc(
-        "block_user_cascade_delete",
-        {
-          blocker_id: blockerId,
-          blocked_id: blockedId,
-          reason,
-        }
-      );
-
-      this.handleError(error, "Error blocking user");
-
-      return data?.[0];
-    } catch (error) {
-      console.error("Error blocking user:", error);
-      throw error;
-    }
-  }
-
-  static async unblockUser(blockerId, blockedId) {
-    this.validateRequiredId(blockerId, "Blocker ID");
-    this.validateRequiredId(blockedId, "Blocked ID");
-
-    try {
-      const { data, error } = await this.supabase
-        .from("blocked_users")
-        .delete()
-        .eq("blocker_id", blockerId)
-        .eq("blocked_id", blockedId);
-
-      this.handleError(error, "Error unblocking user");
-
-      return data?.[0];
-    } catch (error) {
-      console.error("Error unblocking user:", error);
-      throw error;
-    }
-  }
-
-  static async getBlockedUsers(userId) {
-    this.validateRequiredId(userId, "User ID");
-
-    try {
-      const { data, error } = await this.supabase
-        .from("blocked_users")
-        .select(this.BLOCKED_USER_SELECT)
-        .eq("blocker_id", userId)
-        .eq("status", "active");
-
-      this.handleError(error, "Error fetching blocked users");
-
-      this.formatTaskResponse(data);
-    } catch (error) {
-      console.error("Error fetching blocked users:", error);
-      throw error;
-    }
-  }
+  
 }
 
 export default UserService;
