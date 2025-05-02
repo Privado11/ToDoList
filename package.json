@@ -50,7 +50,6 @@
     "react-router-dom": "^6.26.2",
     "sonner": "^2.0.1",
     "tailwind-merge": "^2.5.4",
-    "tailwind-scrollbar": "^4.0.2",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
