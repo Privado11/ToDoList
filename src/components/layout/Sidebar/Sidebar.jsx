@@ -29,10 +29,10 @@ function Sidebar({ setActiveFilter }) {
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-0 left-0 z-50 h-14 w-10 flex items-center justify-center lg:hidden"
+        className="fixed top-0 left-0 z-50 h-16 w-10 flex items-center justify-center lg:hidden"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Menu className="h-6 w-6" />
+        <Menu className="!h-6 !w-6" />
       </Button>
 
       <div
@@ -40,7 +40,7 @@ function Sidebar({ setActiveFilter }) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 transition-transform duration-300 ease-in-out fixed inset-y-0 left-0 z-40 w-64 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:static`}
       >
-        <div className="sticky top-0 z-10 flex h-14 items-center border-b px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="sticky top-0 z-10 flex h-16 items-center border-b px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <Link to="/" className="flex items-center gap-2 font-semibold">
             <CheckSquare className="h-6 w-6" />
             <span>Piranha Planner</span>

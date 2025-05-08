@@ -84,14 +84,14 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
       onClick={onClick}
     >
       <ChevronRight
-        className={`absolute right-6 text-slate-400 text-sm transition-all duration-300 ease-in-out ${
+        className={`absolute right-6 text-slate-400 text-base transition-all duration-300 ease-in-out ${
           rotateIcon ? "rotate-90" : ""
         }`}
       />
       <div className="inline-flex self-start p-2 rounded-lg bg-sky-50 text-sky-500 w-8 h-8">
         {icon}
       </div>
-      <span className="text-sm leading-8 text-slate-500 font-normal">
+      <span className="text-base leading-8 text-slate-500 font-normal">
         {text}
       </span>
     </button>
@@ -104,7 +104,7 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
         onClick={handleBackClick}
         type="button"
       >
-        <IoIosArrowRoundBack className="mr-2 h-[1.6rem] w-[1.6rem] text-[2.9rem] text-[#5c6f8a] my-8" />
+        <IoIosArrowRoundBack className="mr-2 h-[1.6rem] w-[1.6rem] text-sm text-[#5c6f8a] my-8" />
         Back
       </button>
 
@@ -141,7 +141,7 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
                 }`}
               >
                 <input
-                  className="mt-2 h-10 w-full rounded-md border border-[#5C6F8A] px-4 py-2 text-sm font-normal text-[#5C6F8A] outline-none"
+                  className="mt-2 h-10 w-full rounded-md border border-[#5C6F8A] px-4 py-2 text-base font-normal text-[#5C6F8A] outline-none"
                   type="password"
                   placeholder="Password"
                   value={password}
@@ -152,7 +152,7 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
 
               {errorMessage && (
                 <div
-                  className={`text-xs text-red-500 transition-all duration-500 ease-in-out ${
+                  className={`text-sm text-red-500 transition-all duration-500 ease-in-out ${
                     showPasswordForm ? "opacity-100" : "opacity-0"
                   }`}
                 >
@@ -182,7 +182,7 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
       <div className="w-full text-center text-[12px] text-[#5c6f8a] font-light mt-4">
         <span
           onClick={() => navigate("/password-reset", { state: { email } })}
-          className="ml-0.5 cursor-pointer text-xs font-medium text-[#6E829E] hover:underline"
+          className="ml-0.5 cursor-pointer text-sm font-medium text-[#6E829E] hover:underline"
         >
           Forgot password?
         </span>

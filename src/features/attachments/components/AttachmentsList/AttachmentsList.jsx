@@ -7,25 +7,25 @@ const AttachmentsList = ({ attachments, onDeleteAttachment }) => {
   return (
     <div className="space-y-4">
       {attachments.length === 0 ? (
-        <p className="text-gray-500 text-xs sm:text-lg">
-          No attachments for this task
+        <p className="text-gray-500 text-base sm:text-lg">
+          No attachments for this task.
         </p>
       ) : (
         attachments.map((attachment, index) => (
           <div
             key={`${attachment.file_name}-${index}`}
-            className="flex items-center justify-between bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            className="flex items-center justify-between bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors "
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-grow overflow-hidden">
               {fileUtils.renderFileIcon(
                 attachment.file_type,
-                "h-6 w-6 text-gray-600"
+                "h-6 w-6 text-gray-600 flex-shrink-0"
               )}
-              <div>
-                <h3 className="font-medium text-xs sm:text-lg">
+              <div className="overflow-hidden">
+                <h3 className="font-medium text-sm sm:text-lg truncate">
                   {attachment.file_name}
                 </h3>
-                <div className="text-xxs sm:text-lg text-gray-500 space-x-2">
+                <div className="text-xs sm:text-lg text-gray-500 space-x-2">
                   <span>{fileUtils.formatFileSize(attachment.file_size)}</span>
                   <span>•</span>
                   <span>
@@ -34,7 +34,7 @@ const AttachmentsList = ({ attachments, onDeleteAttachment }) => {
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-shrink-0 ml-4">
               <Button
                 variant="ghost"
                 size="icon"

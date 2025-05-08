@@ -18,8 +18,8 @@ const UserActionButtons = ({ user, handleAction }) => {
     return (
       <div className="w-full flex gap-2 mt-2 pl-11 pr-2">
         <Button
-          size="sm"
-          className="h-6 px-2 py-0 text-xs w-1/2  hover:bg-blue-700 transition-colors duration-150"
+          size="base"
+          className="h-8 px-2 py-0 text-sm w-1/2  hover:bg-blue-700 transition-colors duration-150"
           onClick={(e) => {
             e.stopPropagation();
             handleAction(user, "acceptFriendRequest");
@@ -29,7 +29,7 @@ const UserActionButtons = ({ user, handleAction }) => {
         </Button>
         <Button
           size="sm"
-          className="h-6 px-2 py-0 text-xs w-1/2 bg-red-600 hover:bg-red-700 transition-colors duration-150"
+          className="h-8 px-2 py-0 text-sm w-1/2 bg-red-600 hover:bg-red-700 transition-colors duration-150"
           onClick={(e) => {
             e.stopPropagation();
             handleAction(user, "rejectFriendRequest");
@@ -45,8 +45,8 @@ const UserActionButtons = ({ user, handleAction }) => {
   return (
     <div className="w-full flex mt-2 pl-11 pr-2">
       <Button
-        size="sm"
-        className="h-6 px-2 py-0 text-xs w-full hover:bg-blue-900 transition-colors duration-150"
+        size="lg"
+        className="h-8 px-2 py-0 text-sm w-full hover:bg-blue-900 transition-colors duration-150"
         onClick={(e) => {
           e.stopPropagation();
           handleAction(user, getButtonConfig(user).action);

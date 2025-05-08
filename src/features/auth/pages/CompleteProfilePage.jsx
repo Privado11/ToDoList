@@ -373,7 +373,7 @@ function CompleteProfilePage() {
               </p>
             )}
           </div>
-
+            
           <button
             type="submit"
             disabled={!isFormValid || isSubmitting}

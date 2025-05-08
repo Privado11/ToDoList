@@ -15,7 +15,9 @@ export const useComments = (taskId) => {
 
   useEffect(() => {
     if (taskId && !profile.is_anonymous) {
-      subscribeToComments(taskId, () => CommentService.getComments(taskId));
+      subscribeToComments(taskId, () =>
+        CommentService.getComments(taskId, profile.id)
+      );
     }
 
     return () => {
@@ -28,7 +30,7 @@ export const useComments = (taskId) => {
 
     try {
       setIsLoading(true);
-      const data = await CommentService.getComments(taskId);
+      const data = await CommentService.getComments(taskId, profile.id);
       setComments(data);
       setError(null);
     } catch (err) {
@@ -93,8 +95,11 @@ export const useComments = (taskId) => {
 
       const updatedComment = await CommentService.updateComment(
         commentId,
-        newContent
+        newContent,
+        profile.id
       );
+
+      console.log("Updated comment:", updatedComment);
 
       setComments((prev) =>
         prev.map((comment) =>

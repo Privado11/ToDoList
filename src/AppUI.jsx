@@ -12,57 +12,8 @@ import {
   SignUp,
   TaskDetailPage,
 } from "./features";
+import { CompleteProfileRoute, ProfileVerificationRoute, ProtectedRoute, PublicRoute } from "./routes/RouteGuards";
 
-const LoadingScreen = () => (
-  <div className="flex justify-center items-center h-screen">Cargando...</div>
-);
-
-
-export const ProfileVerificationRoute = () => {
-  const { user, loading, isProfileComplete } = useAuth();
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  if (user && !isProfileComplete()) {
-    return <Navigate to="/complete-profile" replace />;
-  }
-
-  return <Outlet />;
-};
-
-
-export const CompleteProfileRoute = () => {
-  const { user, loading, isProfileComplete } = useAuth();
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  
-  if (user && isProfileComplete()) {
-    return <Navigate to="/" replace />;
-  }
-
-  return <Outlet />;
-};
-
-export const ProtectedRoute = () => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  return user ? <Outlet /> : <Navigate to="/login" replace />;
-};
-
-export const PublicRoute = () => {
-  const { user } = useAuth();
-
-  return user ? <Navigate to="/" replace /> : <Outlet />;
-};
 
 function AppUI() {
   return (

@@ -9,15 +9,15 @@ class CommentService extends BaseService {
     )
   `;
 
-  static async getComments(taskId) {
+  static async getComments(taskId, userId) {
     this.validateRequiredId(taskId, "Task ID");
+    this.validateRequiredId(userId, "User ID");
 
     try {
-      const { data, error } = await this.supabase
-        .from("comments")
-        .select(this.COMMENTS_SELECT)
-        .eq("task_id", taskId)
-        .order("created_at", { ascending: true });
+      const { data, error } = await this.supabase.rpc("get_task_comments", {
+        task_id: taskId,
+        current_user_id: userId,
+      });
 
       this.handleError(error, "Error fetching comments");
       return data;
@@ -32,10 +32,9 @@ class CommentService extends BaseService {
       id: `temp-${Date.now()}`,
       content,
       task_id: taskId,
-      profiles: {
-        full_name: user?.full_name,
-      },
+      author_name: user?.full_name,
       created_at: new Date().toISOString(),
+      is_author: true,
     };
   }
 
@@ -72,18 +71,19 @@ class CommentService extends BaseService {
     }
   }
 
-  static async updateComment(commentId, newContent) {
+  static async updateComment(commentId, newContent, userId) {
     this.validateRequiredId(commentId, "Comment ID");
+    this.validateRequiredId(userId, "User ID");
 
     try {
-      const { data, error } = await this.supabase
-        .from("comments")
-        .update({ content: newContent })
-        .eq("id", commentId)
-        .select();
+      const { data, error } = await this.supabase.rpc("update_task_comment", {
+        p_user_id: userId,
+        p_comment_id: commentId,
+        p_content: newContent,
+      });
 
       this.handleError(error, "Error updating comment");
-      return data[0];
+      return data;
     } catch (error) {
       console.error("Error updating comment:", error);
       throw error;

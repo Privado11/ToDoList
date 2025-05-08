@@ -16,7 +16,8 @@ import {
 } from "@/features";
 
 function TaskDetailPage() {
-  const { getTaskById, selectedTask, attachments } = useTaskContext();
+  const { getTaskById, selectedTask, attachments, sharedTasks, comments } =
+    useTaskContext();
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -117,9 +118,9 @@ function TaskDetailPage() {
 
         <AttachmentSection attachments={attachments} />
 
-        <SharedWithSection />
+        <SharedWithSection sharedTasks={sharedTasks}/>
 
-        <CommentSection highlightedComment={highlightedComment} />
+        <CommentSection comments={comments} highlightedComment={highlightedComment} />
       </div>
     </div>
   );

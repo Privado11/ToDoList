@@ -15,19 +15,26 @@ export function DialogConfirmation({
   onConfirm,
   title,
   description,
-  cancelText = "Cancelar",
-  confirmText = "Confirmar",
+  cancelText = "Cancel",
+  confirmText = "Confirm",
 }) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+      <AlertDialogContent className="max-w-xs sm:max-w-md w-full p-4 rounded-lg text-center max-h-[400px]">
+        <AlertDialogHeader className="space-y-3">
+          <AlertDialogTitle className="text-lg font-semibold ">
+            {title}
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-base">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{cancelText}</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>
+
+        <AlertDialogFooter className="flex flex-row justify-center space-x-3 mt-4 gap-2">
+          <AlertDialogCancel className="flex-1 m-0">
+            {cancelText}
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm} className="flex-1 m-0 bg-red-500">
             {confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>

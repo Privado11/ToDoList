@@ -4,7 +4,6 @@ import { useAuth } from "@/context/AuthContext";
 import { FaUserSecret } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
-import { set } from "date-fns";
 
 const providers = [
   { id: 1, name: "Google", icon: <FcGoogle /> },
@@ -118,14 +117,14 @@ function SignInOptions({ changeToPasswordScreen }) {
           onClick={() => handleSignIn(provider)}
           disabled={loading}
         >
-          <span className="mr-2 text-xl">{provider.icon}</span>
+          <span className="mr-2 text-2xl">{provider.icon}</span>
           Sign In {provider.id !== 3 ? "With" : "As"} {provider.name}
         </button>
       ))}
 
       <div className="relative flex items-center justify-center my-4">
         <div className="h-px flex-1 bg-slate-200"></div>
-        <span className="relative px-4 text-sm font-medium text-slate-500 bg-white">
+        <span className="relative px-4 text-base font-medium text-slate-500 bg-white">
           or
         </span>
         <div className="h-px flex-1 bg-slate-200"></div>
@@ -135,7 +134,7 @@ function SignInOptions({ changeToPasswordScreen }) {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-slate-700 mb-1"
+            className="block text-base font-medium text-slate-700 mb-1"
           >
             Email
           </label>
@@ -149,25 +148,25 @@ function SignInOptions({ changeToPasswordScreen }) {
             className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
           />
           {emailError && (
-            <p className="mt-1 text-xs text-red-500">{emailError}</p>
+            <p className="mt-1 text-sm text-red-500">{emailError}</p>
           )}
           {errorMessage && (
-            <p className="mt-1 text-xs text-red-500">{errorMessage}</p>
+            <p className="mt-1 text-sm text-red-500">{errorMessage}</p>
           )}
           {emailResend && (
-            <p className="mt-1 text-xs text-green-500">{emailResend}</p>
+            <p className="mt-1 text-sm text-green-500">{emailResend}</p>
           )}
 
           {needsVerification && (
             <div className="mt-2">
-              <p className="text-xs text-amber-600 mb-1">
+              <p className="text-sm text-amber-600 mb-1">
                 Your email is not verified yet. Please check your inbox or
                 request a new verification email.
               </p>
               <button
                 type="button"
                 onClick={handleResendVerification}
-                className="text-xs font-medium text-sky-600 hover:text-sky-800"
+                className="text-sm font-medium text-sky-600 hover:text-sky-800"
                 disabled={loading}
               >
                 Resend verification email
@@ -186,7 +185,7 @@ function SignInOptions({ changeToPasswordScreen }) {
       </form>
 
       <div className="mt-4 w-full text-center">
-        <span className="text-xs text-slate-500">
+        <span className="text-sm text-slate-500">
           Need an account?{" "}
           <span
             onClick={() => navigate("/signup", { state: { email } })}

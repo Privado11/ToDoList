@@ -95,7 +95,7 @@ const AttachmentSection = ({ attachments = [], taskId }) => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="text-base sm:text-xl flex items-center gap-2">
+          <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
             <BsFileEarmark className="w-5 h-5" />
             Attachments ({attachments.length})
           </CardTitle>
@@ -122,7 +122,17 @@ const AttachmentSection = ({ attachments = [], taskId }) => {
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteAttachment}
         title="Confirm file deletion"
-        description={`Are you sure you want to delete the file  ${attachmentToDelete?.file_name}?. Do you want to continue?`}
+        description={
+          <>
+            Are you sure you want to delete the file{" "}
+            <strong>
+              {attachmentToDelete?.file_name.length > 30
+                ? attachmentToDelete.file_name.slice(0, 27) + "..."
+                : attachmentToDelete?.file_name}
+            </strong>
+            ? Do you want to continue?
+          </>
+        }
         cancelText="Cancel"
         confirmText="Yes, delete"
       />

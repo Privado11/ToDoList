@@ -47,7 +47,7 @@ const NotificationsPopover = ({
         >
           {icon}
           {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-blue-500">
+            <Badge className="absolute -top-1 -right-1 !h-5 !w-5 flex items-center justify-center p-0 bg-blue-500">
               {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
           )}

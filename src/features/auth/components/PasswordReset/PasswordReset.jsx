@@ -71,7 +71,7 @@ function PasswordReset() {
         <form className="text-left mt-4" onSubmit={handleSubmit}>
           <label
             htmlFor="email"
-            className="text-sm font-medium leading-8 text-[#5C6F8A]"
+            className="text-base font-medium leading-8 text-[#5C6F8A]"
           >
             Email
           </label>
@@ -85,10 +85,10 @@ function PasswordReset() {
             className="mb-2 h-10 w-full rounded-md border border-[#5C6F8A] px-4 py-2 text-sm font-normal text-[#5C6F8A] outline-none"
           />
           {emailError && (
-            <div className="mb-4 text-xs text-red-500">{emailError}</div>
+            <div className="mb-4 text-sm text-red-500">{emailError}</div>
           )}
           {successMessage && (
-            <div className="mb-4 text-xs text-green-500">{successMessage}</div>
+            <div className="mb-4 text-sm text-green-500">{successMessage}</div>
           )}
           <button
             type="submit"

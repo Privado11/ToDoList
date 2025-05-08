@@ -28,7 +28,7 @@ const STATUS_CONFIG = {
   },
 };
 
-function SearchComponent({ placeholder = "Search tasks..." }) {
+function SearchComponent({ placeholder = "Search tasks and users..." }) {
   const {
     query,
     setQuery,
@@ -48,9 +48,6 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
   const resultsRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log(users);
-  }, [users]);
 
   const getFilteredResults = () => {
     const filteredTasks = query
@@ -167,7 +164,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
     "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full";
 
   return (
-    <div className="relative w-full max-w-[300px]" ref={searchInputRef}>
+    <div className="relative w-full max-w-[300px] h-full" ref={searchInputRef}>
       <div className="relative hidden md:block">
         <div className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
           <Search className="h-4 w-4" />
@@ -188,7 +185,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
           >
             <div className="flex border-b sticky top-0 bg-white z-30 shadow-sm">
               <button
-                className={`flex-1 py-2 text-sm font-medium ${
+                className={`flex-1 py-2 text-basefont-medium ${
                   activeTab === "all"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-500 hover:bg-gray-100"
@@ -198,7 +195,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                 All
               </button>
               <button
-                className={`flex-1 py-2 text-sm font-medium ${
+                className={`flex-1 py-2 text-base font-medium ${
                   activeTab === "tasks"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-500 hover:bg-gray-100"
@@ -208,7 +205,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                 Tasks ({filteredTasks.length})
               </button>
               <button
-                className={`flex-1 py-2 text-sm font-medium ${
+                className={`flex-1 py-2 text-base font-medium ${
                   activeTab === "users"
                     ? "text-blue-600 border-b-2 border-blue-600"
                     : "text-gray-500 hover:bg-gray-100"
@@ -226,7 +223,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                     (activeTab === "all" || activeTab === "tasks") && (
                       <div>
                         {activeTab === "all" && (
-                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50 sticky top-[38px] z-20 border-b">
+                          <div className="px-3 py-2 text-base font-semibold text-gray-500 bg-gray-50 sticky top-[38px] z-20 border-b">
                             TASKS
                           </div>
                         )}
@@ -253,25 +250,25 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                                           className={`w-3 h-3 ${statusConfig.color}`}
                                         />
                                       )}
-                                      <div className="font-medium text-sm truncate max-w-[200px]">
+                                      <div className="font-medium text-base truncate max-w-[200px]">
                                         {task.title}
                                       </div>
                                     </div>
                                     {task.description && (
-                                      <div className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                      <div className="text-base text-gray-500 mt-1 line-clamp-1">
                                         {task.description}
                                       </div>
                                     )}
                                     <div className="flex justify-between mt-1">
                                       <span
-                                        className={`text-xxs ${getPriorityColor(
+                                        className={`text-sm ${getPriorityColor(
                                           task.priorities.level
                                         )}`}
                                       >
                                         {task.priorities.level}
                                       </span>
                                       {task.due_date && (
-                                        <span className="text-xxs text-gray-500">
+                                        <span className="text-sm text-gray-500">
                                           Due {formatDate(task.due_date)}
                                         </span>
                                       )}
@@ -289,7 +286,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                     (activeTab === "all" || activeTab === "users") && (
                       <div>
                         {activeTab === "all" && (
-                          <div className="px-3 py-2 text-xs font-semibold text-gray-500 bg-gray-50 sticky top-[38px] z-20 border-b">
+                          <div className="px-3 py-2 text-base font-semibold text-gray-500 bg-gray-50 sticky top-[38px] z-20 border-b">
                             USERS
                           </div>
                         )}
@@ -321,7 +318,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                                           <div className="font-medium text-sm ">
                                             {user.full_name}
                                           </div>
-                                          <div className="text-xs text-gray-500">
+                                          <div className="text-base text-gray-500">
                                             {user.username}
                                           </div>
                                         </div>
@@ -351,7 +348,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
         )}
       </div>
 
-      <div className="md:hidden">
+      <div className="md:hidden h-full">
         {isSearchOpen ? (
           <div className="fixed inset-0 z-[9999] bg-white md:hidden flex flex-col">
             <div className="flex h-16 w-13 items-center gap-2 border-b px-10 sticky top-0 bg-white z-50 shadow-sm">
@@ -381,7 +378,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
               <div className="absolute top-14 flex flex-col w-full overflow-y-auto h-screen">
                 <div className="flex border-b sticky  bg-white z-40 shadow-sm">
                   <button
-                    className={`flex-1 py-2 text-xs font-medium ${
+                    className={`flex-1 py-2 text-base font-medium ${
                       activeTab === "all"
                         ? "text-blue-600 border-b-2 border-blue-600"
                         : "text-gray-500 hover:bg-gray-100"
@@ -391,7 +388,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                     All
                   </button>
                   <button
-                    className={`flex-1 py-2 text-xs font-medium ${
+                    className={`flex-1 py-2 text-base font-medium ${
                       activeTab === "filteredTasks"
                         ? "text-blue-600 border-b-2 border-blue-600"
                         : "text-gray-500 hover:bg-gray-100"
@@ -401,7 +398,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                     Tasks ({filteredTasks.length})
                   </button>
                   <button
-                    className={`flex-1 py-2 text-xs font-medium ${
+                    className={`flex-1 py-2 text-base font-medium ${
                       activeTab === "users"
                         ? "text-blue-600 border-b-2 border-blue-600"
                         : "text-gray-500 hover:bg-gray-100"
@@ -421,7 +418,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                         (activeTab === "all" || activeTab === "tasks") && (
                           <div>
                             {activeTab === "all" && (
-                              <div className="px-4 py-2 text-xxs font-semibold text-gray-500 bg-gray-50 sticky z-30 border-b">
+                              <div className="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 sticky z-30 border-b">
                                 TASKS
                               </div>
                             )}
@@ -445,25 +442,25 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                                               className={`w-3 h-3 ${statusConfig.color}`}
                                             />
                                           )}
-                                          <div className="font-medium text-xs truncate">
+                                          <div className="font-medium text-lg truncate">
                                             {task.title}
                                           </div>
                                         </div>
                                         {task.description && (
-                                          <div className="text-xs text-gray-500 mt-2 ml-7 line-clamp-3">
+                                          <div className="text-base text-gray-500 mt-2 ml-7 line-clamp-3">
                                             {task.description}
                                           </div>
                                         )}
                                         <div className="flex justify-between mt-2 ml-7">
                                           <span
-                                            className={`text-xxs ${getPriorityColor(
+                                            className={`text-sm ${getPriorityColor(
                                               task.priorities.level
                                             )}`}
                                           >
                                             {task.priorities.level}
                                           </span>
                                           {task.due_date && (
-                                            <span className="text-xxs text-gray-500">
+                                            <span className="text-sm text-gray-500">
                                               Due {formatDate(task.due_date)}
                                             </span>
                                           )}
@@ -481,7 +478,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                         (activeTab === "all" || activeTab === "users") && (
                           <div>
                             {activeTab === "all" && (
-                              <div className="px-4 py-2 text-xxs font-semibold text-gray-500 bg-gray-50 sticky top-0 z-30 border-b">
+                              <div className="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 sticky top-0 z-30 border-b">
                                 USERS
                               </div>
                             )}
@@ -497,16 +494,16 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                                             <img
                                               src={user.avatar_url}
                                               alt={user.username}
-                                              className="h-8 w-8 rounded-full object-cover"
+                                              className="h-12 w-12 rounded-full object-cover"
                                             />
                                           ) : (
-                                            <User className="h-8 w-8 text-gray-400 bg-gray-100 rounded-full p-1" />
+                                            <User className="h-12 w-12 text-gray-400 bg-gray-100 rounded-full p-1" />
                                           )}
                                           <div>
-                                            <div className="font-medium text-xs">
+                                            <div className="font-medium text-lg">
                                               {user.full_name}
                                             </div>
-                                            <div className="text-xs text-gray-500">
+                                            <div className="text-base text-gray-500">
                                               {user.username}
                                             </div>
                                           </div>
@@ -526,7 +523,7 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
                         )}
                     </div>
                   ) : (
-                    <div className="p-8 text-center text-gray-500 text-xs">
+                    <div className="p-8 text-center text-gray-500 text-base">
                       No results found for "{query}"
                     </div>
                   )}
@@ -538,11 +535,11 @@ function SearchComponent({ placeholder = "Search tasks..." }) {
           <Button
             variant="ghost"
             size="icon"
-            className="flex md:hidden"
+            className="flex md:hidden h-full"
             aria-label="Search"
             onClick={() => setIsSearchOpen(true)}
           >
-            <Search className="h-4 w-4 text-muted-foreground" />
+            <Search className="!w-5 !h-5" />
           </Button>
         )}
       </div>

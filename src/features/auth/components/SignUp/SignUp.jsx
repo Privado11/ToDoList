@@ -118,7 +118,7 @@ function SignUp() {
             />
           </div>
 
-          <h1 className="text-2xl font-semibold text-slate-700">Sign Up</h1>
+          <h1 className="text-3xl font-semibold text-slate-700">Sign Up</h1>
           <button
             className="flex items-center text-sm font-medium text-slate-600 mx-auto mt-2"
             onClick={handleBackClick}
@@ -135,14 +135,14 @@ function SignUp() {
               className="flex w-full items-center justify-center rounded-md border border-slate-300 bg-white py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all"
               onClick={() => handleSignUp(provider)}
             >
-              <span className="mr-2 text-xl">{provider.icon}</span>
+              <span className="mr-2 text-2xl">{provider.icon}</span>
               Sign Up With {provider.name}
             </button>
           ))}
 
           <div className="relative flex items-center justify-center my-4">
             <div className="h-px flex-1 bg-slate-200"></div>
-            <span className="relative px-4 text-sm font-medium text-slate-500 bg-white">
+            <span className="relative px-4 text-bas font-medium text-slate-500 bg-white">
               or
             </span>
             <div className="h-px flex-1 bg-slate-200"></div>
@@ -152,7 +152,7 @@ function SignUp() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-slate-700 mb-1"
+                className="block text-base font-medium text-slate-700 mb-1"
               >
                 Email
               </label>
@@ -167,12 +167,12 @@ function SignUp() {
               />
               {emailError && (
                 <div className="mt-2">
-                  <p className="text-xs text-red-500">{emailError}</p>
+                  <p className="text-sm text-red-500">{emailError}</p>
                   {emailError.includes("already registered") && (
                     <button
                       type="button"
                       onClick={handleSignInRedirect}
-                      className="text-xs text-sky-600 font-medium mt-1 hover:text-sky-700"
+                      className="text-sm text-sky-600 font-medium mt-1 hover:text-sky-700"
                     >
                       Go to sign in page
                     </button>

@@ -26,7 +26,7 @@ const AppNotifications = () => {
     loadMoreNotifications,
     markAsRead,
     markAllAsRead,
-    fetchNotifications,
+    refreshNotifications,
   } = useNotification();
   const { acceptFriendRequest, rejectFriendRequest } = useFriendShipContext();
   const { acceptTaskShare, rejectedTaskShare } = useTaskContext();
@@ -108,15 +108,15 @@ const AppNotifications = () => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case "task_comment":
-        return <MessageSquare className="h-3 w-3 text-blue-500" />;
+        return <MessageSquare className="h-4 w-4 text-blue-500" />;
       case "task_share_request":
-        return <Share className="h-3 w-3 text-purple-500" />;
+        return <Share className="h-4 w-4 text-purple-500" />;
       case "task_share_accepted":
-        return <Share className="h-3 w-3 text-purple-500" />;
+        return <Share className="h-4 w-4 text-purple-500" />;
       case "friend_request":
-        return <UserPlus className="h-3 w-3 text-green-500" />;
+        return <UserPlus className="h-4 w-4 text-green-500" />;
       default:
-        return <Bell className="h-3 w-3 text-gray-500" />;
+        return <Bell className="h-4 w-4 text-gray-500" />;
     }
   };
 
@@ -195,13 +195,13 @@ const AppNotifications = () => {
 
   return (
     <NotificationsPopover
-      icon={<Bell className="h-5 w-5" />}
+      icon={<Bell className="!h-5 !w-5" />}
       title="Notifications"
       unreadCount={unreadCount}
       isOpen={isOpen}
       setIsOpen={handleOpenChange}
       loading={loading}
-      refreshAction={fetchNotifications}
+      refreshAction={refreshNotifications}
       markAllAsReadAction={markAllAsRead}
       hasUnread={notifications.some((n) => !n.is_read)}
     >
@@ -227,7 +227,7 @@ const AppNotifications = () => {
                   onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex-shrink-0 relative">
-                    <Avatar className="h-10 w-10">
+                    <Avatar className="h-12 w-12">
                       <AvatarFallback className="text-xs">
                         {content.nameLetter}
                       </AvatarFallback>
@@ -239,8 +239,8 @@ const AppNotifications = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="mb-0.5">
-                      <span className="text-xs font-bold">{content.name}</span>{" "}
-                      <span className="text-xs">
+                      <span className="text-base font-bold">{content.name}</span>{" "}
+                      <span className="text-base">
                         {content.message}
                         {notification.type === "task_comment" &&
                           content.comment && (
@@ -255,7 +255,7 @@ const AppNotifications = () => {
                       </span>
                     </div>
 
-                    <div className="text-xs text-gray-500">
+                    <div className="text-sm text-gray-500">
                       <Clock className="h-2.5 w-2.5 inline mr-1" />
                       {formatTime(notification.created_at)}
                     </div>
@@ -266,7 +266,7 @@ const AppNotifications = () => {
                           <div className="flex gap-2 mt-1">
                             <Button
                               size="sm"
-                              className="h-6 px-2 py-0 text-xs"
+                              className="h-8 px-2 py-0 text-xs"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleNotificationAction(
@@ -278,9 +278,9 @@ const AppNotifications = () => {
                               <Check className="w-2.5 h-2.5 mr-1" /> Accept
                             </Button>
                             <Button
-                              size="sm"
+                              size="base"
                               variant="outline"
-                              className="h-6 px-2 py-0 text-xs"
+                              className="h-8 px-2 py-0 text-sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleNotificationAction(
@@ -297,8 +297,8 @@ const AppNotifications = () => {
                         {notification.type === "friend_request" && (
                           <div className="flex gap-2 mt-1">
                             <Button
-                              size="sm"
-                              className="h-6 px-2 py-0 text-xs"
+                              size="base"
+                              className="h-8 px-2 py-0 text-sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleNotificationAction(
@@ -310,9 +310,9 @@ const AppNotifications = () => {
                               <Check className="w-2.5 h-2.5 mr-1" /> Accept
                             </Button>
                             <Button
-                              size="sm"
+                              size="base"
                               variant="outline"
-                              className="h-6 px-2 py-0 text-xs"
+                              className="h-8 px-2 py-0 text-sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleNotificationAction(
@@ -330,7 +330,7 @@ const AppNotifications = () => {
                   </div>
                   <div className="flex-shrink-0">
                     {notification.is_read ? (
-                      <Check className="h-3 w-3 text-green-500" />
+                      <Check className="h-4 w-4 text-green-500" />
                     ) : (
                       <div className="h-1.5 w-1.5 bg-blue-500 rounded-full"></div>
                     )}
@@ -346,10 +346,10 @@ const AppNotifications = () => {
             <div className="p-2 text-center">
               <Button
                 variant="ghost"
-                size="sm"
+                size="base"
                 onClick={loadMoreNotifications}
                 disabled={loading}
-                className="text-blue-600 hover:text-blue-800 text-xs h-6"
+                className="text-blue-600 hover:text-blue-800 text-sm h-8"
               >
                 {loading ? <span className="mr-2">Loading</span> : "Load more"}
               </Button>

@@ -25,8 +25,8 @@ const OAuthSignInPage = () => {
             />
           </div>
 
-          <h1 className="text-2xl font-semibold text-slate-700">Sign In</h1>
-          <p className="text-sm font-medium text-slate-600">
+          <h1 className="text-3xl font-semibold text-slate-700">Sign In</h1>
+          <p className="text-base font-medium text-slate-600">
             Welcome user, please sign in to continue
           </p>
         </div>

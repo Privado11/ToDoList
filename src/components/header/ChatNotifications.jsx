@@ -43,7 +43,7 @@ const ChatNotifications = () => {
 
   return (
     <NotificationsPopover
-      icon={<MessageSquare className="h-5 w-5" />}
+      icon={<MessageSquare className="!h-5 !w-5" />}
       title="Chats"
       unreadCount={totalUnread}
       isOpen={isOpen}
@@ -72,7 +72,7 @@ const ChatNotifications = () => {
                 onClick={() => handleConversationClick(conversation)}
               >
                 <div className="flex-shrink-0 mt-1">
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-12 w-12">
                     <AvatarImage
                       src={
                         conversation.other_user_avatar_url ||
@@ -88,15 +88,15 @@ const ChatNotifications = () => {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center gap-1 mb-1">
-                    <p className="font-medium text-sm mr-1 truncate">
+                    <p className="font-medium text-base mr-1 truncate">
                       {conversation.other_user_full_name}
                     </p>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-sm text-gray-500">
                       {formatConversationDate(conversation.last_message_at)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <p className="text-xs text-gray-500 mr-1 truncate">
+                    <p className="text-sm text-gray-500 mr-1 truncate">
                       {conversation.last_message}
                     </p>
                     {conversation.unread_count > 0 && (
