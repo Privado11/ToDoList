@@ -12,7 +12,6 @@ class NotificationGlobalService {
   static initialize(userId) {
     if (!userId || userId === this.currentUserId) return;
 
- 
     if (this.isSubscribed && this.currentUserId) {
       NotificationSuscriptionService.unsubscribeFromNotifications(
         this.currentUserId
@@ -21,7 +20,6 @@ class NotificationGlobalService {
 
     this.currentUserId = userId;
 
-  
     NotificationSuscriptionService.subscribeToUserNotifications(userId, {
       onNotificationsChange: (updatedNotifications) => {
         this.notifications = updatedNotifications;
@@ -31,7 +29,6 @@ class NotificationGlobalService {
     });
 
     this.isSubscribed = true;
-
 
     this.fetchNotifications();
   }
@@ -80,12 +77,10 @@ class NotificationGlobalService {
     }
   }
 
-
   static async markAsRead(notificationId) {
     if (!this.currentUserId || !notificationId) return;
 
     try {
-
       this.notifications = this.notifications.map((notification) =>
         notification.id === notificationId
           ? { ...notification, is_read: true }
@@ -98,7 +93,6 @@ class NotificationGlobalService {
         this.currentUserId
       );
     } catch (error) {
- 
       this.notifications = this.notifications.map((notification) =>
         notification.id === notificationId && notification.is_read
           ? { ...notification, is_read: false }
@@ -127,6 +121,10 @@ class NotificationGlobalService {
       this.notifySubscribers();
       console.error("Error marking all notifications as read:", error);
     }
+  }
+
+  static handleLogout() {
+    this.cleanup();
   }
 }
 

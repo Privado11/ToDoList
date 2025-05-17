@@ -4,45 +4,54 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import logoImg from "../../../../assets/logo-piranha.webp";
 import { useAuth } from "@/context/AuthContext";
+import MagicLinkModal from "../SignIn/MagicLinkModal";
 
 function PasswordReset() {
   const { resetPassword } = useAuth();
   const location = useLocation();
   const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); 
+  const [showMagicModal, setShowMagicModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     setEmail(location.state?.email || "");
   }, [location]);
 
-  const navigate = useNavigate();
-
-  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isValidEmail(email)) {
-      setEmailError("Please enter a valid email.");
-      return;
-    } else {
-      setEmailError("");
-    }
-
     try {
       await resetPassword(email);
-      setSuccessMessage("A reset link has been sent to your email!"); 
-      setTimeout(() => {
-        navigate("/");
-      }, 3000); 
+      setShowMagicModal(true);
     } catch (error) {
-      console.error("Error signing up:", error);
+      console.error("Password reset error.", error);
     }
   };
 
   const handleBackClick = () => {
     navigate("/login");
+  };
+
+  const closeMagicModal = () => {
+    setShowMagicModal(false);
+    setResendMessage("");
+  };
+
+  const handleResendMagicLink = async () => {
+    setIsResending(true);
+    setResendMessage("");
+    try {
+      await signInWithMagicLink(email);
+      setResendMessage("Magic link resent successfully!");
+    } catch (error) {
+      console.error("Error resending magic link:", error);
+      setErrorMessage(error.message || "Failed to resend magic link");
+    } finally {
+      setIsResending(false);
+    }
   };
 
   return (
@@ -62,9 +71,10 @@ function PasswordReset() {
           <button
             className="flex items-center h-3 mt-4 text-sm font-medium text-slate-600"
             onClick={handleBackClick}
+            type="button"
           >
-            <IoIosArrowRoundBack className="back-icon" />
-            Back
+            <IoIosArrowRoundBack className="mr-2 h-[1.6rem] w-[1.6rem] text-sm text-[#5c6f8a] my-8" />
+            Back to Login
           </button>
         </div>
 
@@ -84,12 +94,10 @@ function PasswordReset() {
             required
             className="mb-2 h-10 w-full rounded-md border border-[#5C6F8A] px-4 py-2 text-sm font-normal text-[#5C6F8A] outline-none"
           />
-          {emailError && (
-            <div className="mb-4 text-sm text-red-500">{emailError}</div>
+          {errorMessage && (
+            <div className="mb-4 text-sm text-red-500">{errorMessage}</div>
           )}
-          {successMessage && (
-            <div className="mb-4 text-sm text-green-500">{successMessage}</div>
-          )}
+
           <button
             type="submit"
             className="mt-2 w-full rounded-md border border-[#3FA6F0] bg-[#3FA6F0] px-4 py-2.5 text-sm font-medium text-white"
@@ -98,6 +106,17 @@ function PasswordReset() {
           </button>
         </form>
       </div>
+      {showMagicModal && (
+        <MagicLinkModal
+          email={email}
+          onClose={closeMagicModal}
+          onResend={handleResendMagicLink}
+          isResending={isResending}
+          mode="reset"
+          open={showMagicModal}
+          message={resendMessage}
+        />
+      )}
     </div>
   );
 }

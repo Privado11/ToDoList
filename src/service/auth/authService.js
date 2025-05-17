@@ -66,7 +66,8 @@ class AuthService {
 
     try {
       const isRegistered = await AuthService.checkEmail(email);
-      if (isRegistered) {
+
+      if (isRegistered.user_exists) {
         throw new Error(
           "This email is already registered. Please sign in instead."
         );
@@ -351,8 +352,10 @@ class AuthService {
 
   static async resetPassword(email) {
     if (!email) throw new Error("Email is required");
+    
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/update-password`,
+      shouldCreateSession: false,
     });
     AuthService.handleAuthError(error, "Error resetting password");
     return data;

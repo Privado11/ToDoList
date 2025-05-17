@@ -7,7 +7,7 @@ import { useTaskContext } from "@/context/TaskContext";
 
 const UserSearchShare = ({ onShareTask }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const { query, setQuery, users, isLoading, error } = useTaskContext();
+  const { query, setQuery, users, isLoading, sharedTaskError } = useTaskContext();
   const [sharing, setSharing] = useState(false);
 
   const handleSelectUser = useCallback(
@@ -28,8 +28,8 @@ const UserSearchShare = ({ onShareTask }) => {
       try {
         await onShareTask(user.user_id);
         removeUser(user.id);
-      } catch (error) {
-        console.error("Sharing error:", error);
+      } catch (sharedTaskError) {
+        console.sharedTaskError("Sharing sharedTaskError:", sharedTaskError);
       } finally {
         setSharing(false);
       }
@@ -45,8 +45,8 @@ const UserSearchShare = ({ onShareTask }) => {
         const userIds = selectedUsers.map((user) => user.user_id);
         await onShareTask(userIds);
         setSelectedUsers([]);
-      } catch (error) {
-        console.error("Sharing error:", error);
+      } catch (sharedTaskError) {
+        console.sharedTaskError("Sharing sharedTaskError:", sharedTaskError);
       } finally {
         setSharing(false);
       }
@@ -79,17 +79,17 @@ const UserSearchShare = ({ onShareTask }) => {
                   </div>
                 )}
 
-                {!isLoading && error && (
-                  <div className="p-4 text-center text-red-500">{error}</div>
+                {!isLoading && sharedTaskError && (
+                  <div className="p-4 text-center text-red-500">{sharedTaskError}</div>
                 )}
 
-                {!isLoading && !error && users && users.length === 0 && (
+                {!isLoading && !sharedTaskError && users && users.length === 0 && (
                   <div className="p-4 text-center text-gray-500">
                     No users found
                   </div>
                 )}
 
-                {!isLoading && !error && users && users.length > 0 && (
+                {!isLoading && !sharedTaskError && users && users.length > 0 && (
                   <ul>
                     {users.map((user, index) => (
                       <li

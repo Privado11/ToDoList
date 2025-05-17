@@ -13,6 +13,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 function Sidebar({ setActiveFilter }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +29,29 @@ function Sidebar({ setActiveFilter }) {
     setIsOpen(false);
     navigate("/");
   };
+
+  const ComingSoonItem = ({ icon, label }) => (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-2 text-muted-foreground cursor-not-allowed"
+            onClick={(e) => e.preventDefault()}
+          >
+            {icon}
+            {label}
+            <span className="ml-auto bg-muted text-muted-foreground text-xs px-2 py-1 rounded-full">
+              Coming soon
+            </span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>This feature will be available soon.</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 
   return (
     <>
@@ -40,8 +69,12 @@ function Sidebar({ setActiveFilter }) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0 transition-transform duration-300 ease-in-out fixed inset-y-0 left-0 z-40 w-64 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:static`}
       >
-        <div className="sticky top-0 z-10 flex h-16 items-center border-b px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <Link to="/" className="flex items-center gap-2 font-semibold">
+        <div className="sticky top-0 z-10 flex h-16 lg:hidden items-center border-b  px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          {/* Show app name in sidebar only on mobile/tablet, hide on large screens */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 font-semibold lg:hidden"
+          >
             <CheckSquare className="h-6 w-6" />
             <span>Piranha Planner</span>
           </Link>
@@ -63,56 +96,26 @@ function Sidebar({ setActiveFilter }) {
                     Dashboard
                   </Link>
                 </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-2"
-                  asChild
-                >
-                  <Link to="/calendar">
-                    <Calendar className="h-4 w-4" />
-                    Calendar
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-2"
-                  asChild
-                >
-                  <Link to="/team">
-                    <Users className="h-4 w-4" />
-                    Team
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-2 lg:hidden"
-                  asChild
-                >
-                  <Link to="/stats">
-                    <BarChart2 className="h-4 w-4" />
-                    Statistics
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-2 lg:hidden"
-                  asChild
-                >
-                  <Link to="/activity">
-                    <Activity className="h-4 w-4" />
-                    Activity
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-2"
-                  asChild
-                >
-                  <Link to="/settings">
-                    <Settings className="h-4 w-4" />
-                    Settings
-                  </Link>
-                </Button>
+                <ComingSoonItem
+                  icon={<Calendar className="h-4 w-4" />}
+                  label="Calendar"
+                />
+                <ComingSoonItem
+                  icon={<Users className="h-4 w-4" />}
+                  label="Team"
+                />
+                <ComingSoonItem
+                  icon={<BarChart2 className="h-4 w-4" />}
+                  label="Statistics"
+                />
+                <ComingSoonItem
+                  icon={<Activity className="h-4 w-4" />}
+                  label="Activity"
+                />
+                <ComingSoonItem
+                  icon={<Settings className="h-4 w-4" />}
+                  label="Settings"
+                />
               </div>
             </div>
             <div className="py-2">

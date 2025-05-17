@@ -11,6 +11,7 @@ function CompleteProfilePage() {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [photoError, setPhotoError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -90,12 +91,15 @@ function CompleteProfilePage() {
 
     if (!isFormValid) return;
 
+    setErrorMessage("");
+
     setIsSubmitting(true);
     try {
       await completeProfile(fullName, password, profilePhoto);
       console.log("Profile completed");
       navigate("/");
     } catch (error) {
+      setErrorMessage("Error completing profile, please try again.");
       console.error("Error signing up:", error);
     } finally {
       setIsSubmitting(false);
@@ -373,6 +377,11 @@ function CompleteProfilePage() {
               </p>
             )}
           </div>
+
+          {errorMessage && ( 
+            <p className="mt-2 text-sm text-red-500">{errorMessage}</p>
+          )}
+
             
           <button
             type="submit"

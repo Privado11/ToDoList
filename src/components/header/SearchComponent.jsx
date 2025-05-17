@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Search, X, CheckCircle, Clock, User, RotateCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTaskContext } from "@/context/TaskContext";
 import { useFriendShipContext } from "@/context/FriendShipContext";
 import UserActionButtons from "./UserActionButtons";
@@ -47,7 +48,6 @@ function SearchComponent({ placeholder = "Search tasks and users..." }) {
   const searchInputRef = useRef(null);
   const resultsRef = useRef(null);
   const navigate = useNavigate();
-
 
   const getFilteredResults = () => {
     const filteredTasks = query
@@ -164,24 +164,26 @@ function SearchComponent({ placeholder = "Search tasks and users..." }) {
     "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full";
 
   return (
-    <div className="relative w-full max-w-[300px] h-full" ref={searchInputRef}>
-      <div className="relative hidden md:block">
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
-          <Search className="h-4 w-4" />
+    <div className="w-full h-full" ref={searchInputRef}>
+      <div className="relative hidden md:flex md:flex-col w-full h-full">
+        <div className="flex items-center w-full h-full">
+          <div className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <Search className="h-4 w-4" />
+          </div>
+          <Input
+            type="search"
+            placeholder={placeholder}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-full pl-8 bg-background"
+            aria-label={placeholder}
+          />
         </div>
-        <Input
-          type="search"
-          placeholder={placeholder}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-8 bg-background"
-          aria-label={placeholder}
-        />
 
         {showResults && (
           <div
             ref={resultsRef}
-            className={`absolute z-[9999] w-full mt-1 bg-white rounded-md border shadow-lg max-h-96 overflow-y-auto ${scrollbarStyle}`}
+            className={`absolute top-full z-[9999] w-full mt-1 bg-white rounded-md border shadow-lg max-h-96 overflow-y-auto ${scrollbarStyle}`}
           >
             <div className="flex border-b sticky top-0 bg-white z-30 shadow-sm">
               <button
@@ -223,7 +225,7 @@ function SearchComponent({ placeholder = "Search tasks and users..." }) {
                     (activeTab === "all" || activeTab === "tasks") && (
                       <div>
                         {activeTab === "all" && (
-                          <div className="px-3 py-2 text-base font-semibold text-gray-500 bg-gray-50 sticky top-[38px] z-20 border-b">
+                          <div className="px-3 py-2 text-sm font-semibold text-gray-500 bg-gray-50 sticky top-[38px] z-20 border-b">
                             TASKS
                           </div>
                         )}
@@ -255,20 +257,20 @@ function SearchComponent({ placeholder = "Search tasks and users..." }) {
                                       </div>
                                     </div>
                                     {task.description && (
-                                      <div className="text-base text-gray-500 mt-1 line-clamp-1">
+                                      <div className="text-sm text-gray-500 mt-1 line-clamp-1">
                                         {task.description}
                                       </div>
                                     )}
                                     <div className="flex justify-between mt-1">
                                       <span
-                                        className={`text-sm ${getPriorityColor(
+                                        className={`text-xs ${getPriorityColor(
                                           task.priorities.level
                                         )}`}
                                       >
                                         {task.priorities.level}
                                       </span>
                                       {task.due_date && (
-                                        <span className="text-sm text-gray-500">
+                                        <span className="text-xs text-gray-500">
                                           Due {formatDate(task.due_date)}
                                         </span>
                                       )}
@@ -286,7 +288,7 @@ function SearchComponent({ placeholder = "Search tasks and users..." }) {
                     (activeTab === "all" || activeTab === "users") && (
                       <div>
                         {activeTab === "all" && (
-                          <div className="px-3 py-2 text-base font-semibold text-gray-500 bg-gray-50 sticky top-[38px] z-20 border-b">
+                          <div className="px-3 py-2 text-sm font-semibold text-gray-500 bg-gray-50 sticky top-[38px] z-20 border-b">
                             USERS
                           </div>
                         )}
@@ -301,24 +303,24 @@ function SearchComponent({ placeholder = "Search tasks and users..." }) {
                                   <div className="flex flex-col">
                                     <div className="w-full px-3 relative group hover:bg-gray-100 transition-colors duration-150 py-2 cursor-pointer">
                                       <div className="flex items-center gap-3 relative z-10">
-                                        {user.avatar_url ? (
-                                          <img
-                                            src={user.avatar_url}
-                                            alt={user.username}
-                                            className="h-8 w-8 rounded-full object-cover"
-                                            onClick={() =>
-                                              openUserProfile(user.user_id)
+                                        <Avatar className="h-12 w-12">
+                                          <AvatarImage
+                                            src={
+                                              user.avatar_url ||
+                                              "/api/placeholder/32/32"
                                             }
+                                            alt={user.full_name}
                                           />
-                                        ) : (
-                                          <User className="h-6 w-6 text-gray-400 bg-gray-100 rounded-full p-1" />
-                                        )}
+                                          <AvatarFallback>
+                                            {user.full_name.charAt(0)}
+                                          </AvatarFallback>
+                                        </Avatar>
 
                                         <div>
-                                          <div className="font-medium text-sm ">
+                                          <div className="font-medium text-base ">
                                             {user.full_name}
                                           </div>
-                                          <div className="text-base text-gray-500">
+                                          <div className="text-sm text-gray-500">
                                             {user.username}
                                           </div>
                                         </div>
@@ -490,15 +492,18 @@ function SearchComponent({ placeholder = "Search tasks and users..." }) {
                                     <div className="relative z-10">
                                       <div className="flex flex-col">
                                         <div className="flex items-center gap-3">
-                                          {user.avatar_url ? (
-                                            <img
-                                              src={user.avatar_url}
-                                              alt={user.username}
-                                              className="h-12 w-12 rounded-full object-cover"
+                                          <Avatar className="h-12 w-12">
+                                            <AvatarImage
+                                              src={
+                                                user.avatar_url ||
+                                                "/api/placeholder/32/32"
+                                              }
+                                              alt={user.full_name}
                                             />
-                                          ) : (
-                                            <User className="h-12 w-12 text-gray-400 bg-gray-100 rounded-full p-1" />
-                                          )}
+                                            <AvatarFallback>
+                                              {user.full_name.charAt(0)}
+                                            </AvatarFallback>
+                                          </Avatar>
                                           <div>
                                             <div className="font-medium text-lg">
                                               {user.full_name}

@@ -10,34 +10,52 @@ import { useTaskContext } from "@/context/TaskContext";
 import { ShareWithFriends, UserSearchShare } from "@/features";
 
 const TaskShareDialog = ({ taskId, open, setOpen }) => {
-  const {shareTask, getAvailableFriendsForTask } = useTaskContext();
+  const { shareTask, getAvailableFriendsForTask, setTasksToShare } =
+    useTaskContext();
   const [friendsList, setFriendsList] = useState([]);
   const [message, setMessage] = useState("");
   const [isSharing, setIsSharing] = useState(false);
   const [shareError, setShareError] = useState(null);
 
+
   useEffect(() => {
-    const fetchFriends = async () => {
-      try {
-        const friends = await getAvailableFriendsForTask(taskId);
-        setFriendsList(friends || []);
-      } catch (error) {
-        console.error("Error fetching friends:", error);
-        setShareError("Failed to load friends list");
+    if (open && taskId) {
+      setTasksToShare(taskId);
+    }
+
+
+    return () => {
+      if (!open) {
+        setTasksToShare(null);
       }
     };
+  }, [open, taskId, setTasksToShare]);
 
-    if (taskId && open) {
+  const fetchFriends = useCallback(async () => {
+    if (!taskId || !open) return;
+
+    try {
+      const friends = await getAvailableFriendsForTask();
+      setFriendsList(friends || []);
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+      setShareError("Failed to load friends list");
+    }
+  }, [taskId, open, getAvailableFriendsForTask]);
+
+
+  useEffect(() => {
+    if (open && taskId) {
       fetchFriends();
     }
-  }, [taskId, getAvailableFriendsForTask, open]); 
+  }, [open, taskId, fetchFriends]);
 
   const handleShareWithUser = useCallback(
     async (recipientId) => {
       setIsSharing(true);
       setShareError(null);
       try {
-        const response = await shareTask(recipientId);  
+        const response = await shareTask(recipientId);
         setMessage(response.message || "Task successfully shared");
       } catch (error) {
         setShareError("Error when sharing the task");
@@ -46,7 +64,7 @@ const TaskShareDialog = ({ taskId, open, setOpen }) => {
         setIsSharing(false);
       }
     },
-    [shareTask, taskId]
+    [shareTask]
   );
 
   const handleShareWithFriends = useCallback(
@@ -60,7 +78,7 @@ const TaskShareDialog = ({ taskId, open, setOpen }) => {
       setShareError(null);
       try {
         const friendIds = selectedFriends.map((friend) => friend.friend_id);
-        const response = await shareTask(taskId, friendIds);
+        const response = await shareTask(friendIds);
         setMessage(response.message || "Task successfully shared with friends");
       } catch (error) {
         setShareError("Error sharing with friends");
@@ -69,13 +87,15 @@ const TaskShareDialog = ({ taskId, open, setOpen }) => {
         setIsSharing(false);
       }
     },
-    [shareTask, taskId]
+    [shareTask]
   );
 
   const handleOpenChange = (newOpen) => {
     if (!newOpen) {
+
       setMessage("");
       setShareError(null);
+      setTasksToShare(null);
     }
     setOpen(newOpen);
   };

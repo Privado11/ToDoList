@@ -48,12 +48,42 @@ const AppNotifications = () => {
     if (!notification.is_read) {
       await markAsRead(notification.id);
     }
-    if (notification.type === "task_comment" && notification.content.task_id) {
-      closePopover();
-      const commentAnchor = notification.content.comment_id
-        ? `#comment-${notification.content.comment_id}`
-        : "";
-      navigate(`/task-detail/${notification.content.task_id}${commentAnchor}`);
+
+    const navigationHandlers = {
+      task_comment: () => {
+        if (notification.content.task_id) {
+          const commentAnchor = notification.content.comment_id
+            ? `#comment-${notification.content.comment_id}`
+            : "";
+          navigate(
+            `/task-detail/${notification.content.task_id}${commentAnchor}`
+          );
+        }
+      },
+      task_completed: () => {
+        if (notification.content.task_id) {
+          navigate(`/task-detail/${notification.content.task_id}`);
+        }
+      },
+      task_share_accepted: () => {
+        if (notification.content.request_id) {
+          navigate(`/task-detail/${notification.content.request_id}`);
+        }
+      },
+      friend_request: () => {
+        if (notification.content.from_user_id) {
+          navigate(`/profile/${notification.content.from_user_id}`);
+        }
+      },
+      friendship_accepted: () => {
+        if (notification.content.from_user_id) {
+          navigate(`/profile/${notification.content.from_user_id}`);
+        }
+      },
+    };
+
+    if (navigationHandlers[notification.type]) {
+      navigationHandlers[notification.type]();
     }
   };
 
@@ -239,7 +269,9 @@ const AppNotifications = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="mb-0.5">
-                      <span className="text-base font-bold">{content.name}</span>{" "}
+                      <span className="text-base font-bold">
+                        {content.name}
+                      </span>{" "}
                       <span className="text-base">
                         {content.message}
                         {notification.type === "task_comment" &&

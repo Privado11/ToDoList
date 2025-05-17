@@ -52,7 +52,7 @@ const TaskHeader = ({ task, onEdit }) => {
       <div className="flex flex-col md:flex-row md:justify-between md:items-center">
         <div className="flex justify-between items-center w-full">
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold pr-4 flex-1">
-            {task.title}
+            {task?.title}
           </h1>
 
           <div className="flex sm:hidden">
@@ -163,18 +163,18 @@ const TaskHeader = ({ task, onEdit }) => {
       <div className="flex flex-wrap gap-2 sm:gap-4">
         <Badge variant="outline" className="gap-1 text-sm sm:text-sm">
           <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-          {task.due_date ? formatDateTime(task.due_date) : "No due date"}
+          {task?.due_date ? formatDateTime(task?.due_date) : "No due date"}
         </Badge>
         <Badge className="bg-red-100 text-red-500 text-sm sm:text-sm">
-          {task.priorities?.level || "No priority"}
+          {task?.priorities?.level || "No priority"}
         </Badge>
         <Badge className="bg-blue-100 text-blue-500 text-sm sm:text-sm">
-          {task.statuses?.name || "No status"}
+          {task?.statuses?.name || "No status"}
         </Badge>
       </div>
 
       <TaskShareDialog
-        taskId={task.id}
+        taskId={task?.id}
         isShared={task?.is_shared}
         open={shareOpen}
         setOpen={setShareOpen}

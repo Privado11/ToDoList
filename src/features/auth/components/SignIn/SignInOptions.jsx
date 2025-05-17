@@ -18,6 +18,7 @@ function SignInOptions({ changeToPasswordScreen }) {
     signInAsGuest,
     resendEmailSignUp,
     checkEmail,
+    isProcessing,
   } = useAuth();
   const location = useLocation();
   const prefilledEmail = location.state?.email || "";
@@ -25,14 +26,14 @@ function SignInOptions({ changeToPasswordScreen }) {
   const [emailError, setEmailError] = useState("");
   const [emailResend, setEmailResend] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);
   const [needsVerification, setNeedsVerification] = useState(false);
   const navigate = useNavigate();
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSignIn = async (provider) => {
-    setLoading(true);
+    if (isProcessing) return;
+
     try {
       switch (provider.id) {
         case 1:
@@ -47,11 +48,8 @@ function SignInOptions({ changeToPasswordScreen }) {
         default:
           throw new Error("Unknown provider");
       }
-      navigate("/");
     } catch (error) {
       setErrorMessage("Error signing in: " + error.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -62,7 +60,6 @@ function SignInOptions({ changeToPasswordScreen }) {
       return;
     }
 
-    setLoading(true);
     setNeedsVerification(false);
 
     try {
@@ -70,25 +67,21 @@ function SignInOptions({ changeToPasswordScreen }) {
 
       if (result.user_exists) {
         if (result.email_verified) {
-          
           changeToPasswordScreen(email);
         } else {
-        
           setNeedsVerification(true);
         }
       } else {
-        
         setEmailError("Email not registered. Would you like to sign up?");
       }
     } catch (error) {
       setErrorMessage("Error checking email: " + error.message);
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   const handleResendVerification = async () => {
-    setLoading(true);
+    if (isProcessing) return;
+
     try {
       await resendEmailSignUp(email);
       setEmailResend("Verification email sent. Please check your inbox.");
@@ -96,8 +89,6 @@ function SignInOptions({ changeToPasswordScreen }) {
       setEmailError("");
     } catch (error) {
       setErrorMessage("Error sending verification email: " + error.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -115,7 +106,7 @@ function SignInOptions({ changeToPasswordScreen }) {
           key={provider.id}
           className="flex w-full items-center justify-center rounded-md border border-slate-300 bg-white py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all"
           onClick={() => handleSignIn(provider)}
-          disabled={loading}
+          disabled={isProcessing}
         >
           <span className="mr-2 text-2xl">{provider.icon}</span>
           Sign In {provider.id !== 3 ? "With" : "As"} {provider.name}
@@ -167,7 +158,7 @@ function SignInOptions({ changeToPasswordScreen }) {
                 type="button"
                 onClick={handleResendVerification}
                 className="text-sm font-medium text-sky-600 hover:text-sky-800"
-                disabled={loading}
+                disabled={isProcessing}
               >
                 Resend verification email
               </button>
@@ -178,9 +169,9 @@ function SignInOptions({ changeToPasswordScreen }) {
         <button
           type="submit"
           className="mt-4 w-full rounded-md px-4 py-2.5 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 transition-all"
-          disabled={loading}
+          disabled={isProcessing}
         >
-          {loading ? "Loading..." : "Next"}
+          {isProcessing ? "Loading..." : "Next"}
         </button>
       </form>
 

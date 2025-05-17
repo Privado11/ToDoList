@@ -59,8 +59,6 @@ class NotificationSuscriptionService extends BaseService {
     if (subscriptionData?.subscription) {
       subscriptionData.subscription.unsubscribe();
       subscriptionMap.delete(id);
-      const date = new Date().toLocaleTimeString();
-      console.log(`Cleared ${type} subscription for ${id} at ${date}`);
     }
   }
 

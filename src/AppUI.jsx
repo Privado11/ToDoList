@@ -1,6 +1,5 @@
-import { Route, Routes, Navigate, Outlet} from "react-router-dom";
+import { Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
-import { useAuth } from "./context/AuthContext";
 import {
   CompleteProfilePage,
   DashboardPage,
@@ -12,13 +11,23 @@ import {
   SignUp,
   TaskDetailPage,
 } from "./features";
-import { CompleteProfileRoute, ProfileVerificationRoute, ProtectedRoute, PublicRoute } from "./routes/RouteGuards";
-
+import {
+  CompleteProfileRoute,
+  ProfileVerificationRoute,
+  ProtectedRoute,
+  PublicRoute,
+  UpdatePasswordRoute,
+} from "./routes/RouteGuards";
+import { MainLayout, SimpleLayout } from "./components/layout/Layouts";
 
 function AppUI() {
   return (
     <>
       <Routes>
+        <Route element={<UpdatePasswordRoute />}>
+          <Route path="/update-password" element={<ResetPassword />} />
+        </Route>
+
         {/* Rutas protegidas */}
         <Route element={<ProtectedRoute />}>
           {/* Ruta de complete-profile con protección especial */}
@@ -28,18 +37,20 @@ function AppUI() {
 
           {/* Rutas que requieren perfil completo */}
           <Route element={<ProfileVerificationRoute />}>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/add-task" element={<NewTaskPage />} />
-            <Route path="/edit-task/:id" element={<NewTaskPage />} />
-            <Route path="/task-detail/:id" element={<TaskDetailPage />} />
-            <Route
-              path="/invitation/:token"
-              element={<SharedTaskInvitationPage />}
-            />
-          </Route>
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<DashboardPage />} />
+            </Route>
 
-          {/* Estas rutas están protegidas pero no requieren perfil completo */}
-          <Route path="/update-password" element={<ResetPassword />} />
+            <Route element={<SimpleLayout />}>
+              <Route path="/add-task" element={<NewTaskPage />} />
+              <Route path="/edit-task/:id" element={<NewTaskPage />} />
+              <Route path="/task-detail/:id" element={<TaskDetailPage />} />
+              <Route
+                path="/invitation/:token"
+                element={<SharedTaskInvitationPage />}
+              />
+            </Route>
+          </Route>
         </Route>
 
         {/* Rutas públicas */}

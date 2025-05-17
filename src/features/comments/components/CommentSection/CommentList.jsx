@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
@@ -9,7 +9,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-function CommentList({ comments = [], onEditComment, onDeleteComment }) {
+function CommentList({
+  comments = [],
+  onEditComment,
+  onDeleteComment,
+  highlightedComment,
+}) {
+
+  useEffect(() => {
+    if (highlightedComment) {
+      const commentElement = document.getElementById(highlightedComment);
+
+      if (commentElement) {
+        commentElement.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        commentElement.classList.add("highlighted-comment");
+
+        setTimeout(() => {
+          commentElement.classList.remove("highlighted-comment");
+        }, 3000);
+      }
+    }
+  }, [highlightedComment, comments]);
+  
   const formatRelativeTime = useCallback((dateString) => {
     if (!dateString) return "Invalid date";
 

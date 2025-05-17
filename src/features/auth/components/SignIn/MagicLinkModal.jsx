@@ -57,18 +57,26 @@ function MagicLinkModal({
       backButtonText: "Back to Login",
       accentColor: "blue",
     },
+    reset: {
+      icon: <Mail className="h-8 w-8 text-blue-600" />,
+      iconBgColor: "bg-blue-50",
+      title: "Password reset link sent!",
+      description: `We've sent an email to ${email} with a link to reset your password.`,
+      backButtonText: "Back to Login",
+      accentColor: "blue",
+    },
   };
 
-  const currentContent = mode === "register" ? content.register : content.login;
+  const currentContent = content[mode] || content.login;
   const accentColor = currentContent.accentColor;
 
   return (
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden">
-        {/* Add DialogTitle component for accessibility */}
+       
         <DialogTitle className="sr-only">{currentContent.title}</DialogTitle>
 
-        {/* Add DialogDescription component for accessibility */}
+     
         <DialogDescription className="sr-only">
           {currentContent.description}
         </DialogDescription>
@@ -85,7 +93,7 @@ function MagicLinkModal({
             </div>
 
             <div className="space-y-2">
-              {/* This visible heading is separate from the DialogTitle */}
+             
               <h2 className="text-2xl font-bold tracking-tight">
                 {currentContent.title}
               </h2>

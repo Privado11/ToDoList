@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-
 import { DialogConfirmation } from "../../../view/DialogConfirmation";
 import { useTaskContext } from "@/context/TaskContext";
 import { AttachmentSelectList, FileUploadArea, TaskForm, UploadingFilesList } from "@/features";
@@ -14,7 +13,7 @@ function NewTaskPage() {
     updateTask,
     selectedTask,
     getTaskById,
-    loading,
+    loadingTasks,
     uploadAttachment,
     deleteAttachment,
     attachments,
@@ -37,19 +36,18 @@ function NewTaskPage() {
   };
 
   const [task, setTask] = useState(initialTaskState);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(false);
   const [uploading, setUploading] = useState([]);
 
 
   useEffect(() => {
     const loadTask = async () => {
       if (id && isInitialLoad) {
-        console.log("Loading task details...");
         try {
           await getTaskById(id);
           setIsInitialLoad(false);
         } catch (error) {
-          console.error("Error loading task:", error);
+          console.error("Error loadingTasks task:", error);
           navigate("/");
         }
       } else if (!id) {
@@ -179,17 +177,10 @@ function NewTaskPage() {
     }
   };
 
-  if (loading && isInitialLoad) {
-    return (
-      <div className="container flex items-center justify-center min-h-screen">
-        <p className="text-lg">Loading task details...</p>
-      </div>
-    );
-  }
 
   return (
-    <div className="container">
-      <Card className="max-w-2xl mx-auto" />
+    <div>
+      <Card className="max-w-2xl mx-auto border-none" />
       <CardHeader>
         <CardTitle className="text-3xl font-bold">
           {id ? "Edit Task" : "New Task"}

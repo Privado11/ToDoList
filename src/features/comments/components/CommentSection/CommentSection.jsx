@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { MessageSquareQuote, Send, X } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,21 +23,7 @@ function CommentSection({ comments, highlightedComment }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (highlightedComment) {
-      const commentElement = document.getElementById(highlightedComment);
-
-      if (commentElement) {
-        commentElement.scrollIntoView({ behavior: "smooth", block: "center" });
-
-        commentElement.classList.add("highlighted-comment");
-
-        setTimeout(() => {
-          commentElement.classList.remove("highlighted-comment");
-        }, 3000);
-      }
-    }
-  }, [highlightedComment, comments]);
+  
 
   const handleCommentChange = useCallback((e) => {
     setComment(e.target.value);
@@ -154,6 +140,7 @@ function CommentSection({ comments, highlightedComment }) {
           comments={comments}
           onEditComment={handleEditComment}
           onDeleteComment={setDeleteComment}
+          highlightedComment={highlightedComment}
         />
 
         {error && (

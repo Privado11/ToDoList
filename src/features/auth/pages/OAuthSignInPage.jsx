@@ -5,12 +5,14 @@ import { PasswordLogin, SignInOptions } from "../components/SignIn";
 const OAuthSignInPage = () => {
   const [showPasswordScreen, setShowPasswordScreen] = useState(false);
   const [email, setEmail] = useState("");
-  const [captchaToken, setCaptchaToken] = useState(null);
 
-  const changeToPasswordScreen = (email, captchaToken) => {
+  const changeToPasswordScreen = (email) => {
     setEmail(email);
-    setCaptchaToken(captchaToken);
-    setShowPasswordScreen(!showPasswordScreen);
+    setShowPasswordScreen(true); 
+  };
+
+  const goBackToOptions = () => {
+    setShowPasswordScreen(false);
   };
 
   return (
@@ -34,9 +36,8 @@ const OAuthSignInPage = () => {
           <SignInOptions changeToPasswordScreen={changeToPasswordScreen} />
         ) : (
           <PasswordLogin
-            changeToPasswordScreen={changeToPasswordScreen}
+            changeToPasswordScreen={goBackToOptions}
             email={email}
-            captchaToken={captchaToken}
           />
         )}
       </div>

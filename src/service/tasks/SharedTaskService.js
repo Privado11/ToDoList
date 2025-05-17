@@ -37,15 +37,15 @@ class SharedTaskService extends BaseService {
     }
   }
 
-  static async getUsersFromSharedTask(taskId) {
+  static async getUsersFromSharedTask(taskId, userId) {
     this.validateRequiredId(taskId, "Task ID");
+    this.validateRequiredId(userId, "User ID");
 
     try {
-      const { data, error } = await this.supabase
-        .from("shared_tasks")
-        .select(this.USERS_SHARED_TASKS_SELECT)
-        .eq("task_id", taskId)
-        .order("created_at", { ascending: false });
+      const { data, error } = await this.supabase.rpc("get_shared_task_users", {
+        p_task_id: taskId,
+        p_current_user_id: userId,
+      });
 
       this.handleError(error, "Error fetching shared tasks");
       return data || [];
@@ -109,11 +109,10 @@ class SharedTaskService extends BaseService {
 
     try {
       const { data, error } = await this.supabase.rpc("accept_task_share", {
-       request_id: id,
+        request_id: id,
       });
 
       this.handleError(error, "Error updating invitation status");
-
 
       return data?.[0];
     } catch (error) {
@@ -144,7 +143,7 @@ class SharedTaskService extends BaseService {
 
     try {
       const { data, error } = await this.supabase.rpc("cancel_share_tasks", {
-        share_task_id : id,
+        share_task_id: id,
       });
 
       if (error) {
@@ -161,15 +160,10 @@ class SharedTaskService extends BaseService {
   }
 
   static async searchUsersForSharedTask(query, currentUserId, taskId) {
-    console.log(
-      "Searching users for shared task:",
-      query,
-      currentUserId,
-      taskId
-    );
     this.validateRequiredId(currentUserId, "Current User ID");
     this.validateRequiredId(taskId, "Task ID");
 
+  
     try {
       const { data, error } = await this.supabase.rpc(
         "search_users_for_shared_task",

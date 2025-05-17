@@ -6,7 +6,12 @@ import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-function SharedWithList({ SharedWithList, onDeleteUser }) {
+const SharedWithList = ({ SharedWithList, onDeleteUser }) => {
+  const is_shared = SharedWithList.some(
+    (user) => user.shared_status === "creator"
+  );
+
+
   return (
     <div className="space-y-4">
       {SharedWithList.length === 0 ? (
@@ -16,50 +21,56 @@ function SharedWithList({ SharedWithList, onDeleteUser }) {
       ) : (
         SharedWithList.map((user, index) => (
           <div
-            key={`${user.profile.full_name}-${index}`}
-            className="flex items-center justify-between bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            key={`${user.user_id || index}`}
+            className="flex items-center justify-between bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors p-2"
           >
             <div className="flex items-center gap-3 flex-grow overflow-hidden">
               <Avatar className="w-10 h-10">
                 <AvatarImage
-                  src={user?.profile?.avatar || "/api/placeholder/32/32"}
+                  src={user?.avatar_url || "/api/placeholder/32/32"}
                 />
                 <AvatarFallback>
-                  {user?.profile?.full_name[0].toUpperCase()}
+                  {user?.full_name?.[0]?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="overflow-hidden">
                 <p className="font-medium text-base sm:text-lg">
-                  {user.profile?.full_name || "Unknown User"}
+                  {user.full_name} {user.is_current_user && "(You)"}
+                  {user.is_creator && " (Creator)"}
                 </p>
-                <p className="text-sm sm:text-lg text-gray-500  ">
-                  {user.profile?.username || "No username provided"}
+                <p className="text-sm sm:text-base text-gray-500 truncate">
+                  {user.username}
                 </p>
               </div>
             </div>
             <div className="flex gap-2 flex-shrink-0 ml-4">
               <Badge
-                variant={user.status === "Accepted" ? "success" : "warning"}
-                className="capitalize text-xs sm:text-lg"
+                variant={
+                  user.shared_status === "accepted" ? "success" : "warning"
+                }
+                className="capitalize text-xs sm:text-sm"
               >
-                {user.status}
+                {user.shared_status}
               </Badge>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={`Delete ${user.recipient_name}`}
-                onClick={() => onDeleteUser(user)}
-                className="hover:bg-red-100 text-red-500"
-                title="Delete"
-              >
-                <X className="w-5 h-5" />
-              </Button>
+              {(!is_shared) ||
+              (is_shared && user.is_current_user) ? (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`Delete ${user.full_name}`}
+                  onClick={() => onDeleteUser(user)}
+                  className="hover:bg-red-100 text-red-500"
+                  title="Delete"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              ) : null}
             </div>
           </div>
         ))
       )}
     </div>
   );
-}
+};
 
 export default SharedWithList;

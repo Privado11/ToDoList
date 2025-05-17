@@ -33,6 +33,8 @@
     "@radix-ui/react-tooltip": "^1.1.3",
     "@sendgrid/mail": "^8.1.4",
     "@supabase/supabase-js": "^2.46.1",
+    "@tanstack/react-query": "^5.76.1",
+    "@tanstack/react-query-devtools": "^5.76.1",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

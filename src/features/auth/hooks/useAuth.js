@@ -1,72 +1,101 @@
 import { AuthService } from "@/service";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const useAuthLogic = () => {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
   const currentProfileIdRef = useRef(null);
+  const [passwordRecoveryEmail, setPasswordRecoveryEmail] = useState(false);
 
-  useEffect(() => {
-    const checkUser = async () => {
+ 
+  const {
+    data: user,
+    isLoading: userLoading,
+    error: userError,
+  } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
       try {
-        const user = await AuthService.getUser();
-        setUser(user);
+        return await AuthService.getUser();
+      } catch (error) {
+        console.error("Error verifying user:", error);
+        return null;
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
 
-        if (user && currentProfileIdRef.current !== user.id) {
-          try {
-            const profileData = await AuthService.getProfile(user.id);
-            setProfile(profileData);
-            currentProfileIdRef.current = user.id;
-          } catch (profileError) {
-            console.error("Error loading profile:", profileError);
-            setProfile(null);
+  const {
+    data: profile,
+    isLoading: profileLoading,
+    error: profileError,
+  } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      try {
+        currentProfileIdRef.current = user.id;
+        return await AuthService.getProfile(user.id);
+      } catch (error) {
+        console.error("Error loading profile:", error);
+        currentProfileIdRef.current = null;
+        return null;
+      }
+    },
+    enabled: !!user, 
+    staleTime: 1000 * 60 * 5, 
+    refetchOnWindowFocus: false,
+  });
+
+  
+  useQuery({
+    queryKey: ["authListener"],
+    queryFn: async () => {
+      const { unsubscribe } = AuthService.onAuthStateChange(
+        async ({ event, user }) => {
+        
+          queryClient.setQueryData(["currentUser"], user);
+
+          if (event === "PASSWORD_RECOVERY") {
+            setPasswordRecoveryEmail(true);
+            return;
+          }
+          setPasswordRecoveryEmail(false);
+
+          if (user) {
+            if (currentProfileIdRef.current !== user.id) {
+              try {
+                const profileData = await AuthService.getProfile(user.id);
+                
+                queryClient.setQueryData(["profile", user.id], profileData);
+                currentProfileIdRef.current = user.id;
+              } catch (profileError) {
+                console.error("Error loading profile:", profileError);
+                currentProfileIdRef.current = null;
+              }
+            }
+          } else {
+            
+            queryClient.setQueryData(
+              ["profile", currentProfileIdRef.current],
+              null
+            );
             currentProfileIdRef.current = null;
           }
         }
-      } catch (error) {
-        // Solo registramos el error pero no lo mostramos al usuario
-        console.error("Error verifying user:", error);
-        setUser(null);
-        setProfile(null);
-        currentProfileIdRef.current = null;
-      } finally {
-        setLoading(false);
-      }
-    };
+      );
 
-    checkUser();
-
-    // Configuramos el suscriptor para cambios de autenticación
-    const { unsubscribe } = AuthService.onAuthStateChange(
-      async ({ event, user }) => {
-        setUser(user);
-
-        if (user) {
-          if (currentProfileIdRef.current !== user.id) {
-            try {
-              const profileData = await AuthService.getProfile(user.id);
-              setProfile(profileData);
-              currentProfileIdRef.current = user.id;
-            } catch (profileError) {
-              console.error("Error loading profile:", profileError);
-              setProfile(null);
-              currentProfileIdRef.current = null;
-            }
-          }
-        } else {
-          setProfile(null);
-          currentProfileIdRef.current = null;
-        }
-
-        setLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
+      
+      return () => unsubscribe();
+    },
+    staleTime: Number.POSITIVE_INFINITY, 
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 
   const isProfileComplete = useCallback(() => {
     if (!user) return false;
@@ -82,81 +111,168 @@ export const useAuthLogic = () => {
     return user.user_metadata?.email_verified === true;
   }, [user]);
 
-  const handleAuth = useCallback(async (authFunction, ...params) => {
-    setIsProcessing(true);
-    try {
+
+  const authMutation = useMutation({
+    mutationFn: async ({ authFunction, params = [] }) => {
+      setIsProcessing(true);
       setError(null);
-      const result = await authFunction(...params);
-      return result;
-    } catch (error) {
-      console.error(error);
-      setError(error.message);
-      throw error;
-    } finally {
-      setIsProcessing(false);
-    }
-  }, []);
+      try {
+        return await authFunction(...params);
+      } catch (error) {
+        console.error(error);
+        setError(error.message);
+        throw error;
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    onSuccess: () => {
+  
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+    },
+  });
 
-  const updateLocalProfileData = useCallback((avatarUrl) => {
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      avatar_url: avatarUrl,
-    }));
-  }, []);
+ 
+  const avatarMutation = useMutation({
+    mutationFn: async ({ action, file = null }) => {
+      setIsProcessing(true);
+      setError(null);
+      try {
+        if (action === "upload" && file) {
+          return await AuthService.updateAvatar(user?.id, file);
+        } else if (action === "delete") {
+          await AuthService.deleteAvatar(user?.id);
+          return null;
+        }
+      } catch (error) {
+        console.error(error);
+        setError(error.message);
+        throw error;
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    onSuccess: (avatarUrl) => {
+  
+      queryClient.setQueryData(["profile", user?.id], (oldData) => {
+        if (!oldData) return null;
+        return {
+          ...oldData,
+          avatar_url: avatarUrl,
+        };
+      });
+    },
+  });
 
-  return {
-    user,
-    profile,
-    isProfileComplete,
-    loading,
-    isProcessing,
-    error,
-    signInWithGoogle: () => handleAuth(() => AuthService.signInWithGoogle()),
-    signInWithFacebook: () =>
-      handleAuth(() => AuthService.signInWithFacebook()),
-    signInAsGuest: () => handleAuth(() => AuthService.signInAsGuest()),
-    signUpWithEmail: (email, password) =>
-      handleAuth(() => AuthService.signUpWithEmail(email, password)),
-    resendEmailSignUp: (email) =>
-      handleAuth(() => AuthService.resendEmailSignUp(email)),
-    signInWithPhone: (phone) =>
-      handleAuth(() => AuthService.signInWithPhone(phone)),
-    signOut: () => handleAuth(() => AuthService.signOut()),
-    signInWithEmail: (email, password) =>
-      handleAuth(() => AuthService.signInWithEmail(email, password)),
-    signInWithMagicLink: (email) =>
-      handleAuth(() => AuthService.signInWithMagicLink(email)),
-    resetPassword: (email) =>
-      handleAuth(() => AuthService.resetPassword(email)),
-    completeProfile: (fullName, password, avatarFile) =>
-      handleAuth(async () => {
-        const result = await AuthService.completeProfile(
+
+  const completeProfileMutation = useMutation({
+    mutationFn: async ({ fullName, password, avatarFile }) => {
+      setIsProcessing(true);
+      setError(null);
+      try {
+        return await AuthService.completeProfile(
           fullName,
           password,
           user?.id,
           avatarFile
         );
-        if (avatarFile) {
-          updateLocalProfileData(result.user.user_metadata.avatar_url);
-        }
-        return result;
-      }),
-    updatePassword: (password) =>
-      handleAuth(() => AuthService.updatePassword(password)),
-    checkEmail: (email) => handleAuth(() => AuthService.checkEmail(email)),
+      } catch (error) {
+        console.error(error);
+        setError(error.message);
+        throw error;
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    onSuccess: (result, { avatarFile }) => {
 
-    // New avatar methods
-    uploadAvatar: (file) =>
-      handleAuth(async () => {
-        const avatarUrl = await AuthService.updateAvatar(user?.id, file);
-        updateLocalProfileData(avatarUrl);
-        return avatarUrl;
+      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+
+      if (avatarFile) {
+        queryClient.setQueryData(["profile", user?.id], (oldData) => {
+          if (!oldData) return null;
+          return {
+            ...oldData,
+            avatar_url: result.user.user_metadata.avatar_url,
+          };
+        });
+      }
+    },
+  });
+
+  return {
+    user,
+    profile,
+    isProfileComplete,
+    loading: userLoading || profileLoading,
+    isProcessing,
+    error: error || userError || profileError,
+    passwordRecoveryEmail,
+
+    signInWithGoogle: () =>
+      authMutation.mutate({ authFunction: AuthService.signInWithGoogle }),
+
+    signInWithFacebook: () =>
+      authMutation.mutate({ authFunction: AuthService.signInWithFacebook }),
+
+    signInAsGuest: () =>
+      authMutation.mutate({ authFunction: AuthService.signInAsGuest }),
+
+    signUpWithEmail: (email, password) =>
+      authMutation.mutate({
+        authFunction: AuthService.signUpWithEmail,
+        params: [email, password],
       }),
-    deleteAvatar: () =>
-      handleAuth(async () => {
-        await AuthService.deleteAvatar(user?.id);
-        updateLocalProfileData(null);
-        return true;
+
+    resendEmailSignUp: (email) =>
+      authMutation.mutate({
+        authFunction: AuthService.resendEmailSignUp,
+        params: [email],
       }),
+
+    signInWithPhone: (phone) =>
+      authMutation.mutate({
+        authFunction: AuthService.signInWithPhone,
+        params: [phone],
+      }),
+
+    signOut: () => authMutation.mutate({ authFunction: AuthService.signOut }),
+
+    signInWithEmail: (email, password) =>
+      authMutation.mutate({
+        authFunction: AuthService.signInWithEmail,
+        params: [email, password],
+      }),
+
+    signInWithMagicLink: (email) =>
+      authMutation.mutate({
+        authFunction: AuthService.signInWithMagicLink,
+        params: [email],
+      }),
+
+    resetPassword: (email) =>
+      authMutation.mutate({
+        authFunction: AuthService.resetPassword,
+        params: [email],
+      }),
+
+    completeProfile: (fullName, password, avatarFile) =>
+      completeProfileMutation.mutate({ fullName, password, avatarFile }),
+
+    updatePassword: (password) =>
+      authMutation.mutate({
+        authFunction: AuthService.updatePassword,
+        params: [password],
+      }),
+
+    checkEmail: (email) =>
+      authMutation.mutateAsync({
+        authFunction: AuthService.checkEmail,
+        params: [email],
+      }),
+
+    uploadAvatar: (file) => avatarMutation.mutate({ action: "upload", file }),
+
+    deleteAvatar: () => avatarMutation.mutate({ action: "delete" }),
   };
 };

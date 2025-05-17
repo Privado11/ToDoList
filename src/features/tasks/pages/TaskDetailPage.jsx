@@ -114,7 +114,7 @@ function TaskDetailPage() {
 
         <TaskHeader task={selectedTask} onEdit={handleEdit} />
 
-        <TaskDescription description={selectedTask.description} />
+        <TaskDescription description={selectedTask?.description} />
 
         <AttachmentSection attachments={attachments} />
 

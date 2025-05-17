@@ -12,7 +12,8 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
   const [password, setPassword] = useState("");
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showMagicModal, setShowMagicModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessagePassword, setErrorMessagePassword] = useState("");
+  const [errorMessageMagic, setErrorMessageMagic] = useState("");
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState("");
   const navigate = useNavigate();
@@ -21,14 +22,16 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
 
   const handleOnChange = (e) => {
     setPassword(e.target.value);
-    setErrorMessage("");
+    setErrorMessagePassword("");
   };
 
   const togglePasswordForm = () => {
+    setErrorMessageMagic("");
     setShowPasswordForm((prev) => !prev);
     if (showPasswordForm) {
       setPassword("");
-      setErrorMessage("");
+      setErrorMessagePassword("");
+      
     }
   };
 
@@ -39,7 +42,7 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
       navigate("/");
     } catch (error) {
       console.error("Error signing in:", error);
-      setErrorMessage(error.message || "Failed to sign in");
+      setErrorMessagePassword("Failed to sign in, please check your password.");
     }
   };
 
@@ -54,13 +57,13 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
       setShowPasswordForm(false);
     }
 
-    setErrorMessage("");
+    setErrorMessageMagic("");
     try {
       await signInWithMagicLink(email);
       setShowMagicModal(true);
     } catch (error) {
       console.error("Magic link sign-in error:", error);
-      setErrorMessage(error.message || "Failed to send magic link");
+      setErrorMessageMagic("Failed to send magic link, please try again.");
     }
   };
 
@@ -72,7 +75,7 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
       setResendMessage("Magic link resent successfully!");
     } catch (error) {
       console.error("Error resending magic link:", error);
-      setErrorMessage(error.message || "Failed to resend magic link");
+      setResendMessage("Failed to resend magic link, please try again.");
     } finally {
       setIsResending(false);
     }
@@ -150,13 +153,13 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
                 />
               </div>
 
-              {errorMessage && (
+              {errorMessagePassword && (
                 <div
                   className={`text-sm text-red-500 transition-all duration-500 ease-in-out ${
                     showPasswordForm ? "opacity-100" : "opacity-0"
                   }`}
                 >
-                  {errorMessage}
+                  {errorMessagePassword}
                 </div>
               )}
 
@@ -178,6 +181,9 @@ function PasswordLogin({ changeToPasswordScreen, email }) {
           </div>
         </div>
       </div>
+      {errorMessageMagic && (
+        <div className="mb-4 text-sm text-red-500">{errorMessageMagic}</div>
+      )}
 
       <div className="w-full text-center text-[12px] text-[#5c6f8a] font-light mt-4">
         <span

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 export const useTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loadingTasks, setLoadingTasks] = useState(true);
   const [error, setError] = useState(null);
 
   const { profile: user } = useAuthLogic();
@@ -14,7 +14,7 @@ export const useTasks = () => {
   const fetchTasks = useCallback(async () => {
     if (!user) return;
 
-    setLoading(true);
+    setLoadingTasks(true);
     setError(null);
     try {
       const data = await TaskService.getTasks(user.id);
@@ -22,7 +22,7 @@ export const useTasks = () => {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setLoadingTasks(false);
     }
   }, [user]);
 
@@ -30,7 +30,7 @@ export const useTasks = () => {
     async (id) => {
       if (!id || !user) return;
  
-      setLoading(true);
+      setLoadingTasks(true);
       setError(null);
       try {
         if (selectedTask?.id !== id) {
@@ -43,7 +43,7 @@ export const useTasks = () => {
         setError(err.message);
         setSelectedTask(null);
       } finally {
-        setLoading(false);
+        setLoadingTasks(false);
       }
     },
     [selectedTask, user]
@@ -51,7 +51,7 @@ export const useTasks = () => {
 
   const createTask = useCallback(
     async (taskData) => {
-      setLoading(true);
+      setLoadingTasks(true);
       setError(null);
       try {
         const newTask = await TaskService.createTask(taskData, user.id);
@@ -61,7 +61,7 @@ export const useTasks = () => {
         setError(err.message);
         throw err;
       } finally {
-        setLoading(false);
+        setLoadingTasks(false);
       }
     },
     [user?.id]
@@ -69,7 +69,7 @@ export const useTasks = () => {
 
   const updateTask = useCallback(
     async (id, updates) => {
-      setLoading(true);
+      setLoadingTasks(true);
       setError(null);
       try {
         const updatedTask = await TaskService.updateTask(id, updates);
@@ -82,7 +82,7 @@ export const useTasks = () => {
         setError(err.message);
         throw err;
       } finally {
-        setLoading(false);
+        setLoadingTasks(false);
       }
     },
     [selectedTask?.id, getTaskById]
@@ -153,7 +153,8 @@ export const useTasks = () => {
   return {
     tasks,
     selectedTask,
-    loading,
+    setSelectedTask,
+    loadingTasks,
     error,
     fetchTasks,
     getTaskById,

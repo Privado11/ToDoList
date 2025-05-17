@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { useAuthLogic } from "@/features/auth";
 import { NotificationService } from "@/service";
 import NotificationGlobalService from "@/service/notification/NotificationGlobalService";
+import { set } from "date-fns";
 
 export const useNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -17,6 +18,7 @@ export const useNotifications = () => {
 
   useEffect(() => {
     if (user?.is_anonymous) {
+      setNotifications([]);
       setAnonymousMessage(
         "Notifications are only available for registered users.\nCreate a full account to access this feature."
       );
@@ -26,10 +28,12 @@ export const useNotifications = () => {
 
     setAnonymousMessage(null);
 
-     if (!user) {
-       setLoading(false);
-       return;
-     }
+      if (!user) {
+        setLoading(false);
+        NotificationGlobalService.handleLogout();
+        return;
+      }
+      setLoading(true);
 
     NotificationGlobalService.initialize(user.id);
 

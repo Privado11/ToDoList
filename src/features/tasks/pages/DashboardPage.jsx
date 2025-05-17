@@ -1,23 +1,18 @@
-import { useEffect, useState } from "react";
+
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { useTaskContext } from "@/context/TaskContext";
 import { useAuth } from "@/context/AuthContext";
-import { ActivityFeed, Header, Sidebar, TaskStats } from "@/components";
+import { ActivityFeed, TaskStats } from "@/components";
 import { TaskBoard } from "../components";
 import { MultiChatManager } from "@/features/chats";
 
-
 const DashboardPage = () => {
-  const { tasks, deleteTask } = useTaskContext();
+  const { tasks, deleteTask, loadingTasks, cancelShareTask: leaveTask } = useTaskContext();
   const { profile: user } = useAuth();
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState("all");
-
-  useEffect(() => {
-    console.log("Tasks:", tasks);
-  }, [tasks]);
+  const { activeFilter } = useOutletContext() || { activeFilter: "all" };
 
   const filterTasks = (priority) => {
     if (priority === "all") {
@@ -32,71 +27,49 @@ const DashboardPage = () => {
   const filteredTasks = filterTasks(activeFilter);
 
   return (
-    <div className="flex flex-col lg:flex-row h-screen overflow-hidden">
-      <div className="lg:h-screen lg:sticky lg:top-0">
-        <Sidebar setActiveFilter={setActiveFilter} />
-      </div>
+    <div className="p-4 md:p-6">
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex-1 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl md:text-2xl lg:text:3xl font-bold tracking-tight">
+                Welcome back, {user?.full_name?.split(" ")[0]}
+              </h1>
+              <p className="text-muted-foreground">
+                {activeFilter === "all"
+                  ? "Here's your task overview for today"
+                  : `Showing ${activeFilter} priority tasks`}
+              </p>
+            </div>
+            <Button
+              className="w-full sm:w-auto gap-2"
+              onClick={() => {
+                navigate("/add-task");
+              }}
+            >
+              <PlusCircle className="h-4 w-4" />
+              New Task
+            </Button>
+          </div>
 
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <div className="sticky top-0 z-10">
-          <Header />
+          <div className="hidden lg:block">
+            <TaskStats />
+          </div>
+
+          <TaskBoard
+            tasks={filteredTasks}
+            deleteTask={deleteTask}
+            loadingTasks={loadingTasks}
+            leaveTask={leaveTask}
+          />
         </div>
 
-        <main className="flex flex-col lg:flex-row gap-4 p-4 md:p-6 overflow-y-auto">
-          <div className="flex-1 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-xl md:text-2xl lg:text:3xl font-bold tracking-tight">
-                  Welcome back, {user?.full_name?.split(" ")[0] || "Guest"}
-                </h1>
-                <p className="text-muted-foreground">
-                  {activeFilter === "all"
-                    ? "Here's your task overview for today"
-                    : `Showing ${activeFilter} priority tasks`}
-                </p>
-              </div>
-              <Button
-                className="w-full sm:w-auto gap-2"
-                onClick={() => {
-                  navigate("/add-task");
-                }}
-              >
-                <PlusCircle className="h-4 w-4" />
-                New Task
-              </Button>
-            </div>
-
-            <div className="hidden lg:block">
-              <TaskStats />
-            </div>
-
-            {filteredTasks?.length ? (
-              <TaskBoard tasks={filteredTasks} deleteTask={deleteTask} />
-            ) : (
-              <div className="flex flex-col items-center justify-center p-8 border rounded-lg bg-muted/20">
-                <h3 className="text-lg font-medium mb-2">
-                  {activeFilter === "all"
-                    ? "You don't have any tasks yet"
-                    : `No ${activeFilter} priority tasks found`}
-                </h3>
-                <p className="text-muted-foreground text-center mb-4">
-                  Create your first task by clicking the "New Task" button
-                </p>
-                <Button onClick={() => navigate("/add-task")} className="gap-2">
-                  <PlusCircle className="h-4 w-4" />
-                  Create Task
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <div className="hidden lg:block w-[300px] flex-shrink-0 lg:sticky lg:top-0">
-            <ActivityFeed />
-          </div>
-        </main>
+        <div className="hidden xl:block w-[300px] flex-shrink-0 lg:sticky lg:top-0">
+          <ActivityFeed />
+        </div>
       </div>
+
       <div className="hidden md:block">
-        {" "}
         <MultiChatManager user={user} />
       </div>
     </div>

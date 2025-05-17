@@ -26,7 +26,7 @@ const SharedWithSection = ({ sharedTasks }) => {
   };
 
   const confirmDeleteUser = () => {
-    if (userToDelete) handleDeleteSharedTask(userToDelete.id);
+    if (userToDelete) handleDeleteSharedTask(userToDelete.user_id);
     setUserToDelete(null);
   };
 
@@ -59,10 +59,25 @@ const SharedWithSection = ({ sharedTasks }) => {
         }
         description={
           <>
-            {userToDelete?.status === "pending"
-              ? "Cancel the invitation for "
-              : "You want to stop sharing this task with"}{" "}
-            <strong>{userToDelete?.profile?.full_name || "this user"}</strong>?
+            {userToDelete?.is_current_user ? (
+              "You want to leave this shared task?"
+            ) : userToDelete?.status === "pending" ? (
+              <>
+                Cancel the invitation for{" "}
+                <strong>
+                  {userToDelete?.profile?.full_name || "this user"}
+                </strong>
+                ?
+              </>
+            ) : (
+              <>
+                You want to stop sharing this task with{" "}
+                <strong>
+                  {userToDelete?.profile?.full_name || "this user"}
+                </strong>
+                ?
+              </>
+            )}
           </>
         }
         cancelText="Cancel"

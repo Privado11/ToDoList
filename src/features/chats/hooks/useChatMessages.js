@@ -35,6 +35,7 @@ export const useChatMessages = () => {
 
   useEffect(() => {
     if (user?.is_anonymous) {
+      setConversations([]);
       setAnonymousMessage(
         "Chats are only available for registered users.\nCreate a full account to access this feature."
       );
