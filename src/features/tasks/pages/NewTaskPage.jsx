@@ -1,34 +1,40 @@
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DialogConfirmation } from "../../../view/DialogConfirmation";
 import { useTaskContext } from "@/context/TaskContext";
-import { AttachmentSelectList, FileUploadArea, TaskForm, UploadingFilesList } from "@/features";
+import {
+  AttachmentSelectList,
+  FileUploadArea,
+  TaskForm,
+  UploadingFilesList,
+} from "@/features";
+import { Loader2 } from "lucide-react";
 
 function NewTaskPage() {
   const {
     createTask,
     updateTask,
-    selectedTask,
-    getTaskById,
-    loadingTasks,
+    isCreating,
+    isUpdating,
     uploadAttachment,
     deleteAttachment,
     attachments,
   } = useTaskContext();
-
+  const location = useLocation();
   const navigate = useNavigate();
-  const { id } = useParams();
+  const fromPage = location.state?.from || "/dashboard";
+  const selectedTask = location.state?.selectedTask;
   const [selectedAttachments, setSelectedAttachments] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-  const initialTaskState = {
+  const initialTaskState = selectedTask || {
     title: "",
     description: "",
-    category_id: null,
+    category_id: 4,
     due_date: null,
     status_id: 1,
     priority_id: 1,
@@ -36,33 +42,17 @@ function NewTaskPage() {
   };
 
   const [task, setTask] = useState(initialTaskState);
-  const [isInitialLoad, setIsInitialLoad] = useState(false);
   const [uploading, setUploading] = useState([]);
 
 
-  useEffect(() => {
-    const loadTask = async () => {
-      if (id && isInitialLoad) {
-        try {
-          await getTaskById(id);
-          setIsInitialLoad(false);
-        } catch (error) {
-          console.error("Error loadingTasks task:", error);
-          navigate("/");
-        }
-      } else if (!id) {
-        setTask(initialTaskState);
-      }
-    };
-
-    loadTask();
-  }, [id]);
+  const isProcessing = isCreating || isUpdating || uploading.length > 0;
 
   useEffect(() => {
-    if (selectedTask && id) {
-      setTask(selectedTask.task || selectedTask);
+    if (isSubmitting && !isProcessing) {
+      navigate(fromPage);
+      setIsSubmitting(false);
     }
-  }, [selectedTask, id]);
+  }, [isProcessing, isSubmitting, navigate]);
 
   const handleCancelUpload = (uploadId) => {
     setUploading((prev) => prev.filter((item) => item.id !== uploadId));
@@ -143,96 +133,107 @@ function NewTaskPage() {
     }
 
     try {
+      setIsSubmitting(true);
+
       if (selectedAttachments.length > 0) {
         await handleDeleteAttachment(selectedAttachments);
       }
 
-      if (id) {
-        await updateTask(id, task);
-        navigate(`/task-detail/${id}`);
+      if (selectedTask) {
+        await updateTask(selectedTask.id, task, "detailed");
       } else {
         await createTask(task);
-        navigate("/");
       }
     } catch (error) {
+      setIsSubmitting(false);
       alert("Error saving task: " + error.message);
     }
   };
 
   const handleCancel = () => {
-    if (id) {
-      navigate(`/task-detail/${id}`);
-    } else {
-      navigate("/");
-    }
+    navigate(fromPage);
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
 
-    if (selectedAttachments.length > 0 && id) {
+    if (selectedAttachments.length > 0 && selectedTask) {
       setShowDeleteConfirmation(true);
     } else {
       handleSubmitForm();
     }
   };
 
-
   return (
     <div>
-      <Card className="max-w-2xl mx-auto border-none" />
-      <CardHeader>
-        <CardTitle className="text-3xl font-bold">
-          {id ? "Edit Task" : "New Task"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-6" onSubmit={onSubmit}>
-          <TaskForm task={task} setTask={setTask} />
+      <Card className="max-w-2xl mx-auto border-none">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold">
+            {selectedTask ? "Edit Task" : "New Task"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-6" onSubmit={onSubmit}>
+            <TaskForm task={task} setTask={setTask} />
 
-          <div>
-            <Label className="text-xl font-bold">Attachments</Label>
-            <FileUploadArea onFilesSelected={handleFileSelect} />
+            <div>
+              <Label className="text-xl font-bold">Attachments</Label>
+              <FileUploadArea onFilesSelected={handleFileSelect} />
 
-            {uploading.length > 0 && (
-              <UploadingFilesList
-                uploading={uploading}
-                onCancelUpload={handleCancelUpload}
+              {uploading.length > 0 && (
+                <UploadingFilesList
+                  uploading={uploading}
+                  onCancelUpload={handleCancelUpload}
+                />
+              )}
+
+              <AttachmentSelectList
+                attachments={attachments}
+                onDelete={handleDeleteAttachment}
+                selectedAttachments={selectedAttachments}
+                setSelectedAttachments={setSelectedAttachments}
               />
-            )}
+            </div>
 
-            <AttachmentSelectList
-              attachments={attachments}
-              onDelete={handleDeleteAttachment}
-              selectedAttachments={selectedAttachments}
-              setSelectedAttachments={setSelectedAttachments}
-            />
-          </div>
+            <div className="flex justify-end gap-4">
+              <Button
+                variant="outline"
+                className="text-xl font-bold py-4"
+                onClick={handleCancel}
+                disabled={isProcessing}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="text-xl font-bold py-4"
+                disabled={isProcessing}
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {selectedTask ? "Updating..." : "Saving..."}
+                  </>
+                ) : selectedTask ? (
+                  "Update Task"
+                ) : (
+                  "Save Task"
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
 
-          <div className="flex justify-end gap-4">
-            <Button
-              variant="outline"
-              className="text-xl font-bold py-4"
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" className="text-xl font-bold py-4">
-              {id ? "Update Task" : "Save Task"}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-
-      <DialogConfirmation
-        isOpen={showDeleteConfirmation}
-        onClose={() => setShowDeleteConfirmation(false)}
-        onConfirm={handleSubmitForm}
-        title="Confirm file deletion"
-        description={`You have selected  ${selectedAttachments.length} file(s). When you update this task, these files will be permanently deleted. Do you want to continue?`}
-        cancelText="Cancel"
-        confirmText="Yes, delete and update"
-      />
+        <DialogConfirmation
+          isOpen={showDeleteConfirmation}
+          onClose={() => setShowDeleteConfirmation(false)}
+          onConfirm={handleSubmitForm}
+          title="Confirm file deletion"
+          description={`You have selected ${selectedAttachments.length} file(s). When you update this task, these files will be permanently deleted. Do you want to continue?`}
+          cancelText="Cancel"
+          confirmText="Yes, delete and update"
+        />
+      </Card>
     </div>
   );
 }

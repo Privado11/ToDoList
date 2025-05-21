@@ -1,11 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
-import { ArrowLeft } from "lucide-react";
+import { useEffect, useState, useCallback, use } from "react";
+import { ArrowLeft} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useTaskContext } from "@/context/TaskContext";
 import {
   AttachmentSection,
@@ -16,8 +13,13 @@ import {
 } from "@/features";
 
 function TaskDetailPage() {
-  const { getTaskById, selectedTask, attachments, sharedTasks, comments } =
-    useTaskContext();
+  const {
+    getTaskById,
+    selectedTask,
+    attachments,
+    sharedTasks,
+    comments,
+  } = useTaskContext();
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -26,13 +28,13 @@ function TaskDetailPage() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [highlightedComment, setHighlightedComment] = useState(null);
 
- useEffect(() => {
-   const hash = window.location.hash;
-   if (hash.startsWith("#comment-")) {
-     const commentId = hash.replace("#comment-", "");
-     setHighlightedComment(commentId);
-   }
- }, []);
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.startsWith("#comment-")) {
+      const commentId = hash.replace("#comment-", "");
+      setHighlightedComment(commentId);
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -61,11 +63,19 @@ function TaskDetailPage() {
     };
   }, [id, getTaskById, isInitialLoad]);
 
-  const handleBack = useCallback(() => navigate("/"), [navigate]);
-  const handleEdit = useCallback(
-    () => navigate(`/edit-task/${id}`),
-    [navigate, id]
-  );
+  const handleBack = (e) => {
+    e.stopPropagation();
+    navigate("/dashboard");
+  };
+
+  const handleEdit = (e) => {
+    e.stopPropagation();
+    navigate(`/edit-task/${id}`, {
+      state: { from:`/task-detail/${id}`, selectedTask },
+    });
+  };
+
+
 
   if (loading) {
     return (
@@ -118,9 +128,12 @@ function TaskDetailPage() {
 
         <AttachmentSection attachments={attachments} />
 
-        <SharedWithSection sharedTasks={sharedTasks}/>
+        <SharedWithSection sharedTasks={sharedTasks} />
 
-        <CommentSection comments={comments} highlightedComment={highlightedComment} />
+        <CommentSection
+          comments={comments}
+          highlightedComment={highlightedComment}
+        />
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ import { ChartPie, CircleDashed, CircleCheckBig, ClockAlert } from "lucide-react
 import { useTaskContext } from "@/context/TaskContext";
 
 function TaskStats() {
-  const { completedTasks, inProgressTasks, overdueTasks, loadingTasks } =
+  const { completedTasks, inProgressTasks, overdueTasks, isLoadingList } =
     useTaskContext();
 
     const NumberSkeleton = () => (
@@ -23,7 +23,7 @@ function TaskStats() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {loadingTasks ? (
+            {isLoadingList ? (
               <NumberSkeleton />
             ) : (
               completedTasks + inProgressTasks
@@ -40,7 +40,7 @@ function TaskStats() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {loadingTasks ? <NumberSkeleton /> : inProgressTasks}
+            {isLoadingList ? <NumberSkeleton /> : inProgressTasks}
           </div>
           <p className="text-xs text-muted-foreground">+1 from yesterday</p>
         </CardContent>
@@ -52,7 +52,7 @@ function TaskStats() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {loadingTasks ? <NumberSkeleton /> : completedTasks}
+            {isLoadingList ? <NumberSkeleton /> : completedTasks}
           </div>
           <p className="text-xs text-muted-foreground">+3 from yesterday</p>
         </CardContent>
@@ -64,7 +64,7 @@ function TaskStats() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {loadingTasks ? <NumberSkeleton /> : overdueTasks}
+            {isLoadingList ? <NumberSkeleton /> : overdueTasks}
           </div>
           <p className="text-xs text-muted-foreground">-2 from yesterday</p>
         </CardContent>

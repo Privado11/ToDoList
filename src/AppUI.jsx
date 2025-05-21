@@ -38,7 +38,7 @@ function AppUI() {
           {/* Rutas que requieren perfil completo */}
           <Route element={<ProfileVerificationRoute />}>
             <Route element={<MainLayout />}>
-              <Route path="/" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
             </Route>
 
             <Route element={<SimpleLayout />}>
@@ -61,7 +61,7 @@ function AppUI() {
         </Route>
 
         {/* Redirección para rutas no encontradas */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
 
       <Toaster />

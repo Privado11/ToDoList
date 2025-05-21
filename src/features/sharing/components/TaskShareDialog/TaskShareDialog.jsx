@@ -10,8 +10,12 @@ import { useTaskContext } from "@/context/TaskContext";
 import { ShareWithFriends, UserSearchShare } from "@/features";
 
 const TaskShareDialog = ({ taskId, open, setOpen }) => {
-  const { shareTask, getAvailableFriendsForTask, setTasksToShare } =
-    useTaskContext();
+  const {
+    shareTask,
+    getAvailableFriendsForTask,
+    setTasksToShare,
+    isTaskBeingSharedWithUser,
+  } = useTaskContext();
   const [friendsList, setFriendsList] = useState([]);
   const [message, setMessage] = useState("");
   const [isSharing, setIsSharing] = useState(false);
@@ -50,13 +54,13 @@ const TaskShareDialog = ({ taskId, open, setOpen }) => {
     }
   }, [open, taskId, fetchFriends]);
 
-  const handleShareWithUser = useCallback(
-    async (recipientId) => {
+  const handleShareWithUsers = useCallback(
+    async (recipientIds) => {
       setIsSharing(true);
       setShareError(null);
       try {
-        const response = await shareTask(recipientId);
-        setMessage(response.message || "Task successfully shared");
+        const response = await shareTask(recipientIds);
+        setMessage("Task successfully shared");
       } catch (error) {
         setShareError("Error when sharing the task");
         console.error("Error sharing task:", error);
@@ -108,7 +112,7 @@ const TaskShareDialog = ({ taskId, open, setOpen }) => {
         </DialogHeader>
 
         <div className="space-y-4">
-          <UserSearchShare onShareTask={handleShareWithUser} />
+          <UserSearchShare onShareTask={handleShareWithUsers} />
 
           <ShareWithFriends
             friendsList={friendsList}

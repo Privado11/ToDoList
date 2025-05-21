@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import {useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 const TaskHeader = ({ task, onEdit }) => {
@@ -27,24 +27,14 @@ const TaskHeader = ({ task, onEdit }) => {
     }
   };
 
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "Invalid date";
+  const formatDate = (dateString) => {
+    if (!dateString) return "No date";
 
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return "Invalid date";
+    const [year, month, day] = dateString.split("T")[0].split("-").map(Number);
 
-      return new Intl.DateTimeFormat("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }).format(date);
-    } catch {
-      return "Invalid date";
-    }
+    const date = new Date(year, month - 1, day);
+
+    return date.toLocaleDateString();
   };
 
   return (
@@ -163,7 +153,7 @@ const TaskHeader = ({ task, onEdit }) => {
       <div className="flex flex-wrap gap-2 sm:gap-4">
         <Badge variant="outline" className="gap-1 text-sm sm:text-sm">
           <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-          {task?.due_date ? formatDateTime(task?.due_date) : "No due date"}
+          {task?.due_date ? formatDate(task?.due_date) : "No due date"}
         </Badge>
         <Badge className="bg-red-100 text-red-500 text-sm sm:text-sm">
           {task?.priorities?.level || "No priority"}

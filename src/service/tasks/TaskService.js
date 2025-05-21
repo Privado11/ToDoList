@@ -1,7 +1,6 @@
 import BaseService from "../base/baseService";
 
 class TaskService extends BaseService {
-
   static prepareTaskData(data) {
     const {
       user_id,
@@ -13,6 +12,13 @@ class TaskService extends BaseService {
       is_shared,
       ...taskData
     } = data;
+
+    if (taskData.due_date) {
+      const dueDate = new Date(taskData.due_date);
+      dueDate.setHours(23, 59, 59, 999);
+      taskData.due_date = dueDate.toISOString();
+    }
+
     return taskData;
   }
 
@@ -50,31 +56,10 @@ class TaskService extends BaseService {
     }
   }
 
-  static async getOverdueTasksCount(userId) {
-    this.validateRequiredId(userId, "User ID");
-
-    try {
-      const { data, error } = await this.supabase.rpc(
-        "get_overdue_tasks_count",
-        {
-          user_id: userId,
-        }
-      );
-
-      this.handleError(error, "Error fetching overdue tasks count");
-      return data?.[0]?.count || 0;
-    } catch (error) {
-      console.error("Error fetching overdue tasks count:", error);
-      throw error;
-    }
-  }
-
   static async createTask(taskData, userId) {
     this.validateRequiredId(userId, "User ID");
 
     const now = new Date().toISOString();
-
-    console.log(now);
 
     try {
       const preparedData = {
@@ -83,33 +68,34 @@ class TaskService extends BaseService {
         create_at: now,
       };
 
-      const { data, error } = await this.supabase
-        .from("tasks")
-        .insert([preparedData])
-        .select();
+      const { data, error } = await this.supabase.rpc("create_task", {
+        p_task_data: preparedData,
+      });
 
       this.handleError(error, "Error creating task");
-      return data?.[0];
+
+      return data[0];
     } catch (error) {
       console.error("Error creating task:", error);
       throw error;
     }
   }
 
-  static async updateTask(id, taskData) {
+  static async updateTask(id, taskData, mode) {
     this.validateRequiredId(id, "Task ID");
 
     try {
       const preparedData = this.prepareTaskData(taskData);
 
-      const { data, error } = await this.supabase
-        .from("tasks")
-        .update(preparedData)
-        .eq("id", id)
-        .select();
+      const { data, error } = await this.supabase.rpc("update_task", {
+        p_task_id: id,
+        p_task_data: preparedData,
+        p_mode: mode
+      });
 
       this.handleError(error, "Error updating task");
-      return data?.[0];
+
+      return data[0];
     } catch (error) {
       console.error("Error updating task:", error);
       throw error;

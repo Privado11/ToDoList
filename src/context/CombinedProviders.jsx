@@ -1,7 +1,6 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./AuthContext";
-import { ToastProvider } from "./ToastContext";
 import { TaskProvider } from "./TaskContext";
 import { UserProvider } from "./UserContext";
 import { FriendShipProvider } from "./FriendShipContext";
@@ -18,11 +17,9 @@ export const CombinedProviders = ({ children }) => (
         <PopoverProvider>
           <ChatProvider>
             <NotificationProvider>
-              <ToastProvider>
-                <TaskProvider>
-                  <FriendShipProvider>{children}</FriendShipProvider>
-                </TaskProvider>
-              </ToastProvider>
+              <TaskProvider>
+                <FriendShipProvider>{children}</FriendShipProvider>
+              </TaskProvider>
             </NotificationProvider>
           </ChatProvider>
         </PopoverProvider>

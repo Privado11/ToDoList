@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
@@ -16,6 +16,7 @@ const SharedWithSection = ({ sharedTasks }) => {
     setUserToDelete(user);
   };
 
+
   const handleDeleteSharedTask = async (id) => {
     try {
       await cancelShareTask(id);
@@ -26,7 +27,7 @@ const SharedWithSection = ({ sharedTasks }) => {
   };
 
   const confirmDeleteUser = () => {
-    if (userToDelete) handleDeleteSharedTask(userToDelete.user_id);
+    if (userToDelete) handleDeleteSharedTask(userToDelete.shared_task_id);
     setUserToDelete(null);
   };
 

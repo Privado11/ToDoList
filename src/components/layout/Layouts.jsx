@@ -1,9 +1,12 @@
 import { Outlet } from "react-router-dom";
 import { Header, Sidebar } from "@/components";
 import { useState } from "react";
+import { MultiChatManager } from "@/features";
+import { useAuth } from "@/context/AuthContext";
 
 function MainLayout({ showSidebar = true }) {
   const [activeFilter, setActiveFilter] = useState("all");
+    const { profile: user } = useAuth();
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -20,6 +23,9 @@ function MainLayout({ showSidebar = true }) {
 
         <main className="flex-1 overflow-y-auto">
           <Outlet context={{ activeFilter }} />
+          <div className="hidden md:block">
+            <MultiChatManager user={user} />
+          </div>
         </main>
       </div>
     </div>
@@ -27,6 +33,7 @@ function MainLayout({ showSidebar = true }) {
 }
 
 function SimpleLayout() {
+  const { profile: user } = useAuth();
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <div className="sticky top-0 z-10">
@@ -35,6 +42,9 @@ function SimpleLayout() {
 
       <main className="flex-1 overflow-y-auto p-4 md:p-6">
         <Outlet />
+        <div className="hidden md:block">
+          <MultiChatManager user={user} />
+        </div>
       </main>
     </div>
   );

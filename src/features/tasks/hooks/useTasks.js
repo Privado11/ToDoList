@@ -6,44 +6,56 @@ import { toast } from "sonner";
 export const useTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [selectedTask, setSelectedTask] = useState(null);
-  const [loadingTasks, setLoadingTasks] = useState(true);
-  const [error, setError] = useState(null);
+
+  const [isLoadingList, setIsLoadingList] = useState(true);
+  const [isLoadingTask, setIsLoadingTask] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { profile: user } = useAuthLogic();
 
   const fetchTasks = useCallback(async () => {
     if (!user) return;
 
-    setLoadingTasks(true);
-    setError(null);
+    setIsLoadingList(true);
     try {
       const data = await TaskService.getTasks(user.id);
       setTasks(data);
     } catch (err) {
-      setError(err.message);
+      toast.error("Error loading tasks", {
+        description: "Please try again later",
+        action: {
+          label: "Retry",
+          onClick: () => fetchTasks(),
+        },
+      });
     } finally {
-      setLoadingTasks(false);
+      setIsLoadingList(false);
     }
   }, [user]);
 
- const getTaskById = useCallback(
+  const getTaskById = useCallback(
     async (id) => {
       if (!id || !user) return;
- 
-      setLoadingTasks(true);
-      setError(null);
+      if (selectedTask?.id === id) return selectedTask;
+
+      setIsLoadingTask(true);
       try {
-        if (selectedTask?.id !== id) {
-          const task = await TaskService.getTaskById(user.id, id);
-          setSelectedTask(task);
-          return task;
-        }
-        return selectedTask;
+        const task = await TaskService.getTaskById(user.id, id);
+        setSelectedTask(task);
+        return task;
       } catch (err) {
-        setError(err.message);
         setSelectedTask(null);
+        toast.error("Error loading task details", {
+          description: "Please try again later",
+          action: {
+            label: "Retry",
+            onClick: () => getTaskById(id),
+          },
+        });
       } finally {
-        setLoadingTasks(false);
+        setIsLoadingTask(false);
       }
     },
     [selectedTask, user]
@@ -51,41 +63,83 @@ export const useTasks = () => {
 
   const createTask = useCallback(
     async (taskData) => {
-      setLoadingTasks(true);
-      setError(null);
+      setIsCreating(true);
       try {
         const newTask = await TaskService.createTask(taskData, user.id);
-        fetchTasks();
+
+        setTasks((prevTasks) => [newTask, ...prevTasks]);
+        toast.success("Task created successfully", {
+          description: `"${taskData.title}" has been added to your tasks`,
+          action: {
+            label: "Dismiss",
+            onClick: () => toast.dismiss(),
+          },
+        });
         return newTask;
       } catch (err) {
-        setError(err.message);
+        toast.error("Error creating task", {
+          description: "Please try again later",
+          action: {
+            label: "Retry",
+            onClick: () => createTask(taskData),
+          },
+        });
         throw err;
       } finally {
-        setLoadingTasks(false);
+        setIsCreating(false);
       }
     },
     [user?.id]
   );
 
   const updateTask = useCallback(
-    async (id, updates) => {
-      setLoadingTasks(true);
-      setError(null);
+    async (id, updates, mode = "simple") => {
+      setIsUpdating(true);
+
       try {
-        const updatedTask = await TaskService.updateTask(id, updates);
-        fetchTasks();
+        const updatedTask = await TaskService.updateTask(id, updates, mode);
+
+        setTasks((prevTasks) =>
+          prevTasks.map((task) => (task.id === id ? updatedTask : task))
+        );
+
         if (selectedTask?.id === id) {
-          setSelectedTask(getTaskById(id));
+          setSelectedTask(updatedTask);
         }
+
+        if (updates.statuses?.id === 3) {
+          toast.success("Task completed!", {
+            description: `"${updatedTask.title}" marked as completed`,
+            action: {
+              label: "Dismiss",
+              onClick: () => toast.dismiss(),
+            },
+          });
+        } else {
+          toast.success("Task updated", {
+            description: `"${updatedTask.title}" has been updated`,
+            action: {
+              label: "Dismiss",
+              onClick: () => toast.dismiss(),
+            },
+          });
+        }
+
         return updatedTask;
       } catch (err) {
-        setError(err.message);
+        toast.error("Error updating task", {
+          description: "Please try again later",
+          action: {
+            label: "Retry",
+            onClick: () => updateTask(id, updates, mode),
+          },
+        });
         throw err;
       } finally {
-        setLoadingTasks(false);
+        setIsUpdating(false);
       }
     },
-    [selectedTask?.id, getTaskById]
+    [selectedTask?.id]
   );
 
   const deleteTask = useCallback(
@@ -95,6 +149,8 @@ export const useTasks = () => {
 
       const previousTasks = [...tasks];
 
+      setIsDeleting(true);
+
       setTasks((prev) => prev.filter((task) => task.id !== id));
 
       if (selectedTask?.id === id) {
@@ -103,6 +159,13 @@ export const useTasks = () => {
 
       try {
         await TaskService.deleteTask(id);
+        toast.success("Task deleted", {
+          description: `"${taskToDelete.title}" has been removed`,
+          action: {
+            label: "Dismiss",
+            onClick: () => toast.dismiss(),
+          },
+        });
         return true;
       } catch (err) {
         setTasks(previousTasks);
@@ -111,21 +174,20 @@ export const useTasks = () => {
           setSelectedTask(taskToDelete);
         }
 
-        toast("Error deleting task", {
-          description: err.message || "Please try again later",
+        toast.error("Error deleting task", {
+          description: "Please try again later",
           action: {
             label: "Retry",
             onClick: () => deleteTask(id),
           },
         });
-
-        setError(err.message);
         return false;
+      } finally {
+        setIsDeleting(false);
       }
     },
     [tasks, selectedTask?.id]
   );
-
 
   const completedTasks = useMemo(
     () => tasks.filter((task) => task?.statuses?.id === 3).length,
@@ -141,7 +203,7 @@ export const useTasks = () => {
     () =>
       tasks.filter(
         (task) =>
-          !task?.statuses?.id === 3 && new Date(task.due_date) < new Date()
+          task?.statuses?.id !== 3 && new Date(task.due_date) < new Date()
       ).length,
     [tasks]
   );
@@ -154,8 +216,13 @@ export const useTasks = () => {
     tasks,
     selectedTask,
     setSelectedTask,
-    loadingTasks,
-    error,
+
+    isLoadingList,
+    isLoadingTask,
+    isCreating,
+    isUpdating,
+    isDeleting,
+
     fetchTasks,
     getTaskById,
     createTask,

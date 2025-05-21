@@ -58,7 +58,7 @@ export const CompleteProfileRoute = () => {
   }
 
   if (user && isProfileComplete()) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Outlet />;
@@ -91,5 +91,5 @@ export const PublicRoute = () => {
     return <Navigate to="/update-password" replace />;
   }
 
-  return user ? <Navigate to="/" replace /> : <Outlet />;
+  return user ? <Navigate to="/dashboard" replace /> : <Outlet />;
 };

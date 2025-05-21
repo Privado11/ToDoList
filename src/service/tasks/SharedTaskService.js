@@ -55,7 +55,7 @@ class SharedTaskService extends BaseService {
     }
   }
 
-  static async shareTask(taskId, userId, recipientId, getTaskById) {
+  static async shareTask(taskId, userId, recipientId) {
     this.validateRequiredId(taskId, "Task ID");
     this.validateRequiredId(userId, "User ID");
 
@@ -67,7 +67,7 @@ class SharedTaskService extends BaseService {
       this.validateRecipientIds(recipientIds, "Recipient IDs");
 
       const { data, error } = await this.supabase.rpc(
-        "share_task_with_multiple_users",
+        "share_task_with_multiple_users1",
         {
           from_user_id: userId,
           to_user_ids: recipientIds,
@@ -77,11 +77,7 @@ class SharedTaskService extends BaseService {
 
       this.handleError(error, "Error sharing task");
 
-      const task = await getTaskById(taskId);
-      return {
-        message: data?.message || "Task shared successfully",
-        task,
-      };
+      return data?.[0];
     } catch (error) {
       console.error("Error sharing task:", error);
       throw error;
@@ -159,11 +155,34 @@ class SharedTaskService extends BaseService {
     }
   }
 
-  static async searchUsersForSharedTask(query, currentUserId, taskId) {
+  static async leaveSharedTask(id) {
+    this.validateRequiredId(id, "Shared Task ID");
+
+    console.log("Leaving shared task with ID:", id);
+
+    try {
+      const { data, error } = await this.supabase
+        .from("shared_tasks")
+        .delete()
+        .eq("id", id);
+
+      this.handleError(error, "Error leaving shared task");
+      return data;
+    } catch (error) {
+      console.error("Error leaving shared task:", error);
+      throw error;
+    }
+  }
+
+  static async searchUsersForSharedTask(
+    query,
+    currentUserId,
+    taskId,
+    selectedIds
+  ) {
     this.validateRequiredId(currentUserId, "Current User ID");
     this.validateRequiredId(taskId, "Task ID");
 
-  
     try {
       const { data, error } = await this.supabase.rpc(
         "search_users_for_shared_task",
@@ -171,6 +190,7 @@ class SharedTaskService extends BaseService {
           current_user_id: currentUserId,
           task_id: taskId,
           search_query: query,
+          selected_ids: selectedIds,
         }
       );
 

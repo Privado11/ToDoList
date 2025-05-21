@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { useEffect } from "react";
 
-const TaskBoard = ({ tasks, deleteTask, loadingTasks, leaveTask }) => {
+const TaskBoard = ({ tasks, isLoadingList,  }) => {
   const { activeFilter } = useOutletContext() || { activeFilter: "all" };
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const TaskBoard = ({ tasks, deleteTask, loadingTasks, leaveTask }) => {
 
   return (
     <>
-      {loadingTasks ? (
+      {isLoadingList ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
           <TaskCardSkeleton />
           <TaskCardSkeleton />
@@ -24,7 +24,7 @@ const TaskBoard = ({ tasks, deleteTask, loadingTasks, leaveTask }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
           {tasks.map((task, index) => (
             <div key={index} className="h-full">
-              <TaskCard {...task} deleteTask={deleteTask} leaveTask={leaveTask} />
+              <TaskCard {...task}  />
             </div>
           ))}
         </div>

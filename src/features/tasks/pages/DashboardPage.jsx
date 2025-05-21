@@ -1,4 +1,3 @@
-
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useOutletContext } from "react-router-dom";
@@ -6,10 +5,9 @@ import { useTaskContext } from "@/context/TaskContext";
 import { useAuth } from "@/context/AuthContext";
 import { ActivityFeed, TaskStats } from "@/components";
 import { TaskBoard } from "../components";
-import { MultiChatManager } from "@/features/chats";
 
 const DashboardPage = () => {
-  const { tasks, deleteTask, loadingTasks, cancelShareTask: leaveTask } = useTaskContext();
+  const { tasks, isLoadingList } = useTaskContext();
   const { profile: user } = useAuth();
   const navigate = useNavigate();
   const { activeFilter } = useOutletContext() || { activeFilter: "all" };
@@ -56,12 +54,7 @@ const DashboardPage = () => {
             <TaskStats />
           </div>
 
-          <TaskBoard
-            tasks={filteredTasks}
-            deleteTask={deleteTask}
-            loadingTasks={loadingTasks}
-            leaveTask={leaveTask}
-          />
+          <TaskBoard tasks={filteredTasks} isLoadingList={isLoadingList} />
         </div>
 
         <div className="hidden xl:block w-[300px] flex-shrink-0 lg:sticky lg:top-0">
@@ -69,9 +62,7 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      <div className="hidden md:block">
-        <MultiChatManager user={user} />
-      </div>
+    
     </div>
   );
 };
