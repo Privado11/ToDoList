@@ -5,7 +5,6 @@ const LoadingScreen = () => (
   <div className="flex justify-center items-center h-screen">Cargando...</div>
 );
 
-
 export const PasswordRecoveryGuard = () => {
   const { passwordRecoveryEmail, loading } = useAuthLogic();
 
@@ -13,7 +12,6 @@ export const PasswordRecoveryGuard = () => {
     return <LoadingScreen />;
   }
 
- 
   if (passwordRecoveryEmail) {
     return <Navigate to="/update-password" replace />;
   }
@@ -27,7 +25,6 @@ export const UpdatePasswordRoute = () => {
   if (loading) {
     return <LoadingScreen />;
   }
-
 
   if (!user && !passwordRecoveryEmail) {
     return <Navigate to="/login" replace />;
@@ -71,7 +68,6 @@ export const ProtectedRoute = () => {
     return <LoadingScreen />;
   }
 
-
   if (passwordRecoveryEmail) {
     return <Navigate to="/update-password" replace />;
   }
@@ -85,7 +81,6 @@ export const PublicRoute = () => {
   if (loading) {
     return <LoadingScreen />;
   }
-
 
   if (passwordRecoveryEmail) {
     return <Navigate to="/update-password" replace />;
