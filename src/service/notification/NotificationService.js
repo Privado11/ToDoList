@@ -6,7 +6,6 @@ class NotificationService extends BaseService {
     options = { limit: 20, offset: 0 }
   ) {
     this.validateRequiredId(userId, "User ID");
-
     try {
       const { data, error } = await this.supabase
         .from("notifications")

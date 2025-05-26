@@ -2,40 +2,56 @@ import BaseService from "../base/baseService";
 
 class SubscriptionService extends BaseService {
   static subscriptions = {
+    tasks: new Map(),
     comments: new Map(),
     sharedTasks: new Map(),
   };
 
-  static subscribeToTask(
-    taskId,
-    { onCommentsChange, onSharedTasksChange, getTaskById }
-  ) {
-    this.validateRequiredId(taskId, "Task ID");
+  static subscribeToUserTasks(userId, { onTasksChange, getTasks }) {
+    this.validateRequiredId(userId, "Task ID");
 
-    this.subscribeToComments(taskId, {
-      onCommentsChange,
-      getComments: async () => {
-        const task = await getTaskById(taskId);
-        return task?.comments || [];
-      },
-    });
+    if (this.subscriptions.tasks.has(userId)) {
+      this.unsubscribeFromComments(userId);
+    }
 
+    const subscription = this.supabase
+      .channel(`shared-tasks-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "shared_tasks",
+          filter: `recipient_id=eq.${userId}`,
+          columns: ['status']
+        },
+        async (payload) => {
+          try {
+            if (payload.old?.status !== payload.new?.status) {
+              const updateTasks = await getTasks(userId);
+              onTasksChange?.(updateTasks);
+            }
+          } catch (error) {
+            console.error("Error updating tasks in real-time:", error);
+          }
+        }
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log(`Subscribed to shared task updates for user ${userId}`);
+        }
+      });
 
-    this.subscribeToSharedTasks(taskId, {
-      onSharedTasksChange,
-      getUsersFromSharedTask: async () => {
-        const task = await getTaskById(taskId);
-        return task?.shared_tasks || [];
-      },
-    });
+      this.subscriptions.tasks.set(userId, {
+        subscription,
+        handlers: {
+          onChange: onTasksChange,
+          onOptimisticUpdate: null,
+          onOptimisticError: null,
+        },
+      });
 
-   
-    return {
-      unsubscribe: () => {
-        this.unsubscribeFromComments(taskId);
-        this.unsubscribeFromSharedTasks(taskId);
-      },
-    };
+    return subscription;
   }
 
   static subscribeToComments(taskId, { onCommentsChange, getComments }) {
@@ -158,6 +174,14 @@ class SubscriptionService extends BaseService {
     const subscriptionData = this.subscriptions[type].get(taskId);
     if (subscriptionData?.handlers.onOptimisticError) {
       await subscriptionData.handlers.onOptimisticError(optimisticData, error);
+    }
+  }
+
+  static unsubscribeFromTasks(userId) {
+    const subscriptionData = this.subscriptions.tasks.get(userId);
+    if (subscriptionData?.subscription) {
+      subscriptionData.subscription.unsubscribe();
+      this.subscriptions.tasks.delete(userId);
     }
   }
 

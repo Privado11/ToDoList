@@ -7,7 +7,7 @@ import { useTaskContext } from "@/context/TaskContext";
 import SharedWithList from "./SharedWithList";
 import { DialogConfirmation } from "@/view/DialogConfirmation";
 
-const SharedWithSection = ({ sharedTasks }) => {
+const SharedWithSection = ({ usersInSharedTasks }) => {
   const [userToDelete, setUserToDelete] = useState(null);
   const { cancelShareTask } = useTaskContext();
   const [localError, setLocalError] = useState(null);
@@ -39,12 +39,12 @@ const SharedWithSection = ({ sharedTasks }) => {
           Shared With
         </CardTitle>
         <Badge variant="secondary" className="text-sm sm:text-base">
-          {sharedTasks.length} {sharedTasks.length <= 1 ? "user" : "users"}
+          {usersInSharedTasks.length} {usersInSharedTasks.length <= 1 ? "user" : "users"}
         </Badge>
       </CardHeader>
       <CardContent>
         <SharedWithList
-          SharedWithList={sharedTasks}
+          SharedWithList={usersInSharedTasks}
           onDeleteUser={handleDeleteUser}
         />
       </CardContent>
@@ -66,7 +66,7 @@ const SharedWithSection = ({ sharedTasks }) => {
               <>
                 Cancel the invitation for{" "}
                 <strong>
-                  {userToDelete?.profile?.full_name || "this user"}
+                  {userToDelete?.full_name}
                 </strong>
                 ?
               </>
@@ -74,7 +74,7 @@ const SharedWithSection = ({ sharedTasks }) => {
               <>
                 You want to stop sharing this task with{" "}
                 <strong>
-                  {userToDelete?.profile?.full_name || "this user"}
+                  {userToDelete?.full_name}
                 </strong>
                 ?
               </>

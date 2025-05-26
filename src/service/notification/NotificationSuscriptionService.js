@@ -23,8 +23,8 @@ class NotificationSuscriptionService extends BaseService {
           event: "*",
           schema: "public",
           table: "notifications",
-          filter: `user_id=eq.${userId}`,
         },
+
         async (payload) => {
           try {
             const updatedNotification = await getNotifications(userId);

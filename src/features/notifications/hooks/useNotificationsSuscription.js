@@ -23,7 +23,7 @@ export const useNotificationsSuscription = (setNotifications) => {
 
       activeSubscriptionRef.current = subscription;
     },
-    [setNotifications, userId]
+    [setNotifications] 
   );
 
   const unsubscribe = useCallback(() => {

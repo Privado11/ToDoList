@@ -42,7 +42,7 @@ const CreatorInfo = ({ creator, date }) => {
             </div>
 
             <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3  cursor-pointer">
                 <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
                   {creator.full_name.charAt(0)}
                 </div>

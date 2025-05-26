@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -7,9 +7,10 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const SharedWithList = ({ SharedWithList, onDeleteUser }) => {
-  const is_shared = SharedWithList.some(
-    (user) => user.shared_status === "creator"
-  );
+ const is_shared = useMemo(
+   () => SharedWithList.some((user) => user.shared_status === "creator"),
+   [SharedWithList]
+ );
 
 
   return (

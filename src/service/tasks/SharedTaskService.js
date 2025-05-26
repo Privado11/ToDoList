@@ -18,25 +18,6 @@ class SharedTaskService extends BaseService {
     )
   `;
 
-  static async getSharedTasks(userId) {
-    this.validateRequiredId(userId, "User ID");
-
-    try {
-      const { data, error } = await this.supabase
-        .from("shared_tasks")
-        .select(this.SHARED_TASKS_SELECT)
-        .eq("recipient_id", userId)
-        .in("status", ["accepted", "pending"])
-        .order("created_at", { ascending: false });
-
-      this.handleError(error, "Error fetching shared tasks");
-      return data || [];
-    } catch (error) {
-      console.error("Error fetching shared tasks:", error);
-      throw error;
-    }
-  }
-
   static async getUsersFromSharedTask(taskId, userId) {
     this.validateRequiredId(taskId, "Task ID");
     this.validateRequiredId(userId, "User ID");
@@ -158,12 +139,10 @@ class SharedTaskService extends BaseService {
   static async leaveSharedTask(id) {
     this.validateRequiredId(id, "Shared Task ID");
 
-    console.log("Leaving shared task with ID:", id);
-
     try {
       const { data, error } = await this.supabase
         .from("shared_tasks")
-        .delete()
+        .update({ status: "cancelled" })
         .eq("id", id);
 
       this.handleError(error, "Error leaving shared task");

@@ -2,14 +2,9 @@ import { useOutletContext } from "react-router-dom";
 import { TaskCard, TaskCardSkeleton } from "../TaskCard";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { useEffect } from "react";
 
 const TaskBoard = ({ tasks, isLoadingList,  }) => {
   const { activeFilter } = useOutletContext() || { activeFilter: "all" };
-
-  useEffect(() => {
-    console.log(tasks);
-  }, [tasks]);
 
   return (
     <>

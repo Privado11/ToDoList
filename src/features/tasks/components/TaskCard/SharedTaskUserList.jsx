@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users } from "lucide-react";
 
 const SharedTaskUserList = ({ users = [] }) => {
+
   return (
     <div className="flex items-center gap-2">
       <TooltipProvider>
@@ -65,7 +66,7 @@ const SharedTaskUserList = ({ users = [] }) => {
                   key={i}
                   className="px-4 py-2 border-t border-gray-100 dark:border-gray-800"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3  cursor-pointer">
                     <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
                       <Avatar className="h-6 w-6 ">
                         <AvatarImage
@@ -79,7 +80,7 @@ const SharedTaskUserList = ({ users = [] }) => {
                     </div>
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-                        {collaborator?.profile?.full_name}
+                        {collaborator.is_me ? collaborator?.profile?.full_name + " (You)" : collaborator?.profile?.full_name}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {collaborator?.profile?.username}

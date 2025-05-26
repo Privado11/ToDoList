@@ -53,7 +53,6 @@ export const useMultiMessageSubscription = () => {
 
   const subscribeToMessages = useCallback(
     (conversationId, getMessages, onMessagesChange) => {
-      // Si ya existe una suscripción para esta conversación, no crear otra
       if (activeSubscriptionsRef.current.has(conversationId)) {
         return;
       }

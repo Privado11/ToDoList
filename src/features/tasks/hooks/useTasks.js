@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuthLogic } from "../../auth/hooks/useAuth";
 import TaskService from "@/service/tasks/TaskService";
 import { toast } from "sonner";
+import { useTaskSubscription } from "./useTaskSubscription";
 
 export const useTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -14,6 +15,19 @@ export const useTasks = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { profile: user } = useAuthLogic();
+
+  const { subscribeToUserTasks, unsubscribe: unsubscribeFromTasks } =
+    useTaskSubscription(setTasks);
+
+  useEffect(() => {
+    if (user && !user.is_anonymous) {
+      subscribeToUserTasks(user.id, () => TaskService.getTasks(user.id));
+    }
+
+    return () => {
+      unsubscribeFromTasks();
+    };
+  }, [user, subscribeToUserTasks, unsubscribeFromTasks]);
 
   const fetchTasks = useCallback(async () => {
     if (!user) return;

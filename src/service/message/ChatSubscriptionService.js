@@ -24,7 +24,6 @@ class ChatSubscriptionService extends BaseService {
         event: "*", 
         schema: "public",
         table: "user_conversations",
-        filter: `user_id=eq.${userId}`
       },
         async (payload) => {
           try {

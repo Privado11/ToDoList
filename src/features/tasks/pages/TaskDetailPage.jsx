@@ -17,7 +17,7 @@ function TaskDetailPage() {
     getTaskById,
     selectedTask,
     attachments,
-    sharedTasks,
+    usersInSharedTasks,
     comments,
   } = useTaskContext();
 
@@ -128,7 +128,7 @@ function TaskDetailPage() {
 
         <AttachmentSection attachments={attachments} />
 
-        <SharedWithSection sharedTasks={sharedTasks} />
+        <SharedWithSection usersInSharedTasks={usersInSharedTasks} />
 
         <CommentSection
           comments={comments}

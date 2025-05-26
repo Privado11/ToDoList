@@ -1,54 +1,37 @@
 import { SubscriptionService } from "@/service";
 import { useRef, useCallback, useEffect, useState } from "react";
 
-export const useTaskSubscription = (setSelectedTask) => {
+export const useTaskSubscription = (setTasks) => {
   const activeSubscriptionRef = useRef(null);
-  const [taskId, setTaskId] = useState(null);
+  const [userId, setUserId] = useState(null);
 
-  const subscribeToTask = useCallback(
-    (id, getTaskById) => {
+  const subscribeToUserTasks = useCallback(
+    (id, getTasks) => {
       if (activeSubscriptionRef.current) {
         SubscriptionService.unsubscribeFromAll();
       }
 
-      setTaskId(id);
+      setUserId(id);
 
-      const subscription = SubscriptionService.subscribeToTask(id, {
-        onCommentsChange: (updatedComments) => {
-          setSelectedTask((prevTask) =>
-            prevTask
-              ? {
-                  ...prevTask,
-                  comments: updatedComments,
-                }
-              : null
-          );
+      const subscription = SubscriptionService.subscribeToUserTasks(id, {
+        onTasksChange: (updateTasks) => {
+          setTasks(updateTasks);
         },
-        onSharedTasksChange: (updatedSharedTasks) => {
-          setSelectedTask((prevTask) =>
-            prevTask
-              ? {
-                  ...prevTask,
-                  shared_tasks: updatedSharedTasks,
-                }
-              : null
-          );
-        },
-        getTaskById,
+        getTasks,
       });
 
       activeSubscriptionRef.current = subscription;
     },
-    [setSelectedTask]
+    [setTasks, userId]
   );
 
   const unsubscribe = useCallback(() => {
-    if (activeSubscriptionRef.current) {
-      SubscriptionService.unsubscribeFromAll();
+    if (activeSubscriptionRef.current && userId) {
+      SubscriptionService.unsubscribeFromTasks(userId);
       activeSubscriptionRef.current = null;
-      setTaskId(null);
+      setUserId(null);
     }
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     return () => {
@@ -56,7 +39,7 @@ export const useTaskSubscription = (setSelectedTask) => {
     };
   }, [unsubscribe]);
 
-  return { subscribeToTask, unsubscribe };
+  return { subscribeToUserTasks, unsubscribe };
 };
 
 export const useCommentsSubscription = (setComments) => {
@@ -114,7 +97,6 @@ export const useSharedTasksSubscription = (setSharedTasks) => {
       }
 
       setTaskId(id);
-
 
       if (typeof getUsersFromSharedTask !== "function") {
         console.error("getUsersFromSharedTask debe ser una función");

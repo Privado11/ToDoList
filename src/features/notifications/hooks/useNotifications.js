@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react"; 
 import { toast } from "sonner";
 import { useAuthLogic } from "@/features/auth";
 import { NotificationService } from "@/service";
-import NotificationGlobalService from "@/service/notification/NotificationGlobalService";
-import { set } from "date-fns";
+
+import { useNotificationsSuscription } from "./useNotificationsSuscription";
 
 export const useNotifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -15,6 +15,30 @@ export const useNotifications = () => {
   const limit = 20;
 
   const { profile: user } = useAuthLogic();
+
+  const {
+    subscribeToNotifications,
+    unsubscribe: unsubscribeFromNotifications,
+  } = useNotificationsSuscription(setNotifications);
+
+
+  const loadInitialNotifications = useCallback(async (userId) => {
+    try {
+      setLoading(true);
+      const initialNotifications =
+        await NotificationService.getUserNotifications(userId, {
+          limit: 20,
+          offset: 0,
+        });
+      setNotifications(initialNotifications);
+      setPage(1); 
+    } catch (err) {
+      setError(err.message);
+      console.error("Error loading initial notifications:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (user?.is_anonymous) {
@@ -28,26 +52,32 @@ export const useNotifications = () => {
 
     setAnonymousMessage(null);
 
-      if (!user) {
-        setLoading(false);
-        NotificationGlobalService.handleLogout();
-        return;
-      }
-      setLoading(true);
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
-    NotificationGlobalService.initialize(user.id);
 
-    const unsubscribe = NotificationGlobalService.subscribe(
-      (updatedNotifications) => {
-        setNotifications(updatedNotifications);
-        setLoading(false);
-      }
+
+    loadInitialNotifications(user.id);
+
+
+    subscribeToNotifications(user.id, () =>
+      NotificationService.getUserNotifications(user.id, {
+        limit: 20,
+        offset: 0,
+      })
     );
 
     return () => {
-      unsubscribe();
+      unsubscribeFromNotifications();
     };
-  }, [user]);
+  }, [
+    user,
+    subscribeToNotifications,
+    unsubscribeFromNotifications,
+    loadInitialNotifications,
+  ]);
 
   const loadMoreNotifications = useCallback(async () => {
     if (!user || user.is_anonymous || !hasMore || loading) return;
@@ -75,21 +105,39 @@ export const useNotifications = () => {
     }
   }, [user, hasMore, loading, page]);
 
-  const markAsRead = useCallback(async (notificationId) => {
-    if (!notificationId) return;
-    await NotificationGlobalService.markAsRead(notificationId);
-  }, []);
+  const markAsRead = useCallback(
+    async (notificationId) => {
+      if (!notificationId || !user?.id) return; // ✅ Validación añadida
+
+      try {
+        await NotificationService.markNotificationAsRead(
+          notificationId,
+          user.id
+        );
+      } catch (err) {
+        console.error("Error marking notification as read:", err);
+        toast.error("Error al marcar notificación como leída");
+      }
+    },
+    [user]
+  );
 
   const markAllAsRead = useCallback(async () => {
-    await NotificationGlobalService.markAllAsRead();
-  }, []);
+    if (!user?.id) return;  
 
-  const refreshNotifications = useCallback(() => {
-    if (user) {
-      setLoading(true);
-      NotificationGlobalService.fetchNotifications();
+    try {
+      await NotificationService.markAllNotificationsAsRead(user.id);
+    } catch (err) {
+      console.error("Error marking all notifications as read:", err);
+      toast.error("Error al marcar todas las notificaciones como leídas");
     }
   }, [user]);
+
+  const refreshNotifications = useCallback(() => {
+    if (user?.id) {
+      loadInitialNotifications(user.id);
+    }
+  }, [user, loadInitialNotifications]);
 
   return {
     notifications,

@@ -34,7 +34,7 @@ export const useComments = (taskId) => {
       setComments(data);
       setError(null);
     } catch (err) {
-      setError("Error al cargar los comentarios");
+      setError("Error fetching comment");
       console.error("Error fetching comments:", err);
     } finally {
       setIsLoading(false);
