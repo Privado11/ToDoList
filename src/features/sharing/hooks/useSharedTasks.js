@@ -4,7 +4,7 @@ import { SharedTaskService } from "@/service";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-export const useSharedTasks = (taskId, fetchTasks) => {
+export const useSharedTasks = (taskId, setTasks) => {
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [usersInSharedTasks, setUsersInSharedTasks] = useState([]);
@@ -30,7 +30,6 @@ export const useSharedTasks = (taskId, fetchTasks) => {
     return taskToShare || taskId;
   }, [taskToShare, taskId]);
 
-
   const setLoading = useCallback((operation, value, id = null) => {
     setLoadingStates((prev) => {
       if (operation === "shareTask") {
@@ -45,7 +44,6 @@ export const useSharedTasks = (taskId, fetchTasks) => {
     });
   }, []);
 
-
   useEffect(() => {
     if (taskId && !user.is_anonymous) {
       subscribeToSharedTasks(taskId, () =>
@@ -57,7 +55,6 @@ export const useSharedTasks = (taskId, fetchTasks) => {
       unsubscribeFromSharedTasks();
     };
   }, [taskId, subscribeToSharedTasks, unsubscribeFromSharedTasks]);
-
 
   useEffect(() => {
     setLoading("searchUsers", true);
@@ -89,73 +86,72 @@ export const useSharedTasks = (taskId, fetchTasks) => {
     return () => clearTimeout(timeoutId);
   }, [query, user, getEffectiveTaskId, setLoading, selectedUsers]);
 
-
   const fetchUsersInSharedTasks = useCallback(async () => {
     if (!taskId || !user?.id) return;
 
-     try {
-       setLoading("fetchUsersInSharedTasks", true);
-       const data = await SharedTaskService.getUsersFromSharedTask(
-         taskId,
-         user.id
-       );
-       setUsersInSharedTasks(data);
-     } catch (err) {
-       toast.error("Error loading shared task users", {
-         description: "Please try again later",
-         action: {
-           label: "Retry",
-           onClick: () => fetchUsersInSharedTasks(),
-         },
-       });
-     } finally {
-       setLoading("fetchUsersInSharedTasks", false);
-     }
-  }, [user?.id, taskId, setLoading]);
-
-   useEffect(() => {
-     if (taskId && user.id) {
-       fetchUsersInSharedTasks();
-     }
-   }, [taskId, fetchUsersInSharedTasks]);
-
-
-  const shareTask = useCallback(async (recipientIds) => {
-    if (!user?.id) return;
-
-    const effectiveTaskId = getEffectiveTaskId();
-
-
     try {
-      setLoading("shareTask", recipientIds);
-      const result = await SharedTaskService.shareTask(
-        effectiveTaskId,
-        user.id,
-        recipientIds
+      setLoading("fetchUsersInSharedTasks", true);
+      const data = await SharedTaskService.getUsersFromSharedTask(
+        taskId,
+        user.id
       );
-
-      toast.success("Task shared successfully", {
-        description: `"${result.title}" has been shared successfully.`,
-        action: {
-          label: "Dismiss",
-          onClick: () => toast.dismiss(),
-        },
-      });
-
-      return result;
+      setUsersInSharedTasks(data);
     } catch (err) {
-      toast.error("Error sharing task", {
+      toast.error("Error loading shared task users", {
         description: "Please try again later",
         action: {
           label: "Retry",
-          onClick: () => shareTask(recipientIds),
+          onClick: () => fetchUsersInSharedTasks(),
         },
       });
-      throw err;
     } finally {
-      setLoading("shareTask", false);
+      setLoading("fetchUsersInSharedTasks", false);
     }
-  }, [user, getEffectiveTaskId, setLoading, selectedUsers]);
+  }, [user?.id, taskId, setLoading]);
+
+  useEffect(() => {
+    if (taskId && user.id) {
+      fetchUsersInSharedTasks();
+    }
+  }, [taskId, fetchUsersInSharedTasks]);
+
+  const shareTask = useCallback(
+    async (recipientIds) => {
+      if (!user?.id) return;
+
+      const effectiveTaskId = getEffectiveTaskId();
+
+      try {
+        setLoading("shareTask", recipientIds);
+        const result = await SharedTaskService.shareTask(
+          effectiveTaskId,
+          user.id,
+          recipientIds
+        );
+        toast.success("Task shared successfully", {
+          description: `"${result}" has been shared successfully.`,
+          action: {
+            label: "Dismiss",
+            onClick: () => toast.dismiss(),
+          },
+        });
+
+        return result;
+      } catch (err) {
+        toast.error("Error sharing task", {
+          description: "Please try again later",
+          action: {
+            label: "Retry",
+            onClick: () => shareTask(recipientIds),
+          },
+        });
+        throw err;
+      } finally {
+        setLoading("shareTask", false);
+      }
+    },
+    [user, getEffectiveTaskId, setLoading, selectedUsers]
+  );
 
   const getAvailableFriendsForTask = useCallback(async () => {
     if (!user?.id) return;
@@ -198,9 +194,7 @@ export const useSharedTasks = (taskId, fetchTasks) => {
       updateSharedTaskStatus(invitationId, status);
 
       const updatedTask = await SharedTaskService.acceptTaskShare(invitationId);
-      await fetchTasks();
 
-     
       return updatedTask;
     } catch (err) {
       toast.error("Error accepting task share", {
@@ -252,7 +246,9 @@ export const useSharedTasks = (taskId, fetchTasks) => {
 
     try {
       setLoading("cancelTask", sharedTaskId);
-      setUsersInSharedTasks((prev) => prev.filter((task) => task.id !== sharedTaskId));
+      setUsersInSharedTasks((prev) =>
+        prev.filter((task) => task.id !== sharedTaskId)
+      );
 
       await SharedTaskService.cancelShareTask(sharedTaskId);
     } catch (err) {
@@ -275,7 +271,9 @@ export const useSharedTasks = (taskId, fetchTasks) => {
 
     try {
       setLoading("cancelTask", sharedTaskId);
-      setUsersInSharedTasks((prev) => prev.filter((task) => task.id !== sharedTaskId));
+      setUsersInSharedTasks((prev) =>
+        prev.filter((task) => task.id !== sharedTaskId)
+      );
 
       await SharedTaskService.leaveSharedTask(sharedTaskId);
     } catch (err) {
@@ -291,7 +289,7 @@ export const useSharedTasks = (taskId, fetchTasks) => {
     } finally {
       setLoading("cancelTask", null);
     }
-  }
+  };
 
   return {
     query,

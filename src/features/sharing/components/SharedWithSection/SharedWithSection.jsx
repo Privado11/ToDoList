@@ -7,7 +7,7 @@ import { useTaskContext } from "@/context/TaskContext";
 import SharedWithList from "./SharedWithList";
 import { DialogConfirmation } from "@/view/DialogConfirmation";
 
-const SharedWithSection = ({ usersInSharedTasks }) => {
+const SharedWithSection = ({ usersInSharedTasks = [] }) => {
   const [userToDelete, setUserToDelete] = useState(null);
   const { cancelShareTask } = useTaskContext();
   const [localError, setLocalError] = useState(null);

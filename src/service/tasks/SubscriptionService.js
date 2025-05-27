@@ -22,12 +22,13 @@ class SubscriptionService extends BaseService {
           event: "UPDATE",
           schema: "public",
           table: "shared_tasks",
-          filter: `recipient_id=eq.${userId}`,
-          columns: ['status']
+          filter: `or(recipient_id.eq.${userId},sender_id.eq.${userId})`,
+          columns: ["status"],
         },
         async (payload) => {
           try {
             if (payload.old?.status !== payload.new?.status) {
+              console.log("funciona");
               const updateTasks = await getTasks(userId);
               onTasksChange?.(updateTasks);
             }

@@ -48,7 +48,7 @@ class SharedTaskService extends BaseService {
       this.validateRecipientIds(recipientIds, "Recipient IDs");
 
       const { data, error } = await this.supabase.rpc(
-        "share_task_with_multiple_users1",
+        "share_task_with_multiple_users",
         {
           from_user_id: userId,
           to_user_ids: recipientIds,
@@ -58,7 +58,7 @@ class SharedTaskService extends BaseService {
 
       this.handleError(error, "Error sharing task");
 
-      return data?.[0];
+      return data;
     } catch (error) {
       console.error("Error sharing task:", error);
       throw error;
@@ -142,7 +142,10 @@ class SharedTaskService extends BaseService {
     try {
       const { data, error } = await this.supabase
         .from("shared_tasks")
-        .update({ status: "cancelled" })
+        .update({
+          status: "cancelled",
+          updated_at: new Date(),
+        })
         .eq("id", id);
 
       this.handleError(error, "Error leaving shared task");
