@@ -8,51 +8,81 @@ class SubscriptionService extends BaseService {
   };
 
   static subscribeToUserTasks(userId, { onTasksChange, getTasks }) {
-    this.validateRequiredId(userId, "Task ID");
+    this.validateRequiredId(userId, "User ID");
+
 
     if (this.subscriptions.tasks.has(userId)) {
-      this.unsubscribeFromComments(userId);
+      this.unsubscribeFromTasks(userId);
     }
 
-    const subscription = this.supabase
-      .channel(`shared-tasks-${userId}`)
+
+    const handleTaskUpdate = async (payload) => {
+      try {
+        if (payload.old?.status !== payload.new?.status) {
+          console.log("Task status updated:", payload);
+          const updatedTasks = await getTasks(userId);
+          onTasksChange?.(updatedTasks);
+        }
+      } catch (error) {
+        console.error("Error updating tasks in real-time:", error);
+      }
+    };
+
+
+    const recipientSubscription = this.supabase
+      .channel(`shared-tasks-recipient-${userId}`)
       .on(
         "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
           table: "shared_tasks",
-          filter: `or(recipient_id.eq.${userId},sender_id.eq.${userId})`,
+          filter: `recipient_id=eq.${userId}`,
           columns: ["status"],
         },
-        async (payload) => {
-          try {
-            if (payload.old?.status !== payload.new?.status) {
-              console.log("funciona");
-              const updateTasks = await getTasks(userId);
-              onTasksChange?.(updateTasks);
-            }
-          } catch (error) {
-            console.error("Error updating tasks in real-time:", error);
-          }
-        }
+        handleTaskUpdate
       )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
-          console.log(`Subscribed to shared task updates for user ${userId}`);
+          console.log(
+            `Subscribed to shared task updates as recipient for user ${userId}`
+          );
         }
       });
 
-      this.subscriptions.tasks.set(userId, {
-        subscription,
-        handlers: {
-          onChange: onTasksChange,
-          onOptimisticUpdate: null,
-          onOptimisticError: null,
+
+    const senderSubscription = this.supabase
+      .channel(`shared-tasks-sender-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "shared_tasks",
+          filter: `sender_id=eq.${userId}`,
+          columns: ["status"],
         },
+        handleTaskUpdate
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          console.log(
+            `Subscribed to shared task updates as sender for user ${userId}`
+          );
+        }
       });
 
-    return subscription;
+    this.subscriptions.tasks.set(userId, {
+      recipientSubscription,
+      senderSubscription,
+      handlers: {
+        onChange: onTasksChange,
+        onOptimisticUpdate: null,
+        onOptimisticError: null,
+      },
+    });
+
+    return { recipientSubscription, senderSubscription };
   }
 
   static subscribeToComments(taskId, { onCommentsChange, getComments }) {
