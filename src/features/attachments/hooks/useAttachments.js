@@ -7,10 +7,7 @@ export const useAttachments = (taskId) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    console.log(taskId);
-  }, [taskId]);
-
+  
   const fetchAttachments = useCallback(async () => {
     setLoading(true);
     setError(null);

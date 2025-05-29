@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { BsFileEarmark } from "react-icons/bs";
-import { useTaskContext } from "@/context/TaskContext";
 import FileUploadArea from "../FileUploadArea";
 import UploadingFilesList from "../UploadingFilesList";
 import AttachmentsList from "../AttachmentsList";
 import { DialogConfirmation } from "@/view/DialogConfirmation";
+import { useTaskContext } from "@/context";
 
 
 const AttachmentSection = ({ attachments = [], taskId }) => {

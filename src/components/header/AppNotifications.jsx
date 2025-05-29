@@ -11,11 +11,9 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import NotificationsPopover from "./NotificationsPopover";
-import { useNotification } from "@/context/NotificationContext";
-import { useFriendShipContext } from "@/context/FriendShipContext";
-import { useTaskContext } from "@/context/TaskContext";
+import { useFriendShipContext, useNotification, usePopover, useTaskContext } from "@/context";
 import { useNavigate } from "react-router-dom";
-import { usePopover } from "@/context/PopoverContext";
+;
 
 const AppNotifications = () => {
   const {

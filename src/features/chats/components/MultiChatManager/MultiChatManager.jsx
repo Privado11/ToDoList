@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useChat } from "@/context/ChatContex";
-import { useAuthLogic } from "@/features/auth";
 import MinimizedChatsContainer from "../MinimizedChatsContainer";
 import ActiveChat from "../ActiveChat";
+import { useChat } from "@/context";
 
-const MultiChatManager = ({user}) => {
+const MultiChatManager = ({ user }) => {
   const {
     conversations,
     selectedConversation,
@@ -23,9 +22,6 @@ const MultiChatManager = ({user}) => {
 
   const chatContainerRefs = useRef({});
 
-  useEffect (() => {
-    console.log(conversations);
-  }, [conversations]);
 
   useEffect(() => {
     conversations.forEach((conv) => {
@@ -71,14 +67,12 @@ const MultiChatManager = ({user}) => {
     }
   };
 
-
   const minimizedChatIds = minimizedChats
     .map((chat) => chat?.id)
     .filter(Boolean);
 
   return (
     <div className="relative">
-
       <MinimizedChatsContainer
         minimizedChatIds={minimizedChatIds}
         conversations={conversations}

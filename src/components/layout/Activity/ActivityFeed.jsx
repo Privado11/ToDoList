@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useNotification } from "@/context/NotificationContext";
+import { useNotification } from "@/context";
 import { formatDistanceToNow } from "date-fns";
 import { Circle } from "lucide-react";
 import { useNavigate } from "react-router-dom";

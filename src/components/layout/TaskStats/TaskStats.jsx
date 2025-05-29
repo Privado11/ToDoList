@@ -1,9 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton"
-
-
+import { useTaskContext } from "@/context";
 import { ChartPie, CircleDashed, CircleCheckBig, ClockAlert } from "lucide-react";
-import { useTaskContext } from "@/context/TaskContext";
+
 
 function TaskStats() {
   const { completedTasks, inProgressTasks, overdueTasks, isLoadingList } =

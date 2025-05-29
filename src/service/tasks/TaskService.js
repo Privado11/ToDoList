@@ -13,6 +13,12 @@ class TaskService extends BaseService {
       ...taskData
     } = data;
 
+
+    if (taskData.title) {
+      taskData.title =
+        taskData.title.charAt(0).toUpperCase() + taskData.title.slice(1);
+    }
+
     if (taskData.due_date) {
       const dueDate = new Date(taskData.due_date);
       dueDate.setHours(23, 59, 59, 999);
@@ -90,7 +96,7 @@ class TaskService extends BaseService {
       const { data, error } = await this.supabase.rpc("update_task", {
         p_task_id: id,
         p_task_data: preparedData,
-        p_mode: mode
+        p_mode: mode,
       });
 
       this.handleError(error, "Error updating task");

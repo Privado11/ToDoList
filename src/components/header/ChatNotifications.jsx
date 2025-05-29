@@ -3,9 +3,9 @@ import { MessageSquare } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import NotificationsPopover from "./NotificationsPopover";
-import { useChat } from "@/context/ChatContex";
 import { formatConversationDate } from "@/lib/formatConversationDate";
-import { usePopover } from "@/context/PopoverContext";
+import { useChat, usePopover } from "@/context";
+
 
 const ChatNotifications = () => {
   const {

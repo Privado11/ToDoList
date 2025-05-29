@@ -4,7 +4,7 @@ import { AuthProvider } from "./AuthContext";
 import { TaskProvider } from "./TaskContext";
 import { UserProvider } from "./UserContext";
 import { FriendShipProvider } from "./FriendShipContext";
-import { ChatProvider } from "./ChatContex";
+import { ChatProvider } from "./ChatContext";
 import { NotificationProvider } from "./NotificationContext";
 import { PopoverProvider } from "./PopoverContext";
 

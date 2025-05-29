@@ -1,4 +1,3 @@
-// File: components/attachments/FileUploadArea.jsx
 import { useState, useCallback } from "react";
 import { BsUpload } from "react-icons/bs";
 

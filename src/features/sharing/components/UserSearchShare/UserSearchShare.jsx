@@ -3,9 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { X, Share, Users } from "lucide-react";
-import { useTaskContext } from "@/context/TaskContext";
+import { useTaskContext } from "@/context";
 
-const UserSearchShare = ({ onShareTask }) => {
+const UserSearchShare = ({ handleOpenChange }) => {
   const {
     query,
     setQuery,
@@ -14,6 +14,7 @@ const UserSearchShare = ({ onShareTask }) => {
     selectedUsers,
     setSelectedUsers,
     isTaskBeingSharedWithUser,
+    shareTask,
   } = useTaskContext();
 
   const [sharing, setSharing] = useState(false);
@@ -31,29 +32,28 @@ const UserSearchShare = ({ onShareTask }) => {
     async (user) => {
       setSharing(true);
       try {
-        await onShareTask([user.user_id]);
+        await shareTask([user.user_id]);
         removeUser(user.user_id);
-      } catch (sharedTaskError) {
-        console.sharedTaskError("Sharing sharedTaskError:", sharedTaskError);
+        handleOpenChange(false);
+      } catch (error) {
       } finally {
         setSharing(false);
       }
     },
-    [onShareTask, removeUser]
+    [shareTask, removeUser]
   );
 
   const handleShareWithUsers = useCallback(async () => {
     setSharing(true);
     try {
       const userIds = selectedUsers.map((user) => user.user_id);
-      await onShareTask(userIds);
+      await shareTask(userIds);
       setSelectedUsers([]);
-    } catch (sharedTaskError) {
-      console.sharedTaskError("Sharing sharedTaskError:", sharedTaskError);
+    } catch (error) {
     } finally {
       setSharing(false);
     }
-  }, [selectedUsers, onShareTask]);
+  }, [selectedUsers, shareTask]);
 
   return (
     <div className="space-y-4">
@@ -96,14 +96,10 @@ const UserSearchShare = ({ onShareTask }) => {
                       >
                         <Avatar className="w-8 h-8">
                           <AvatarImage src={user.avatar_url} />
-                          <AvatarFallback>
-                            {user.username?.[0] || user.full_name?.[0] || "U"}
-                          </AvatarFallback>
+                          <AvatarFallback>{user.full_name?.[0]}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium">
-                            {user.full_name || "Sin nombre"}
-                          </div>
+                          <div className="font-medium">{user.full_name}</div>
                           <div className="text-sm text-gray-500">
                             {user.username}
                           </div>
@@ -143,14 +139,10 @@ const UserSearchShare = ({ onShareTask }) => {
               <div className="flex items-center gap-3">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={user.avatar_url} />
-                  <AvatarFallback>
-                    {user.username?.[0] || user.full_name?.[0] || "U"}
-                  </AvatarFallback>
+                  <AvatarFallback>{user.full_name?.[0]}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <div className="font-medium">
-                    {user.full_name || "Sin nombre"}
-                  </div>
+                  <div className="font-medium">{user.full_name}</div>
                   <div className="text-sm text-gray-500">{user.username}</div>
                 </div>
               </div>
@@ -163,7 +155,9 @@ const UserSearchShare = ({ onShareTask }) => {
                   disabled={sharing}
                 >
                   <Share className="w-4 h-4" />
-                  {isTaskBeingSharedWithUser(user.user_id) ? "Sharing..." : "Share"}
+                  {isTaskBeingSharedWithUser(user.user_id)
+                    ? "Sharing..."
+                    : "Share"}
                 </Button>
                 <Button
                   variant="ghost"

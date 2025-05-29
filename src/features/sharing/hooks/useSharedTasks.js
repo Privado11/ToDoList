@@ -4,11 +4,12 @@ import { SharedTaskService } from "@/service";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
-export const useSharedTasks = (taskId, setTasks) => {
+export const useSharedTasks = (taskId) => {
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [usersInSharedTasks, setUsersInSharedTasks] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [friendsList, setFriendsList] = useState([]);
   const [taskToShare, setTaskToShare] = useState(null);
 
   const [loadingStates, setLoadingStates] = useState({
@@ -157,7 +158,6 @@ export const useSharedTasks = (taskId, setTasks) => {
     if (!user?.id) return;
 
     const effectiveTaskId = getEffectiveTaskId();
-    if (!effectiveTaskId) return;
 
     try {
       setLoading("getFriends", true);
@@ -165,15 +165,8 @@ export const useSharedTasks = (taskId, setTasks) => {
         user.id,
         effectiveTaskId
       );
-      return data;
+      setFriendsList(data);
     } catch (err) {
-      toast.error("Error fetching friends", {
-        description: "Please try again later",
-        action: {
-          label: "Retry",
-          onClick: () => getAvailableFriendsForTask(),
-        },
-      });
       throw err;
     } finally {
       setLoading("getFriends", false);

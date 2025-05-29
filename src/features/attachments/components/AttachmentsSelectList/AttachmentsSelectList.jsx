@@ -1,7 +1,6 @@
 import { File, Trash2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import { fileUtils } from "../../utils/FileUtils";
 
 const AttachmentsSelectList = ({

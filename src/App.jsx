@@ -1,7 +1,7 @@
 import React from "react";
 import { AppUI } from "./AppUI";
 import { BrowserRouter } from "react-router-dom";
-import { CombinedProviders } from "./context/CombinedProviders";
+import { CombinedProviders } from "./context";
 import "./index.css";
 
 function App() {

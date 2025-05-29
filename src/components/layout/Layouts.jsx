@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import { Header, Sidebar } from "@/components";
 import { useState } from "react";
 import { MultiChatManager } from "@/features";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context";
 
 function MainLayout({ showSidebar = true }) {
   const [activeFilter, setActiveFilter] = useState("all");

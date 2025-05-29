@@ -3,10 +3,9 @@ import { Search, X, CheckCircle, Clock, User, RotateCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useTaskContext } from "@/context/TaskContext";
-import { useFriendShipContext } from "@/context/FriendShipContext";
 import UserActionButtons from "./UserActionButtons";
 import { useNavigate } from "react-router-dom";
+import { useFriendShipContext, useTaskContext } from "@/context";
 
 const STATUS_CONFIG = {
   Completed: {

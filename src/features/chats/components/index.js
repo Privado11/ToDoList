@@ -1,9 +1,6 @@
-export { default as ChatHeader } from "./ChatHeader";
 export { default as MessageInput } from "./MessageInput";
 export { default as MessageItem } from "./MessageItem";
 export { default as MessageList } from "./MessageList";
-export { default as NewMessageNotification } from "./NewMessageNotification";
-export { default as ChatComponent } from "./ChatComponent";
 export { default as MultiChatManager } from "./MultiChatManager";
 export { default as NewChatButton } from "./NewChatButton";
 export { default as ActiveChat } from "./ActiveChat";

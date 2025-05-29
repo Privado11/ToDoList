@@ -13,6 +13,8 @@ import { useTaskContext } from "@/context/TaskContext";
 const TaskForm = ({ task, setTask }) => {
   const { categories, priorities, statuses } = useTaskContext();
 
+  const today = new Date().toISOString().split("T")[0];
+
   const onInputChange = (e) => {
     setTask({ ...task, [e.target.name]: e.target.value });
   };
@@ -61,6 +63,7 @@ const TaskForm = ({ task, setTask }) => {
               type="date"
               id="due_date"
               name="due_date"
+              min={today}
               value={
                 task?.due_date
                   ? new Date(task.due_date).toISOString().split("T")[0]
