@@ -34,7 +34,7 @@ export const PopoverProvider = ({ children }) => {
 export const usePopover = () => {
   const context = useContext(PopoverContext);
   if (!context) {
-    throw new Error("usePopover debe ser usado dentro de un PopoverProvider");
+    throw new Error("usePopover must be used inside a PopoverProvider");
   }
   return context;
 };

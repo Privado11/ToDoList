@@ -14,26 +14,57 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import EditTask from "../EditTask";
 
-const TaskHeader = ({ task, onEdit }) => {
+const TaskHeader = ({
+  id,
+  title,
+  description,
+  priorities,
+  categories,
+  statuses,
+  due_date,
+  is_shared,
+  onEdit,
+  editDialogOpen,
+  setEditDialogOpen,
+  isUpdating,
+}) => {
   const [shareOpen, setShareOpen] = useState(false);
   const { profile: user } = useAuth();
+   const initialTaskState = {
+     id,
+     title,
+     description,
+     category_id: categories?.id || null,
+     status_id: statuses?.id || 1,
+     priority_id: priorities?.id || 1,
+     due_date,
+   };
+  const [taskData, setTaskData] = useState(initialTaskState);
 
   const handleShare = () => {
-    if (!task?.is_shared) {
+    if (!is_shared) {
       setShareOpen(true);
     }
+  };
+
+  const handleEditClick = () => {
+    setEditDialogOpen(true);
+  };
+
+  const handleSubmitEdit = (e) => {
+    e.preventDefault();
+    onEdit(taskData);
   };
 
   const formatDate = (dateString) => {
     if (!dateString) return "No date";
 
     const [year, month, day] = dateString.split("T")[0].split("-").map(Number);
-
     const date = new Date(year, month - 1, day);
-
     return date.toLocaleDateString();
   };
 
@@ -42,26 +73,25 @@ const TaskHeader = ({ task, onEdit }) => {
       <div className="flex flex-col md:flex-row md:justify-between md:items-center">
         <div className="flex justify-between items-center w-full">
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold pr-4 flex-1">
-            {task?.title}
+            {title}
           </h1>
 
           <div className="flex sm:hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="gosth" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-8 w-8">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {/* Share option */}
                 <DropdownMenuItem
                   onClick={handleShare}
-                  disabled={task?.is_shared}
+                  disabled={is_shared}
                   className="cursor-pointer"
                 >
                   <Share className="mr-2 h-4 w-4" />
                   <span>Share</span>
-                  {task?.is_shared && (
+                  {is_shared && (
                     <span className="text-sm text-gray-500 ml-2">
                       (Author only)
                     </span>
@@ -69,15 +99,15 @@ const TaskHeader = ({ task, onEdit }) => {
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  onClick={onEdit}
-                  disabled={task?.is_shared}
+                  onClick={handleEditClick}
+                  disabled={is_shared}
                   className={`cursor-pointer ${
-                    task?.is_shared ? "opacity-50" : ""
+                    is_shared ? "opacity-50" : ""
                   }`}
                 >
                   <Edit className="mr-2 h-4 w-4" />
                   <span>Edit Task</span>
-                  {task?.is_shared && (
+                  {is_shared && (
                     <span className="text-sm text-gray-500 ml-2">
                       (Author only)
                     </span>
@@ -96,16 +126,16 @@ const TaskHeader = ({ task, onEdit }) => {
                   <Button
                     className="text-lg w-32"
                     onClick={handleShare}
-                    disabled={task?.is_shared || user?.is_anonymous}
+                    disabled={is_shared || user?.is_anonymous}
                   >
                     <Share className="w-5 h-5 mr-2" />
                     Share
                   </Button>
                 </div>
               </TooltipTrigger>
-              {(task?.is_shared || user?.is_anonymous) && (
+              {(is_shared || user?.is_anonymous) && (
                 <TooltipContent>
-                  {task?.is_shared ? (
+                  {is_shared ? (
                     <p>
                       You cannot share this task because it is being shared with
                       you. <br /> Only the author can share it.
@@ -126,23 +156,21 @@ const TaskHeader = ({ task, onEdit }) => {
                 <div>
                   <Button
                     className="text-lg w-32"
-                    onClick={onEdit}
-                    disabled={task?.is_shared}
+                    onClick={handleEditClick}
+                    disabled={is_shared}
                   >
                     <Edit className="w-5 h-5 mr-2" />
                     Edit Task
                   </Button>
                 </div>
               </TooltipTrigger>
-              {task?.is_shared && (
+              {is_shared && (
                 <TooltipContent>
-                  {task?.is_shared && (
-                    <p className="text-sm">
-                      You cannot edit this task because it is being shared with
-                      you. <br />
-                      Only the author can edit it.
-                    </p>
-                  )}
+                  <p className="text-sm">
+                    You cannot edit this task because it is being shared with
+                    you. <br />
+                    Only the author can edit it.
+                  </p>
                 </TooltipContent>
               )}
             </Tooltip>
@@ -153,19 +181,28 @@ const TaskHeader = ({ task, onEdit }) => {
       <div className="flex flex-wrap gap-2 sm:gap-4">
         <Badge variant="outline" className="gap-1 text-sm sm:text-sm">
           <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-          {task?.due_date ? formatDate(task?.due_date) : "No due date"}
+          {due_date ? formatDate(due_date) : "No due date"}
         </Badge>
         <Badge className="bg-red-100 text-red-500 text-sm sm:text-sm">
-          {task?.priorities?.level || "No priority"}
+          {priorities?.level || "No priority"}
         </Badge>
         <Badge className="bg-blue-100 text-blue-500 text-sm sm:text-sm">
-          {task?.statuses?.name || "No status"}
+          {statuses?.name || "No status"}
         </Badge>
       </div>
 
+      <EditTask
+        editDialogOpen={editDialogOpen}
+        setEditDialogOpen={setEditDialogOpen}
+        taskData={taskData}
+        setTaskData={setTaskData}
+        isUpdating={isUpdating}
+        handleSubmitEdit={handleSubmitEdit}
+      />
+
       <TaskShareDialog
-        taskId={task?.id}
-        isShared={task?.is_shared}
+        taskId={id}
+        isShared={is_shared}
         open={shareOpen}
         setOpen={setShareOpen}
       />

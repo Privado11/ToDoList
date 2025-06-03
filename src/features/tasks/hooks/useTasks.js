@@ -156,6 +156,68 @@ export const useTasks = () => {
     [selectedTask?.id]
   );
 
+  const completeTask = useCallback(
+    async (id) => {
+      if (!id || !user) return;
+
+      const currentTask = tasks.find((task) => task.id === id);
+      if (!currentTask) return;
+
+      const optimisticTask = {
+        ...currentTask,
+        status_id: 3,
+        updated_at: new Date().toISOString(),
+      };
+
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === id ? optimisticTask : task))
+      );
+
+      toast.success("Task completed!", {
+        description: `"${currentTask.title}" marked as completed`,
+        action: {
+          label: "Dismiss",
+          onClick: () => toast.dismiss(),
+        },
+      });
+
+      try {
+        const response = await TaskService.completeTask(id, user.id);
+
+        if (response && !response.success) {
+          throw new Error(response.message || "Failed to complete task");
+        }
+
+        const confirmedTask = {
+          ...optimisticTask,
+          title: response?.task_title || optimisticTask.title,
+        };
+
+        setTasks((prevTasks) =>
+          prevTasks.map((task) => (task.id === id ? confirmedTask : task))
+        );
+
+        return confirmedTask;
+      } catch (err) {
+        setTasks((prevTasks) =>
+          prevTasks.map((task) => (task.id === id ? currentTask : task))
+        );
+
+        toast.dismiss();
+        toast.error("Error completing task", {
+          description: "Task reverted. Please try again.",
+          action: {
+            label: "Retry",
+            onClick: () => completeTask(id),
+          },
+        });
+
+        throw err;
+      }
+    },
+    [tasks, user?.id]
+  );
+
   const deleteTask = useCallback(
     async (id) => {
       const taskToDelete = tasks.find((task) => task.id === id);

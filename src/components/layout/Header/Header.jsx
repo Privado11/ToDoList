@@ -15,7 +15,7 @@ function Header() {
     <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/95 px-4 md:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full">
       <div className="flex items-center gap-4 w-full">
         <Link
-          to="/"
+          to="/dashboard"
           className="hidden lg:flex items-center gap-2 font-semibold"
         >
           <CheckSquare className="h-6 w-6" />

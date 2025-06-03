@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DialogConfirmation } from "../../../view/DialogConfirmation";
-import { useTaskContext } from "@/context/TaskContext";
+
 import {
   AttachmentSelectList,
   FileUploadArea,
@@ -12,47 +12,43 @@ import {
   UploadingFilesList,
 } from "@/features";
 import { Loader2 } from "lucide-react";
+import { useTaskContext } from "@/context";
 
 function NewTaskPage() {
   const {
     createTask,
-    updateTask,
     isCreating,
-    isUpdating,
+    attachments,
     uploadAttachment,
     deleteAttachment,
-    attachments,
+    reassignAttachmentsToTask,
+    resetAttachments,
   } = useTaskContext();
-  const location = useLocation();
+
   const navigate = useNavigate();
-  const fromPage = location.state?.from || "/dashboard";
-  const selectedTask = location.state?.selectedTask;
+
   const [selectedAttachments, setSelectedAttachments] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const initialTaskState = selectedTask || {
+  const [task, setTask] = useState({
     title: "",
     description: "",
     category_id: 4,
     due_date: null,
     status_id: 1,
     priority_id: 1,
-    completed: false,
-  };
+  });
 
-  const [task, setTask] = useState(initialTaskState);
   const [uploading, setUploading] = useState([]);
 
-
-  const isProcessing = isCreating || isUpdating || uploading.length > 0;
+  const isProcessing = isCreating || uploading.length > 0;
 
   useEffect(() => {
     if (isSubmitting && !isProcessing) {
-      navigate(fromPage);
-      setIsSubmitting(false);
+      navigate("/dashboard");
     }
-  }, [isProcessing, isSubmitting, navigate]);
+  }, [isProcessing, navigate, isSubmitting]);
 
   const handleCancelUpload = (uploadId) => {
     setUploading((prev) => prev.filter((item) => item.id !== uploadId));
@@ -83,7 +79,7 @@ function NewTaskPage() {
         );
       }, 300);
 
-      await uploadAttachment(file);
+      await uploadAttachment(file, "temp");
 
       clearInterval(progressInterval);
 
@@ -127,37 +123,36 @@ function NewTaskPage() {
   };
 
   const handleSubmitForm = async () => {
-    if (task?.title.trim() === "") {
-      alert("Task title is required!");
-      return;
-    }
-
     try {
       setIsSubmitting(true);
 
+      
       if (selectedAttachments.length > 0) {
         await handleDeleteAttachment(selectedAttachments);
       }
 
-      if (selectedTask) {
-        await updateTask(selectedTask.id, task, "detailed");
-      } else {
-        await createTask(task);
+      
+      const newTask = await createTask(task);
+
+     
+      if (attachments.length > 0 && newTask?.id) {
+        await reassignAttachmentsToTask(newTask.id);
       }
     } catch (error) {
+      console.error("Error creating task:", error);
       setIsSubmitting(false);
-      alert("Error saving task: " + error.message);
     }
   };
 
   const handleCancel = () => {
-    navigate(fromPage);
+    resetAttachments();
+    navigate("/dashboard");
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
 
-    if (selectedAttachments.length > 0 && selectedTask) {
+    if (selectedAttachments.length > 0) {
       setShowDeleteConfirmation(true);
     } else {
       handleSubmitForm();
@@ -168,9 +163,7 @@ function NewTaskPage() {
     <div>
       <Card className="max-w-2xl mx-auto border-none">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold">
-            {selectedTask ? "Edit Task" : "New Task"}
-          </CardTitle>
+          <CardTitle className="text-3xl font-bold">{"New Task"}</CardTitle>
         </CardHeader>
         <CardContent>
           <form className="space-y-6" onSubmit={onSubmit}>
@@ -212,10 +205,8 @@ function NewTaskPage() {
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {selectedTask ? "Updating..." : "Saving..."}
+                    {"Saving..."}
                   </>
-                ) : selectedTask ? (
-                  "Update Task"
                 ) : (
                   "Save Task"
                 )}
@@ -229,9 +220,9 @@ function NewTaskPage() {
           onClose={() => setShowDeleteConfirmation(false)}
           onConfirm={handleSubmitForm}
           title="Confirm file deletion"
-          description={`You have selected ${selectedAttachments.length} file(s). When you update this task, these files will be permanently deleted. Do you want to continue?`}
+          description={`You have selected ${selectedAttachments.length} file(s). When you create this task, these files will be permanently deleted. Do you want to continue?`}
           cancelText="Cancel"
-          confirmText="Yes, delete and update"
+          confirmText="Yes, delete and create"
         />
       </Card>
     </div>

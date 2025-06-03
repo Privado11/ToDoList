@@ -12,57 +12,11 @@ class AttachmentService extends BaseService {
     created_at
   `;
 
-  static ALLOWED_FILE_TYPES = [
-
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "image/svg+xml",
-    "image/webp",
-    "image/bmp",
-    "image/tiff",
-
-
-    "application/pdf",
-    "text/plain",
-
-
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
-
-
-    "application/vnd.ms-excel", 
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", 
-
-    
-    "application/vnd.ms-powerpoint", 
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-
-   
-    "application/zip", 
-    "application/x-rar-compressed", 
-    "application/x-7z-compressed", 
-    "application/gzip", 
-    "application/x-tar", 
-    "application/x-bzip", 
-    "application/x-bzip2", 
-    "application/vnd.rar",
-    "application/x-zip-compressed", 
-  ];
-
-  static MAX_FILE_SIZE = 10 * 1024 * 1024; 
+  static MAX_FILE_SIZE = 10 * 1024 * 1024;
 
   static validateFile(file) {
     if (!file) {
       throw new Error("File is required");
-    }
-
-    if (!this.ALLOWED_FILE_TYPES.includes(file.type)) {
-      throw new Error(
-        `Invalid file type. Allowed types: ${this.ALLOWED_FILE_TYPES.join(
-          ", "
-        )}`
-      );
     }
 
     if (file.size > this.MAX_FILE_SIZE) {
@@ -74,7 +28,7 @@ class AttachmentService extends BaseService {
     }
   }
 
-  static async uploadAttachment(file, taskId) {
+  static async uploadAttachment(file, taskId, temp = false) {
     try {
       this.validateFile(file);
       this.validateRequiredId(taskId, "Task ID");
@@ -91,29 +45,31 @@ class AttachmentService extends BaseService {
 
       this.handleError(error, "Error uploading attachment");
 
-      console.log("Uploaded attachment data:", data);
+      
 
       const {
         data: { publicUrl },
       } = supabase.storage.from("attachments").getPublicUrl(data.path);
 
-      console.log("Public URL:", data.path);
+     
+      const currentTaskId = temp ? null : taskId;
 
       const attachmentData = {
         file_name: file.name,
         file_type: file.type,
         file_size: file.size,
         file_url: publicUrl,
-        task_id: taskId,
+        task_id: currentTaskId,
+        is_temp: temp,
         created_at: new Date().toISOString(),
       };
 
-      console.log("Create attachment data:", attachmentData);
+    
 
       const attachment = await this.createAttachment(attachmentData);
       return attachment;
     } catch (error) {
-      console.error("Error uploading attachment:", error);
+     
       throw this.formatError(error);
     }
   }
@@ -133,6 +89,21 @@ class AttachmentService extends BaseService {
     } catch (error) {
       console.error("Error in createAttachment:", error);
       throw this.formatError(error);
+    }
+  }
+
+  static async reassignAttachmentsToTask(realTaskId, attachment) {
+    try {
+      const { data, error } = await supabase
+        .from("attachments")
+        .update({ task_id: realTaskId, is_temp: false })
+        .eq("id", attachment.id)
+        .select();
+
+      if (error) throw error;
+      return data[0];
+    } catch (err) {
+      console.error("Error reassigning attachments:", err);
     }
   }
 
@@ -191,21 +162,18 @@ class AttachmentService extends BaseService {
     this.validateRequiredId(id, "Attachment ID");
 
     try {
-      // Obtener información del adjunto
       const attachment = await this.getAttachmentById(id);
       if (!attachment) {
         throw new Error(`Attachment with ID ${id} not found`);
       }
 
-      // Extraer y decodificar la ruta del archivo
       const fileUrl = new URL(attachment.file_url);
       const encodedFileName = fileUrl.pathname.split("/").pop();
-      const fileName = decodeURIComponent(encodedFileName); // Decodifica %20 y otros caracteres URL
+      const fileName = decodeURIComponent(encodedFileName);
 
       const filePath = `${attachment.task_id}/${fileName}`;
       console.log(`Attempting to delete file: ${filePath}`);
 
-      // Eliminar el archivo del bucket
       const { error: storageError } = await supabase.storage
         .from("attachments")
         .remove([filePath]);
@@ -219,7 +187,6 @@ class AttachmentService extends BaseService {
         );
       }
 
-      // Eliminar el registro de la base de datos
       const { error: dbError } = await supabase
         .from("attachments")
         .delete()
@@ -242,80 +209,6 @@ class AttachmentService extends BaseService {
       code: error.code || "UNKNOWN_ERROR",
       details: error.details || null,
     };
-  }
-
-  static async bulkDeleteAttachments(ids) {
-    if (!Array.isArray(ids) || ids.length === 0) {
-      throw new Error("Must provide an array of attachment IDs");
-    }
-
-    try {
-      // Obtener información de todos los adjuntos
-      const { data: attachments, error: fetchError } = await supabase
-        .from("attachments")
-        .select("id, file_url, task_id")
-        .in("id", ids);
-
-      if (fetchError) {
-        throw new Error(
-          `Error fetching attachments for bulk delete: ${fetchError.message}`
-        );
-      }
-
-      if (!attachments || attachments.length === 0) {
-        return true; // Nada que eliminar
-      }
-
-      // Construir rutas de archivo para eliminación
-      const filePaths = attachments.map((attachment) => {
-        try {
-          const fileUrl = new URL(attachment.file_url);
-          const encodedFileName = fileUrl.pathname.split("/").pop();
-          const fileName = decodeURIComponent(encodedFileName); // Decodifica %20 y otros caracteres URL
-          return `${attachment.task_id}/${fileName}`;
-        } catch (error) {
-          console.error(
-            `Error parsing URL for attachment ${attachment.id}:`,
-            error
-          );
-          // Si hay error al parsear la URL, intentamos con el método básico
-          const parts = attachment.file_url.split("/");
-          const encodedFileName = parts[parts.length - 1];
-          const fileName = decodeURIComponent(encodedFileName);
-          return `${attachment.task_id}/${fileName}`;
-        }
-      });
-
-      console.log("File paths to delete:", filePaths);
-
-      // Eliminar archivos del almacenamiento
-      const { error: storageError } = await supabase.storage
-        .from("attachments")
-        .remove(filePaths);
-
-      if (storageError) {
-        throw new Error(
-          `Error deleting files from storage: ${storageError.message}`
-        );
-      }
-
-      // Eliminar registros de la base de datos
-      const { error: dbError } = await supabase
-        .from("attachments")
-        .delete()
-        .in("id", ids);
-
-      if (dbError) {
-        throw new Error(
-          `Error deleting attachment records: ${dbError.message}`
-        );
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Error bulk deleting attachments:", error);
-      throw this.formatError(error);
-    }
   }
 }
 

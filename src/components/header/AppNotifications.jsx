@@ -3,6 +3,7 @@ import {
   Bell,
   Check,
   Clock,
+  CircleCheckBig,
   MessageSquare,
   Share,
   X,
@@ -11,10 +12,13 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import NotificationsPopover from "./NotificationsPopover";
-import { useFriendShipContext, useNotification, usePopover, useTaskContext } from "@/context";
+import {
+  useFriendShipContext,
+  useNotification,
+  usePopover,
+  useTaskContext,
+} from "@/context";
 import { useNavigate } from "react-router-dom";
-;
-
 const AppNotifications = () => {
   const {
     notifications,
@@ -27,7 +31,8 @@ const AppNotifications = () => {
     refreshNotifications,
   } = useNotification();
   const { acceptFriendRequest, rejectFriendRequest } = useFriendShipContext();
-  const { acceptTaskShare, rejectedTaskShare } = useTaskContext();
+  const { acceptTaskShare, rejectedTaskShare, setSelectedTask } =
+    useTaskContext();
   const navigate = useNavigate();
 
   const { activePopover, openPopover, closePopover, isPopoverOpen } =
@@ -46,6 +51,8 @@ const AppNotifications = () => {
     if (!notification.is_read) {
       await markAsRead(notification.id);
     }
+
+    closePopover();
 
     const navigationHandlers = {
       task_comment: () => {
@@ -135,6 +142,8 @@ const AppNotifications = () => {
 
   const getNotificationIcon = (type) => {
     switch (type) {
+      case "task_completed":
+        return <CircleCheckBig className="h-4 w-4 text-green-500" />;
       case "task_comment":
         return <MessageSquare className="h-4 w-4 text-blue-500" />;
       case "task_share_request":
@@ -150,6 +159,22 @@ const AppNotifications = () => {
 
   const getNotificationContent = (notification) => {
     switch (notification.type) {
+      case "task_completed":
+        return {
+          name: notification.content.completed_by,
+          nameLetter: notification.content.completed_by[0],
+          message: (
+            <>
+              has completed the task{" "}
+              <strong title={notification.content.task_title}>
+                {notification.content.task_title.length > 20
+                  ? `${notification.content.task_title.substring(0, 20)}...`
+                  : notification.content.task_title}
+              </strong>
+              .
+            </>
+          ),
+        };
       case "task_comment":
         return {
           name: notification.content.from_full_name,

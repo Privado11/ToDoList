@@ -12,7 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Tooltip,
   TooltipContent,
@@ -22,12 +22,10 @@ import {
 
 function Sidebar({ setActiveFilter }) {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
 
   const handleFilterClick = (priority) => {
     setActiveFilter(priority);
     setIsOpen(false);
-    navigate("/");
   };
 
   const ComingSoonItem = ({ icon, label }) => (
@@ -70,9 +68,8 @@ function Sidebar({ setActiveFilter }) {
         } lg:translate-x-0 transition-transform duration-300 ease-in-out fixed inset-y-0 left-0 z-40 w-64 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:static`}
       >
         <div className="sticky top-0 z-10 flex h-16 lg:hidden items-center border-b  px-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          {/* Show app name in sidebar only on mobile/tablet, hide on large screens */}
           <Link
-            to="/"
+            to="/dashboard"
             className="flex items-center gap-2 font-semibold lg:hidden"
           >
             <CheckSquare className="h-6 w-6" />
@@ -91,7 +88,7 @@ function Sidebar({ setActiveFilter }) {
                   className="w-full justify-start gap-2"
                   asChild
                 >
-                  <Link to="/">
+                  <Link to="/dashboard">
                     <Inbox className="h-4 w-4" />
                     Dashboard
                   </Link>

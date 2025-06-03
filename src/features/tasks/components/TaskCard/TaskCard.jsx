@@ -1,17 +1,15 @@
 import {
   Calendar,
-  Users,
   MoreVertical,
   Edit,
   Share2,
   Trash2,
   CheckCircle,
+  SquareCheckBig,
   Clock,
   RotateCw,
   Flag,
   UserPlus,
-  CalendarDays,
-  Loader2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,7 +19,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
@@ -35,18 +32,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { DialogConfirmation } from "@/view/DialogConfirmation";
 import { TaskShareDialog } from "@/features/sharing";
-import { TaskForm } from "@/features";
+import { EditTask } from "@/features";
 import { useTaskContext } from "@/context/TaskContext";
 import SharedTaskUserList from "./SharedTaskUserList";
 import CreatorInfo from "./CreatorInfo";
@@ -131,7 +122,6 @@ const TaskCard = ({
     due_date,
   });
 
-
   useEffect(() => {
     setTaskData({
       id,
@@ -143,7 +133,6 @@ const TaskCard = ({
       due_date,
     });
   }, [id, title, description, categories, statuses, priorities, due_date]);
-
 
   useEffect(() => {
     if (editDialogOpen) {
@@ -190,18 +179,11 @@ const TaskCard = ({
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
 
-    if (taskData?.title.trim() === "") {
-      alert("Task title is required!");
-      return;
-    }
-
     try {
       await updateTask(id, taskData);
       setEditDialogOpen(false);
     } catch (error) {
-      alert("Error updating task: " + error.message);
-    } finally {
-    }
+    } 
   };
 
   const formatDate = (dateString) => {
@@ -299,6 +281,19 @@ const TaskCard = ({
                       disabled={is_shared}
                       className="gap-2 cursor-pointer"
                     >
+                      <SquareCheckBig className="h-4 w-4" />
+                      <span>Complete Task</span>
+                      {is_shared && (
+                        <span className="text-sm text-gray-500 ml-2">
+                          (Author only)
+                        </span>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleEdit}
+                      disabled={is_shared}
+                      className="gap-2 cursor-pointer"
+                    >
                       <Edit className="h-4 w-4" />
                       <span>Edit</span>
                       {is_shared && (
@@ -375,53 +370,19 @@ const TaskCard = ({
           </div>
         </CardContent>
         <CardFooter className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 px-4 py-3">
-         <SharedTaskUserList users={filteredSharedUsers} />
+          <SharedTaskUserList users={filteredSharedUsers} />
 
-          {is_shared && (
-           <CreatorInfo creator={shared_by} date={create_at} />
-          )}
+          {is_shared && <CreatorInfo creator={shared_by} date={create_at} />}
         </CardFooter>
       </Card>
-
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center justify-between">
-              <span>Edit Task</span>
-            </DialogTitle>
-          </DialogHeader>
-
-          <form className="space-y-6" onSubmit={handleSubmitEdit}>
-            <TaskForm task={taskData} setTask={setTaskData} />
-
-            <div className="flex justify-end gap-4">
-              <Button
-                variant="outline"
-                className="text-base font-medium py-2"
-                onClick={() => setEditDialogOpen(false)}
-                disabled={isUpdating}
-                type="button"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="text-base font-medium py-2"
-                disabled={isUpdating}
-              >
-                {isUpdating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  "Update Task"
-                )}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <EditTask
+        editDialogOpen={editDialogOpen}
+        setEditDialogOpen={setEditDialogOpen}
+        taskData={taskData}
+        setTaskData={setTaskData}
+        isUpdating={isUpdating}
+        handleSubmitEdit={handleSubmitEdit}
+      />
 
       <TaskShareDialog taskId={id} open={shareOpen} setOpen={setShareOpen} />
 

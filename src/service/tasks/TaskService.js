@@ -13,7 +13,6 @@ class TaskService extends BaseService {
       ...taskData
     } = data;
 
-
     if (taskData.title) {
       taskData.title =
         taskData.title.charAt(0).toUpperCase() + taskData.title.slice(1);
@@ -104,6 +103,25 @@ class TaskService extends BaseService {
       return data[0];
     } catch (error) {
       console.error("Error updating task:", error);
+      throw error;
+    }
+  }
+
+  static async completeTask(id, userId) {
+    this.validateRequiredId(id, "Task ID");
+    this.validateRequiredId(userId, "User ID");
+
+
+    try {
+      const { data, error } = await this.supabase.rpc("complete_task", {
+        task_id_param: id,
+        user_id_param: userId, 
+      });
+
+      this.handleError(error, "Error completing task");
+      return data;
+    } catch (error) {
+      console.error("Error completing task:", error);
       throw error;
     }
   }

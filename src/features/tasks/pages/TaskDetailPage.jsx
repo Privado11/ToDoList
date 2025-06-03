@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback, use } from "react";
-import { ArrowLeft} from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate, useParams } from "react-router-dom";
@@ -19,28 +19,35 @@ function TaskDetailPage() {
     attachments,
     usersInSharedTasks,
     comments,
+    updateTask,
+    isUpdating,
   } = useTaskContext();
 
   const navigate = useNavigate();
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [highlightedComment, setHighlightedComment] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     const hash = window.location.hash;
     if (hash.startsWith("#comment-")) {
       const commentId = hash.replace("#comment-", "");
       setHighlightedComment(commentId);
+    } else {
+      setHighlightedComment(null);
     }
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     let isMounted = true;
 
     const fetchTask = async () => {
-      if (!id || !isInitialLoad) return;
+      if (!id) return;
+
+      setLoading(true);
+      setError(null);
 
       try {
         await getTaskById(id);
@@ -51,7 +58,6 @@ function TaskDetailPage() {
       } finally {
         if (isMounted) {
           setLoading(false);
-          setIsInitialLoad(false);
         }
       }
     };
@@ -61,21 +67,19 @@ function TaskDetailPage() {
     return () => {
       isMounted = false;
     };
-  }, [id, getTaskById, isInitialLoad]);
+  }, [id, getTaskById]);
 
   const handleBack = (e) => {
     e.stopPropagation();
     navigate("/dashboard");
   };
 
-  const handleEdit = (e) => {
-    e.stopPropagation();
-    navigate(`/edit-task/${id}`, {
-      state: { from:`/task-detail/${id}`, selectedTask },
-    });
+  const handleEdit = async (updatedTaskData) => {
+    try {
+      await updateTask(id, updatedTaskData, "detailed");
+      setEditDialogOpen(false);
+    } catch (error) {}
   };
-
-
 
   if (loading) {
     return (
@@ -122,7 +126,13 @@ function TaskDetailPage() {
           <ArrowLeft className="w-4 h-4 mr-2" /> Back
         </Button>
 
-        <TaskHeader task={selectedTask} onEdit={handleEdit} />
+        <TaskHeader
+          {...selectedTask}
+          onEdit={handleEdit}
+          editDialogOpen={editDialogOpen}
+          setEditDialogOpen={setEditDialogOpen}
+          isUpdating={isUpdating}
+        />
 
         <TaskDescription description={selectedTask?.description} />
 
