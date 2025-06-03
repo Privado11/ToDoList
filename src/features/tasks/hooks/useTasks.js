@@ -166,6 +166,7 @@ export const useTasks = () => {
       const optimisticTask = {
         ...currentTask,
         status_id: 3,
+        statuses: {id: 3, name: "Completed"},
         updated_at: new Date().toISOString(),
       };
 
@@ -302,6 +303,7 @@ export const useTasks = () => {
     fetchTasks,
     getTaskById,
     createTask,
+    completeTask,
     updateTask,
     deleteTask,
     completedTasks,

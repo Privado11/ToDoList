@@ -104,7 +104,7 @@ const TaskCard = ({
   shared_tasks,
 }) => {
   const navigate = useNavigate();
-  const { updateTask, isUpdating, deleteTask, leaveSharedTask } =
+  const { updateTask, isUpdating, deleteTask, leaveSharedTask, completeTask } =
     useTaskContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -157,6 +157,11 @@ const TaskCard = ({
     }
   };
 
+  const handleComplete = (e) => {
+    e.stopPropagation();
+    completeTask(id);
+  };
+
   const handleEdit = (e) => {
     e.stopPropagation();
     setEditDialogOpen(true);
@@ -182,8 +187,7 @@ const TaskCard = ({
     try {
       await updateTask(id, taskData);
       setEditDialogOpen(false);
-    } catch (error) {
-    } 
+    } catch (error) {}
   };
 
   const formatDate = (dateString) => {
@@ -277,8 +281,8 @@ const TaskCard = ({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-52">
                     <DropdownMenuItem
-                      onClick={handleEdit}
-                      disabled={is_shared}
+                      onClick={handleComplete}
+                      disabled={is_shared || statuses?.name === "Completed"}
                       className="gap-2 cursor-pointer"
                     >
                       <SquareCheckBig className="h-4 w-4" />
