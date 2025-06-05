@@ -28,6 +28,26 @@ class SubscriptionService extends BaseService {
       }
     };
 
+     const updatedStatusTask = this.supabase
+       .channel(`updated-status-tasks-${userId}`)
+       .on(
+         "postgres_changes",
+         {
+           event: "UPDATE",
+           schema: "public",
+           table: "tasks",
+           columns: ["status"],
+         },
+         handleTaskUpdate
+       )
+       .subscribe((status) => {
+         if (status === "SUBSCRIBED") {
+           console.log(
+             `Subscribed to shared task updates as recipient for user ${userId}`
+           );
+         }
+       });
+
 
     const recipientSubscription = this.supabase
       .channel(`shared-tasks-recipient-${userId}`)
@@ -73,6 +93,7 @@ class SubscriptionService extends BaseService {
       });
 
     this.subscriptions.tasks.set(userId, {
+      updatedStatusTask,
       recipientSubscription,
       senderSubscription,
       handlers: {
@@ -82,7 +103,7 @@ class SubscriptionService extends BaseService {
       },
     });
 
-    return { recipientSubscription, senderSubscription };
+    return { updatedStatusTask, recipientSubscription, senderSubscription };
   }
 
   static subscribeToComments(taskId, { onCommentsChange, getComments }) {

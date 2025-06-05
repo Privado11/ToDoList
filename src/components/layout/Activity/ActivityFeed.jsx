@@ -48,7 +48,7 @@ function ActivityFeed() {
       case "update_task_status":
         return (
           <>
-            <strong>{notification.content.from_full_name}</strong> completed "
+            <strong>{notification.content.completed_by}</strong> completed "
             {shortTitle}"
           </>
         );
