@@ -46,12 +46,14 @@ function ActivityFeed() {
           </>
         );
       case "update_task_status":
+        const isCompleted = notification.content.new_status === "Completed";
         return (
           <>
-            <strong>{notification.content.completed_by}</strong> completed "
-            {shortTitle}"
+            <strong>{notification.content.changed_by}</strong>{" "}
+            {isCompleted ? "completed" : "reopened"} "{shortTitle}"
           </>
         );
+
       case "task_created":
         return (
           <>

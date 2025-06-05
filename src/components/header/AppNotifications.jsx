@@ -139,33 +139,41 @@ const AppNotifications = () => {
       });
     }
   };
+const getNotificationIcon = (notification) => {
+  const { type, content } = notification;
 
-  const getNotificationIcon = (type) => {
-    switch (type) {
-      case "update_task_status":
+  switch (type) {
+    case "update_task_status":
+    
+      if (content?.new_status === "Completed") {
         return <CircleCheckBig className="h-4 w-4 text-green-500" />;
-      case "task_comment":
-        return <MessageSquare className="h-4 w-4 text-blue-500" />;
-      case "task_share_request":
-        return <Share className="h-4 w-4 text-purple-500" />;
-      case "task_share_accepted":
-        return <Share className="h-4 w-4 text-purple-500" />;
-      case "friend_request":
-        return <UserPlus className="h-4 w-4 text-green-500" />;
-      default:
-        return <Bell className="h-4 w-4 text-gray-500" />;
-    }
-  };
+      } else  {
+        return <Clock className="h-4 w-4 text-yellow-500" />; 
+      } 
+
+    case "task_comment":
+      return <MessageSquare className="h-4 w-4 text-blue-500" />;
+    case "task_share_request":
+    case "task_share_accepted":
+      return <Share className="h-4 w-4 text-purple-500" />;
+    case "friend_request":
+      return <UserPlus className="h-4 w-4 text-green-500" />;
+    default:
+      return <Bell className="h-4 w-4 text-gray-500" />;
+  }
+};
+
 
   const getNotificationContent = (notification) => {
     switch (notification.type) {
       case "update_task_status":
+        const isCompleted = notification.content.new_status === "Completed";
         return {
-          name: notification.content.completed_by,
-          nameLetter: notification.content.completed_by[0],
+          name: notification.content.changed_by,
+          nameLetter: notification.content.changed_by[0],
           message: (
             <>
-              has completed the task{" "}
+              has {isCompleted ? "completed" : "reopened"} the task{" "}
               <strong title={notification.content.task_title}>
                 {notification.content.task_title.length > 20
                   ? `${notification.content.task_title.substring(0, 20)}...`
@@ -175,6 +183,7 @@ const AppNotifications = () => {
             </>
           ),
         };
+
       case "task_comment":
         return {
           name: notification.content.from_full_name,
@@ -286,7 +295,7 @@ const AppNotifications = () => {
                       </AvatarFallback>
                     </Avatar>
                     <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
-                      {getNotificationIcon(notification.type)}
+                      {getNotificationIcon(notification)}
                     </div>
                   </div>
 
