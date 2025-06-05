@@ -107,15 +107,14 @@ class TaskService extends BaseService {
     }
   }
 
-  static async completeTask(id, userId) {
+  static async updateTaskStatus(id, userId) {
     this.validateRequiredId(id, "Task ID");
     this.validateRequiredId(userId, "User ID");
 
-
     try {
-      const { data, error } = await this.supabase.rpc("complete_task", {
+      const { data, error } = await this.supabase.rpc("switch_task_status", {
         task_id_param: id,
-        user_id_param: userId, 
+        user_id_param: userId,
       });
 
       this.handleError(error, "Error completing task");

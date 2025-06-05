@@ -15,7 +15,7 @@ function ActivityFeed() {
   const navigate = useNavigate();
 
   const latestNotifications = notifications
-    ?.filter((n) => n.type === "task_completed" || n.type === "task_comment")
+    ?.filter((n) => n.type === "update_task_status" || n.type === "task_comment")
     .slice(0, 3);
 
   const handleNotificationClick = async (notification) => {
@@ -45,7 +45,7 @@ function ActivityFeed() {
             "{shortTitle}"
           </>
         );
-      case "task_completed":
+      case "update_task_status":
         return (
           <>
             <strong>{notification.content.from_full_name}</strong> completed "

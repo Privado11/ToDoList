@@ -156,34 +156,43 @@ export const useTasks = () => {
     [selectedTask?.id]
   );
 
-  const completeTask = useCallback(
+  const updateTaskStatus = useCallback(
     async (id) => {
       if (!id || !user) return;
 
       const currentTask = tasks.find((task) => task.id === id);
       if (!currentTask) return;
 
+      const isCompleted = currentTask.statuses.name === "Completed";
+
       const optimisticTask = {
         ...currentTask,
-        status_id: 3,
-        statuses: {id: 3, name: "Completed"},
+        status_id: isCompleted ? 1 : 3, 
+        statuses: {
+          id: isCompleted ? 1 : 3,
+          name: isCompleted ? "Pending" : "Completed",
+        },
         updated_at: new Date().toISOString(),
       };
+
 
       setTasks((prevTasks) =>
         prevTasks.map((task) => (task.id === id ? optimisticTask : task))
       );
 
-      toast.success("Task completed!", {
-        description: `"${currentTask.title}" marked as completed`,
+      toast.success(`Task ${isCompleted ? "reopened" : "completed"}!`, {
+        description: `"${currentTask.title}" marked as ${
+          isCompleted ? "pending" : "completed"
+        }`,
         action: {
           label: "Dismiss",
           onClick: () => toast.dismiss(),
         },
       });
 
+
       try {
-        const response = await TaskService.completeTask(id, user.id);
+        const response = await TaskService.updateTaskStatus(id, user.id);
 
         if (response && !response.success) {
           throw new Error(response.message || "Failed to complete task");
@@ -209,7 +218,7 @@ export const useTasks = () => {
           description: "Task reverted. Please try again.",
           action: {
             label: "Retry",
-            onClick: () => completeTask(id),
+            onClick: () => updateTaskStatus(id),
           },
         });
 
@@ -303,7 +312,7 @@ export const useTasks = () => {
     fetchTasks,
     getTaskById,
     createTask,
-    completeTask,
+    updateTaskStatus,
     updateTask,
     deleteTask,
     completedTasks,

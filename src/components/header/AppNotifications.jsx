@@ -65,7 +65,7 @@ const AppNotifications = () => {
           );
         }
       },
-      task_completed: () => {
+      update_task_status: () => {
         if (notification.content.task_id) {
           navigate(`/task-detail/${notification.content.task_id}`);
         }
@@ -142,7 +142,7 @@ const AppNotifications = () => {
 
   const getNotificationIcon = (type) => {
     switch (type) {
-      case "task_completed":
+      case "update_task_status":
         return <CircleCheckBig className="h-4 w-4 text-green-500" />;
       case "task_comment":
         return <MessageSquare className="h-4 w-4 text-blue-500" />;
@@ -159,7 +159,7 @@ const AppNotifications = () => {
 
   const getNotificationContent = (notification) => {
     switch (notification.type) {
-      case "task_completed":
+      case "update_task_status":
         return {
           name: notification.content.completed_by,
           nameLetter: notification.content.completed_by[0],
