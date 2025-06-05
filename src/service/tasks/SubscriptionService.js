@@ -36,14 +36,14 @@ class SubscriptionService extends BaseService {
            event: "UPDATE",
            schema: "public",
            table: "tasks",
-           columns: ["status"],
+           columns: ["status_id"],
          },
          handleTaskUpdate
        )
        .subscribe((status) => {
          if (status === "SUBSCRIBED") {
            console.log(
-             `Subscribed to shared task updates as recipient for user ${userId}`
+             `Subscribed to task updates status for user ${userId}`
            );
          }
        });
