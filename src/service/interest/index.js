@@ -1,0 +1,1 @@
+export { getAvailableInterests } from "./interestService";

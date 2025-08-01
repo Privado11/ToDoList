@@ -1,0 +1,52 @@
+[33mac51853[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Feature: notifications
+[33m9e24a98[m Feature: notifications
+[33m5fc2d19[m Feature: notifications
+[33mecb4459[m Feature: notifications
+[33mc230ea1[m Feature: Messages
+[33m11a5212[m Feature: Messages
+[33m6d44c03[m Feature: Messages
+[33m64845e6[m Mejoras
+[33mee76698[m Mejoras
+[33m978d7b7[m Mejoras en la estructura de carpetas
+[33me22d9bd[m Mejorada la estructura de carpetas
+[33mab29697[m Actualización
+[33m3cd83b2[m Actualizaciones
+[33m5b2ed7d[m Completado el inicio de sesion
+[33m46f9dd5[m Completado el inicio de sesion
+[33m8554890[m Mejoras login
+[33mc5ad3b6[m Pantalla de inicio
+[33m7067823[m Updated: Registro de usuarios
+[33m0098121[m Updated: Actualización pantalla de inicio
+[33m58dfffc[m home screen update
+[33m510a61d[m Migrate project from Create React App to Vite
+[33m99a9164[m[33m ([m[1;31morigin/deploy-netlify[m[33m)[m Implementadas mejoras: creación de BD, inicio de sesión, ver y editar tareas, agregar descripción, hora de finalización y eliminar tarea.
+[33ma114633[m Implementadas mejoras: creación de BD, inicio de sesión, ver y editar tareas, agregar descripción, hora de finalización y eliminar tarea.
+[33m05868d9[m Implementadas mejoras: creación de BD, inicio de sesión, ver y editar tareas, agregar descripción, hora de finalización y eliminar tarea.
+[33mbe79c19[m Implementadas mejoras: creación de BD, inicio de sesión, ver y editar tareas, agregar descripción, hora de finalización y eliminar tarea.
+[33m89804c4[m Implementadas mejoras: creación de BD, inicio de sesión, ver y editar tareas, agregar descripción, hora de finalización y eliminar tarea.
+[33mfdb7322[m Actualización
+[33m5ee5c3b[m Actualización
+[33mae214a8[m Actualización
+[33m8aa3096[m Actualización
+[33m1f04a10[m Mejoras
+[33m6e52b9e[m Reorganización de carpetas.
+[33mcff9452[m Se realizan pequeñas modificaciones de estilos responsive.
+[33m2948eb8[m Se realizan pequeñas modificaciones de estilos responsive.
+[33m28a06e3[m Se realizan pequeñas modificaciones de estilos.
+[33m1b9cc92[m corrección-
+[33m53618fe[m Corrección de color.
+[33m09d76c7[m Pequeño ajuste del Modal.
+[33m636dbe0[m Estilos task vacio.
+[33m3d2b62a[m Merge branch 'main' of https://github.com/Privado11/ToDoList
+[33mb63ef51[m Pequeños cambios.
+[33m484d679[m Delete README.md
+[33m4b044a6[m Cambio de iconos.
+[33mb968436[m Modificación
+[33m1730634[m Pequeña modificación.
+[33mf14b259[m Se terminan las funcionalidades. App 95% completada.
+[33m130b7b8[m Efectos de carga, modal y otros cambios.
+[33m5649d87[m Se agrego persistencia de datos.
+[33m5a7f2c8[m Se agregan más estilos y una primera parte del reponsive.
+[33m847e7ac[m Se empexaron a agregar estilos a los componentes.
+[33m348eda2[m Proyecto comenzado de ToDO List.
+[33mc739483[m Estructura base lista para empezar el curso

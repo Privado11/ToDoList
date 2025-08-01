@@ -1,0 +1,1 @@
+export { getPriorities } from "./priorityService";
